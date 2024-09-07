@@ -1,0 +1,468 @@
+city,city_ascii,lat,lng,admin_name,population,admin_name_english
+Warsaw,Warsaw,"52,23","21,0111",Mazowieckie,1860281,Mazovia
+Warszawa,Warszawa,"52,23","21,0111",Mazowieckie,1860281,Mazovia
+Kraków,Krakow,"50,0614","19,9372",Małopolskie,804237,Lesser Poland
+Wrocław,Wroclaw,"51,11","17,0325",Dolnośląskie,672929,Lower Silesia
+Łódź,Lodz,"51,7769","19,4547",Łódzkie,670642,Łódź Voivodeship
+Poznań,Poznan,"52,4083","16,9336",Wielkopolskie,546859,Greater Poland
+Gdańsk,Gdansk,"54,3475","18,6453",Pomorskie,486022,Pomerania
+Szczecin,Szczecin,"53,4325","14,5481",Zachodniopomorskie,396168,West Pomerania
+Bydgoszcz,Bydgoszcz,"53,1219","18,0003",Kujawsko-Pomorskie,337666,Kuyavian-Pomeranian
+Lublin,Lublin,"51,25","22,5667",Lubelskie,334681,Lublin Voivodeship
+Białystok,Bialystok,"53,1353","23,1456",Podlaskie,294242,Podlaskie
+Katowice,Katowice,"50,2625","19,0217",Śląskie,285711,Silesia
+Gdynia,Gdynia,"54,5175","18,54",Pomorskie,245222,Pomerania
+Zielona Góra,Zielona Gora,"51,9333","15,5",Lubuskie,216781,Lubusz
+Częstochowa,Czestochowa,"50,8","19,1167",Śląskie,213107,Silesia
+Radom,Radom,"51,4036","21,1567",Mazowieckie,201601,Mazovia
+Toruń,Torun,"53,0222","18,6111",Kujawsko-Pomorskie,198273,Kuyavian-Pomeranian
+Rzeszów,Rzeszow,"50,0333",22,Podkarpackie,195871,Subcarpathian
+Sosnowiec,Sosnowiec,"50,2833","19,1333",Śląskie,193660,Silesia
+Kielce,Kielce,"50,8742","20,6333",Świętokrzyskie,186894,Holy Cross
+Gliwice,Gliwice,"50,2833","18,6667",Śląskie,174016,Silesia
+Olsztyn,Olsztyn,"53,7778","20,4792",Warmińsko-Mazurskie,170225,Warmian-Masurian
+Bielsko-Biała,Bielsko-Biala,"49,8225","19,0444",Śląskie,169089,Silesia
+Zabrze,Zabrze,"50,3025","18,7781",Śląskie,158307,Silesia
+Bytom,Bytom,"50,3483","18,9156",Śląskie,153274,Silesia
+Ruda Śląska,Ruda Slaska,"50,2628","18,8536",Śląskie,133793,Silesia
+Rybnik,Rybnik,"50,0833","18,55",Śląskie,133772,Silesia
+Opole,Opole,"50,6667","17,9333",Opolskie,127387,Opole Voivodeship
+Tychy,Tychy,"50,1236","18,9867",Śląskie,124882,Silesia
+Gorzów Wielkopolski,Gorzow Wielkopolski,"52,7333","15,25",Lubuskie,119964,Lubusz
+Dąbrowa Górnicza,Dabrowa Gornicza,"50,3214","19,1872",Śląskie,116930,Silesia
+Elbląg,Elblag,"54,1667","19,4",Warmińsko-Mazurskie,115220,Warmian-Masurian
+Płock,Plock,"52,55","19,7",Mazowieckie,114594,Mazovia
+Tarnów,Tarnow,"50,0125","20,9886",Małopolskie,106259,Lesser Poland
+Koszalin,Koszalin,"54,2","16,1833",Zachodniopomorskie,105883,West Pomerania
+Włocławek,Wloclawek,"52,6592","19,0681",Kujawsko-Pomorskie,104705,Kuyavian-Pomeranian
+Wałbrzych,Walbrzych,"50,7667","16,2833",Dolnośląskie,104401,Lower Silesia
+Chorzów,Chorzow,"50,3","18,95",Śląskie,104193,Silesia
+Kalisz,Kalisz,"51,7575","18,08",Wielkopolskie,95905,Greater Poland
+Legnica,Legnica,"51,2083","16,1603",Dolnośląskie,94878,Lower Silesia
+Grudziądz,Grudziadz,"53,4875","18,755",Kujawsko-Pomorskie,90890,Kuyavian-Pomeranian
+Jaworzno,Jaworzno,"50,2044","19,27",Śląskie,88998,Silesia
+Słupsk,Slupsk,"54,4658","17,0292",Pomorskie,87660,Pomerania
+Jastrzębie-Zdrój,Jastrzebie-Zdroj,"49,95","18,5833",Śląskie,85050,Silesia
+Nowy Sącz,Nowy Sacz,"49,6239","20,6972",Małopolskie,81281,Lesser Poland
+Skarżysko-Kamienna,Skarzysko-Kamienna,"51,1167","20,9167",Świętokrzyskie,78636,Holy Cross
+Jelenia Góra,Jelenia Gora,"50,9033","15,7344",Dolnośląskie,77305,Lower Silesia
+Siedlce,Siedlce,"52,165","22,2714",Mazowieckie,76357,Mazovia
+Mysłowice,Myslowice,"50,2333","19,1333",Śląskie,72553,Silesia
+Piła,Pila,"53,15","16,7333",Wielkopolskie,71735,Greater Poland
+Ostrów Wielkopolski,Ostrow Wielkopolski,"51,6494","17,8164",Wielkopolskie,70725,Greater Poland
+Lubin,Lubin,"51,4","16,2",Dolnośląskie,70016,Lower Silesia
+Konin,Konin,"52,2167","18,2667",Wielkopolskie,69858,Greater Poland
+Inowrocław,Inowroclaw,"52,7931","18,2611",Kujawsko-Pomorskie,69576,Kuyavian-Pomeranian
+Piotrków Trybunalski,Piotrkow Trybunalski,"51,4","19,6833",Łódzkie,68978,Łódź Voivodeship
+Suwałki,Suwalki,"54,0989","22,9286",Podlaskie,68752,Podlaskie
+Stargard Szczeciński,Stargard Szczecinski,"53,3333","15,0333",Zachodniopomorskie,67348,West Pomerania
+Gniezno,Gniezno,"52,5358","17,5958",Wielkopolskie,65452,Greater Poland
+Pruszków,Pruszkow,"52,1667","20,8",Mazowieckie,65283,Mazovia
+Ostrowiec Świętokrzyski,Ostrowiec Swietokrzyski,"50,9333","21,4",Świętokrzyskie,64796,Holy Cross
+Siemianowice Śląskie,Siemianowice Slaskie,"50,2758","18,9858",Śląskie,64676,Silesia
+Głogów,Glogow,"51,6589","16,0803",Dolnośląskie,64261,Lower Silesia
+Pabianice,Pabianice,"51,65","19,3833",Łódzkie,62954,Łódź Voivodeship
+Żory,Zory,"50,05","18,7",Śląskie,61823,Silesia
+Leszno,Leszno,"51,8458","16,5806",Wielkopolskie,61791,Greater Poland
+Tarnowskie Góry,Tarnowskie Gory,"50,4444","18,8583",Śląskie,61288,Silesia
+Łomża,Lomza,"53,1764","22,0731",Podlaskie,60848,Podlaskie
+Ełk,Elk,"53,8214","22,3622",Warmińsko-Mazurskie,60390,Warmian-Masurian
+Zamość,Zamosc,"50,7167","23,2528",Lubelskie,60148,Lublin Voivodeship
+Chełm,Chelm,"51,1322","23,4778",Lubelskie,59546,Lublin Voivodeship
+Tomaszów Mazowiecki,Tomaszow Mazowiecki,"51,5167","20,0167",Łódzkie,59388,Łódź Voivodeship
+Przemyśl,Przemysl,"49,7833","22,7667",Podkarpackie,58408,Subcarpathian
+Mielec,Mielec,"50,2833","21,4333",Podkarpackie,58213,Subcarpathian
+Tczew,Tczew,"54,0875","18,7972",Pomorskie,57990,Pomerania
+Stalowa Wola,Stalowa Wola,"50,5667","22,05",Podkarpackie,57620,Subcarpathian
+Kędzierzyn-Koźle,Kedzierzyn-Kozle,"50,35","18,2",Opolskie,56931,Opole Voivodeship
+Będzin,Bedzin,"50,3333","19,1167",Śląskie,55695,Silesia
+Biała Podlaska,Biala Podlaska,"52,0333","23,1167",Lubelskie,55429,Lublin Voivodeship
+Zgierz,Zgierz,"51,85","19,4167",Łódzkie,55079,Łódź Voivodeship
+Świdnica,Swidnica,"50,85","16,4833",Dolnośląskie,54792,Lower Silesia
+Bełchatów,Belchatow,"51,3667","19,3667",Łódzkie,54338,Łódź Voivodeship
+Legionowo,Legionowo,"52,4","20,8833",Mazowieckie,53216,Mazovia
+Piekary Śląskie,Piekary Slaskie,"50,3833","18,95",Śląskie,53017,Silesia
+Piaseczno,Piaseczno,"52,0667","21,0167",Mazowieckie,51945,Mazovia
+Rumia,Rumia,"54,5667","18,4",Pomorskie,51879,Pomerania
+Racibórz,Raciborz,"50,0833","18,2333",Śląskie,51257,Silesia
+Ostrołęka,Ostroleka,"53,0667","21,5667",Mazowieckie,49805,Mazovia
+Zawiercie,Zawiercie,"50,5","19,4167",Śląskie,47689,Silesia
+Wejherowo,Wejherowo,"54,6","18,25",Pomorskie,47357,Pomerania
+Świętochłowice,Swietochlowice,"50,2919","18,9178",Śląskie,46494,Silesia
+Skierniewice,Skierniewice,"51,9528","20,1417",Łódzkie,46437,Łódź Voivodeship
+Starogard Gdański,Starogard Gdanski,"53,9667","18,5333",Pomorskie,46373,Pomerania
+Starachowice,Starachowice,"51,05","21,0667",Świętokrzyskie,46270,Holy Cross
+Wodzisław Śląski,Wodzislaw Slaski,50,"18,45",Śląskie,45949,Silesia
+Puławy,Pulawy,"51,4167","21,9667",Lubelskie,45267,Lublin Voivodeship
+Krosno,Krosno,"49,6833","21,75",Podkarpackie,45057,Subcarpathian
+Tarnobrzeg,Tarnobrzeg,"50,5833","21,6833",Podkarpackie,44901,Subcarpathian
+Otwock,Otwock,"52,1167","21,2667",Mazowieckie,44524,Mazovia
+Radomsko,Radomsko,"51,0667","19,45",Łódzkie,44441,Łódź Voivodeship
+Kołobrzeg,Kolobrzeg,"54,1761","15,5761",Zachodniopomorskie,44340,West Pomerania
+Dębica,Debica,"50,05","21,4167",Podkarpackie,44047,Subcarpathian
+Ząbki,Zabki,"52,2928","21,1161",Mazowieckie,43740,Mazovia
+Ciechanów,Ciechanow,"52,8667","20,6333",Mazowieckie,42705,Mazovia
+Kutno,Kutno,"52,2333","19,3667",Łódzkie,42255,Łódź Voivodeship
+Marki,Marki,"52,3333","21,1",Mazowieckie,42252,Mazovia
+Nysa,Nysa,"50,4714","17,3339",Opolskie,42151,Opole Voivodeship
+Mikołów,Mikolow,"50,1667","18,9",Śląskie,41266,Silesia
+Mińsk Mazowiecki,Minsk Mazowiecki,"52,1833","21,5667",Mazowieckie,40467,Mazovia
+Świnoujście,Swinoujscie,"53,9167","14,25",Zachodniopomorskie,40204,West Pomerania
+Sieradz,Sieradz,"51,6","18,75",Łódzkie,40014,Łódź Voivodeship
+Żyrardów,Zyrardow,"52,05","20,4333",Mazowieckie,39374,Mazovia
+Chojnice,Chojnice,"53,7","17,55",Pomorskie,39275,Pomerania
+Szczecinek,Szczecinek,"53,7167","16,6833",Zachodniopomorskie,38446,West Pomerania
+Świdnik,Swidnik,"51,2167","22,7",Lubelskie,37884,Lublin Voivodeship
+Kwidzyn,Kwidzyn,"53,7358","18,9308",Pomorskie,37768,Pomerania
+Malbork,Malbork,"54,0333","19,0333",Pomorskie,37635,Pomerania
+Bolesławiec,Boleslawiec,"51,2667","15,5667",Dolnośląskie,37559,Lower Silesia
+Oświęcim,Oswiecim,"50,0381","19,2214",Małopolskie,36956,Lesser Poland
+Nowa Sól,Nowa Sol,"51,8","15,7167",Lubuskie,36843,Lubusz
+Knurów,Knurow,"50,2167","18,6833",Śląskie,36498,Silesia
+Wołomin,Wolomin,"52,35","21,2333",Mazowieckie,36311,Mazovia
+Jarosław,Jaroslaw,"50,0186","22,6797",Podkarpackie,36303,Subcarpathian
+Żary,Zary,"51,6333","15,1333",Lubuskie,36004,Lubusz
+Oleśnica,Olesnica,"51,2","17,3833",Dolnośląskie,35856,Lower Silesia
+Sanok,Sanok,"49,55","22,2167",Podkarpackie,35546,Subcarpathian
+Czechowice-Dziedzice,Czechowice-Dziedzice,"49,9131","19,0064",Śląskie,35261,Silesia
+Chrzanów,Chrzanow,"50,1333","19,4",Małopolskie,35091,Lesser Poland
+Lębork,Lebork,"54,55","17,75",Pomorskie,34500,Pomerania
+Brzeg,Brzeg,"50,8667","17,4833",Opolskie,34492,Opole Voivodeship
+Sochaczew,Sochaczew,"52,2333","20,2333",Mazowieckie,34439,Mazovia
+Podgórze,Podgorze,"50,0417","19,9833",Małopolskie,34045,Lesser Poland
+Cieszyn,Cieszyn,"49,7484","18,6332",Śląskie,33958,Silesia
+Jasło,Jaslo,"49,7478","21,4714",Podkarpackie,33830,Subcarpathian
+Grodzisk Mazowiecki,Grodzisk Mazowiecki,"52,1089","20,625",Mazowieckie,33708,Mazovia
+Olkusz,Olkusz,"50,2833","19,5667",Małopolskie,33462,Lesser Poland
+Nowy Targ,Nowy Targ,"49,4667","20,0167",Małopolskie,33273,Lesser Poland
+Oława,Olawa,"50,9333","17,3",Dolnośląskie,33268,Lower Silesia
+Luboń,Lubon,"52,3333","16,8833",Wielkopolskie,33024,Greater Poland
+Sopot,Sopot,"54,4333","18,55",Pomorskie,32962,Pomerania
+Iława,Ilawa,"53,5964","19,5656",Warmińsko-Mazurskie,32664,Warmian-Masurian
+Kraśnik,Krasnik,"50,9167","22,2167",Lubelskie,32593,Lublin Voivodeship
+Września,Wrzesnia,"52,3333","17,5833",Wielkopolskie,31986,Greater Poland
+Dzierżoniów,Dzierzoniow,"50,7281","16,6511",Dolnośląskie,31866,Lower Silesia
+Pruszcz Gdański,Pruszcz Gdanski,"54,2667","18,6333",Pomorskie,31582,Pomerania
+Mława,Mlawa,"53,1167","20,3667",Mazowieckie,30919,Mazovia
+Czeladź,Czeladz,"50,3333","19,0833",Śląskie,30681,Silesia
+Police,Police,"53,5333","14,5667",Zachodniopomorskie,30623,West Pomerania
+Myszków,Myszkow,"50,5706","19,3144",Śląskie,30415,Silesia
+Żywiec,Zywiec,"49,6892","19,2058",Śląskie,30334,Silesia
+Rury,Rury,"51,2386","22,5164",Lubelskie,30093,Lublin Voivodeship
+Zgorzelec,Zgorzelec,"51,15","15,0083",Dolnośląskie,29966,Lower Silesia
+Augustów,Augustow,"53,8436","22,9794",Podlaskie,29494,Podlaskie
+Swarzędz,Swarzedz,"52,4083","17,0714",Wielkopolskie,29295,Greater Poland
+Bochnia,Bochnia,"49,9833","20,4333",Małopolskie,28946,Lesser Poland
+Bielawa,Bielawa,"50,7","16,6167",Dolnośląskie,28896,Lower Silesia
+Śrem,Srem,"52,0886","17,0147",Wielkopolskie,28835,Greater Poland
+Krotoszyn,Krotoszyn,"51,6833","17,4333",Wielkopolskie,28704,Greater Poland
+Nowy Dwór Mazowiecki,Nowy Dwor Mazowiecki,"52,4333","20,7167",Mazowieckie,28651,Mazovia
+Brodnica,Brodnica,"53,2597","19,3956",Kujawsko-Pomorskie,28536,Kuyavian-Pomeranian
+Giżycko,Gizycko,"54,04","21,7589",Warmińsko-Mazurskie,28233,Warmian-Masurian
+Reda,Reda,"54,6167","18,35",Pomorskie,28190,Pomerania
+Łuków,Lukow,"51,9272","22,3833",Lubelskie,27906,Lublin Voivodeship
+Kobyłka,Kobylka,"52,3333","21,2",Mazowieckie,27185,Mazovia
+Łowicz,Lowicz,"52,1","19,9333",Łódzkie,26928,Łódź Voivodeship
+Wieliczka,Wieliczka,"49,9894","20,0661",Małopolskie,26599,Lesser Poland
+Jarocin,Jarocin,"51,9667","17,5",Wielkopolskie,26565,Greater Poland
+Gorlice,Gorlice,"49,6547","21,1597",Małopolskie,26405,Lesser Poland
+Wyszków,Wyszkow,"52,5928","21,4584",Mazowieckie,26349,Mazovia
+Kętrzyn,Ketrzyn,"54,0833","21,3833",Warmińsko-Mazurskie,26174,Warmian-Masurian
+Halemba,Halemba,"50,2378","18,8633",Śląskie,26080,Silesia
+Wągrowiec,Wagrowiec,"52,8","17,2",Wielkopolskie,25773,Greater Poland
+Zakopane,Zakopane,"49,3","19,95",Małopolskie,25770,Lesser Poland
+Kłodzko,Klodzko,"50,4333","16,65",Dolnośląskie,25717,Lower Silesia
+Pszczyna,Pszczyna,"49,9833","18,95",Śląskie,25565,Silesia
+Biłgoraj,Bilgoraj,"50,55","22,7333",Lubelskie,25459,Lublin Voivodeship
+Turek,Turek,"52,0167","18,5",Wielkopolskie,25376,Greater Poland
+Świecie,Swiecie,"53,4167","18,4333",Kujawsko-Pomorskie,24796,Kuyavian-Pomeranian
+Bielsk Podlaski,Bielsk Podlaski,"52,7667","23,2",Podlaskie,24633,Podlaskie
+Żagań,Zagan,"51,6167","15,3167",Lubuskie,24424,Lubusz
+Środa Wielkopolska,Sroda Wielkopolska,"52,2333","17,2833",Wielkopolskie,24225,Greater Poland
+Skawina,Skawina,"49,9833","19,8333",Małopolskie,24177,Lesser Poland
+Wałcz,Walcz,"53,2667","16,4667",Zachodniopomorskie,24167,West Pomerania
+Kościan,Koscian,"52,0833","16,65",Wielkopolskie,24022,Greater Poland
+Kościerzyna,Koscierzyna,"54,1167","17,9833",Pomorskie,23723,Pomerania
+Lubliniec,Lubliniec,"50,6833","18,6833",Śląskie,23660,Silesia
+Piastów,Piastow,"52,1833","20,85",Mazowieckie,23281,Mazovia
+Białogard,Bialogard,54,"15,9833",Zachodniopomorskie,23142,West Pomerania
+Zduńska Wola,Zdunska Wola,"51,6","18,9667",Łódzkie,22904,Łódź Voivodeship
+Kluczbork,Kluczbork,"50,9833","18,2167",Opolskie,22703,Opole Voivodeship
+Szczytno,Szczytno,"53,5628","20,9853",Warmińsko-Mazurskie,22389,Warmian-Masurian
+Bartoszyce,Bartoszyce,"54,25","20,8",Warmińsko-Mazurskie,22281,Warmian-Masurian
+Świebodzice,Swiebodzice,"50,8667","16,3333",Dolnośląskie,22219,Lower Silesia
+Sandomierz,Sandomierz,"50,6833","21,75",Świętokrzyskie,22189,Holy Cross
+Goleniów,Goleniow,"53,5636","14,8281",Zachodniopomorskie,22166,West Pomerania
+Aleksandrów Łódzki,Aleksandrow Lodzki,"51,8194","19,3039",Łódzkie,22148,Łódź Voivodeship
+Ostrów Mazowiecka,Ostrow Mazowiecka,"52,8","21,9",Mazowieckie,22013,Mazovia
+Płońsk,Plonsk,"52,6333","20,3833",Mazowieckie,21800,Mazovia
+Polkowice,Polkowice,"51,5","16,0667",Dolnośląskie,21786,Lower Silesia
+Orzesze,Orzesze,"50,15","18,75",Śląskie,21631,Silesia
+Łaziska Górne,Laziska Gorne,"50,15","18,85",Śląskie,21592,Silesia
+Jawor,Jawor,"51,05","16,2",Dolnośląskie,21494,Lower Silesia
+Świedbodzin,Swiedbodzin,"52,25","15,5333",Lubuskie,21399,Lubusz
+Grajewo,Grajewo,"53,65","22,45",Podlaskie,21395,Podlaskie
+Zambrów,Zambrow,"52,9833","22,25",Podlaskie,21351,Podlaskie
+Mrągowo,Mragowo,"53,8667","21,3",Warmińsko-Mazurskie,21325,Warmian-Masurian
+Wieluń,Wielun,"51,2206","18,57",Łódzkie,21270,Łódź Voivodeship
+Nowa Ruda,Nowa Ruda,"50,5833","16,5",Dolnośląskie,21264,Lower Silesia
+Sulejówek,Sulejowek,"52,2442","21,28",Mazowieckie,21248,Mazovia
+Józefów,Jozefow,"52,1356","21,2369",Mazowieckie,21035,Mazovia
+Działdowo,Dzialdowo,"53,2333","20,1833",Warmińsko-Mazurskie,20670,Warmian-Masurian
+Lubartów,Lubartow,"51,4667","22,6",Lubelskie,20494,Lublin Voivodeship
+Koło,Kolo,"52,2","18,6333",Wielkopolskie,20380,Greater Poland
+Rawicz,Rawicz,"51,6092","16,8575",Wielkopolskie,20305,Greater Poland
+Gryfino,Gryfino,"53,2531","14,4875",Zachodniopomorskie,20297,West Pomerania
+Gostyń,Gostyn,"51,8792","17,0125",Wielkopolskie,20210,Greater Poland
+Lubań,Luban,"51,1181","15,2889",Dolnośląskie,20096,Lower Silesia
+Prudnik,Prudnik,"50,3228","17,5767",Opolskie,19747,Opole Voivodeship
+Opoczno,Opoczno,"51,3772","20,2869",Łódzkie,19738,Łódź Voivodeship
+Hajnówka,Hajnowka,"52,7333","23,5667",Podlaskie,19667,Podlaskie
+Bieruń,Bierun,"50,1333","19,1",Śląskie,19334,Silesia
+Pułtusk,Pultusk,"52,7","21,0833",Mazowieckie,19327,Mazovia
+Andrychów,Andrychow,"49,855","19,3414",Małopolskie,19203,Lesser Poland
+Trzebinia,Trzebinia,"50,1667","19,4833",Małopolskie,19134,Lesser Poland
+Bieruń Stary,Bierun Stary,"50,0897","19,0928",Śląskie,19100,Silesia
+Konstantynów Łódzki,Konstantynow Lodzki,"51,75","19,3333",Łódzkie,18960,Łódź Voivodeship
+Chełmno,Chelmno,"53,3492","18,4231",Kujawsko-Pomorskie,18837,Kuyavian-Pomeranian
+Złotów,Zlotow,"53,3603","17,0408",Wielkopolskie,18768,Greater Poland
+Ozorków,Ozorkow,"51,9667","19,2833",Łódzkie,18721,Łódź Voivodeship
+Szamotuły,Szamotuly,"52,6","16,5833",Wielkopolskie,18639,Greater Poland
+Tomaszów Lubelski,Tomaszow Lubelski,"50,45","23,4167",Lubelskie,18567,Lublin Voivodeship
+Sokołów Podlaski,Sokolow Podlaski,"52,4067","22,2464",Mazowieckie,18526,Mazovia
+Giszowiec,Giszowiec,"50,2236","19,0694",Śląskie,18475,Silesia
+Pisz,Pisz,"53,6167","21,8",Warmińsko-Mazurskie,18245,Warmian-Masurian
+Łęczna,Leczna,"51,3","22,8833",Lubelskie,18234,Lublin Voivodeship
+Zielonka,Zielonka,"52,3008","21,1586",Mazowieckie,18219,Mazovia
+Końskie,Konskie,"51,2","20,4167",Świętokrzyskie,18201,Holy Cross
+Łomianki,Lomianki,"52,3333","20,8833",Mazowieckie,18124,Mazovia
+Kęty,Kety,"49,9","19,2167",Małopolskie,18067,Lesser Poland
+Myślenice,Myslenice,"49,8347","19,9389",Małopolskie,18051,Lesser Poland
+Chodzież,Chodziez,"52,9833","16,9",Wielkopolskie,18044,Greater Poland
+Jasien,Jasien,"54,3667","18,6333",Pomorskie,18014,Pomerania
+Kamienna Góra,Kamienna Gora,"50,7833","16,0333",Dolnośląskie,17998,Lower Silesia
+Wadowice,Wadowice,"49,8833","19,5",Małopolskie,17905,Lesser Poland
+Kostrzyn nad Odrą,Kostrzyn nad Odra,"52,5883","14,6667",Lubuskie,17899,Lubusz
+Łańcut,Lancut,"50,0667","22,2333",Podkarpackie,17768,Subcarpathian
+Oborniki,Oborniki,"52,65","16,8167",Wielkopolskie,17629,Greater Poland
+Gostynin,Gostynin,"52,4167","19,4667",Mazowieckie,17624,Mazovia
+Nakło nad Notecią,Naklo nad Notecia,"53,1403","17,5928",Kujawsko-Pomorskie,17620,Kuyavian-Pomeranian
+Sokółka,Sokolka,"53,4","23,5",Podlaskie,17616,Podlaskie
+Krasnystaw,Krasnystaw,51,"23,1667",Lubelskie,17519,Lublin Voivodeship
+Strzelce Opolskie,Strzelce Opolskie,"50,5","18,2833",Opolskie,17512,Opole Voivodeship
+Międzyrzecz,Miedzyrzecz,"52,4483","15,5883",Lubuskie,17400,Lubusz
+Pyskowice,Pyskowice,"50,3833","18,6167",Śląskie,17394,Silesia
+Sierpc,Sierpc,"52,8833","19,6667",Mazowieckie,17308,Mazovia
+Garwolin,Garwolin,"51,9","21,6333",Mazowieckie,17279,Mazovia
+Konstancin-Jeziorna,Konstancin-Jeziorna,"52,0833","21,1167",Mazowieckie,17157,Mazovia
+Grójec,Grojec,"51,8656","20,8675",Mazowieckie,17037,Mazovia
+Namysłów,Namyslow,"51,0728","17,7069",Opolskie,16942,Opole Voivodeship
+Pleszew,Pleszew,"51,8833","17,7833",Wielkopolskie,16872,Greater Poland
+Hrubieszów,Hrubieszow,"50,8167","23,8833",Lubelskie,16832,Lublin Voivodeship
+Trzcianka,Trzcianka,"53,05","16,4667",Wielkopolskie,16831,Greater Poland
+Pionki,Pionki,"51,4833","21,45",Mazowieckie,16779,Mazovia
+Bytów,Bytow,"54,1333","17,5",Pomorskie,16739,Pomerania
+Przasnysz,Przasnysz,"53,0167","20,8833",Mazowieckie,16662,Mazovia
+Bogatynia,Bogatynia,"50,9069","14,9569",Dolnośląskie,16647,Lower Silesia
+Łask,Lask,"51,5903","19,1333",Łódzkie,16576,Łódź Voivodeship
+Bogucice,Bogucice,"50,2668","19,0397",Śląskie,16538,Silesia
+Słubice,Slubice,"52,35","14,5667",Lubuskie,16495,Lubusz
+Milanówek,Milanowek,"52,1167","20,65",Mazowieckie,16490,Mazovia
+Braniewo,Braniewo,"54,3833","19,8333",Warmińsko-Mazurskie,16480,Warmian-Masurian
+Rawa Mazowiecka,Rawa Mazowiecka,"51,7658","20,2533",Łódzkie,16429,Łódź Voivodeship
+Libiąż,Libiaz,"50,1","19,3167",Małopolskie,16385,Lesser Poland
+Radzionków Nowy,Radzionkow Nowy,"50,3833","18,8833",Śląskie,16253,Silesia
+Brzesko,Brzesko,"49,9667","20,6167",Małopolskie,16193,Lesser Poland
+Kozienice,Kozienice,"51,5833","21,5667",Mazowieckie,16192,Mazovia
+Ustroń,Ustron,"49,7194","18,8119",Śląskie,16118,Silesia
+Gubin,Gubin,"51,95","14,7167",Lubuskie,16114,Lubusz
+Nowogard,Nowogard,"53,6667","15,1167",Zachodniopomorskie,16102,West Pomerania
+Olecko,Olecko,"54,0333","22,5",Warmińsko-Mazurskie,16076,Warmian-Masurian
+Czernica,Czernica,"51,0464","17,2439",Dolnośląskie,16070,Lower Silesia
+Sulechów,Sulechow,"52,0833","15,6167",Lubuskie,16063,Lubusz
+Gryfice,Gryfice,"53,9147","15,1986",Zachodniopomorskie,15863,West Pomerania
+Osowa,Osowa,"54,4272","18,4708",Pomorskie,15843,Pomerania
+Rypin,Rypin,"53,0667","19,45",Kujawsko-Pomorskie,15832,Kuyavian-Pomeranian
+Międzyrzec Podlaski,Miedzyrzec Podlaski,"51,9833","22,7833",Lubelskie,15830,Lublin Voivodeship
+Ropczyce,Ropczyce,"50,0861","21,6333",Podkarpackie,15815,Subcarpathian
+Krapkowice,Krapkowice,"50,4667","17,9667",Opolskie,15786,Opole Voivodeship
+Niepołomice,Niepolomice,"50,0339","20,2172",Małopolskie,15697,Lesser Poland
+Solec Kujawski,Solec Kujawski,"53,0833","18,2333",Kujawsko-Pomorskie,15458,Kuyavian-Pomeranian
+Jelcz-Laskowice,Jelcz-Laskowice,"51,0333","17,3333",Dolnośląskie,15380,Lower Silesia
+Strzegom,Strzegom,"50,9611","16,3444",Dolnośląskie,15371,Lower Silesia
+Grodzisk Wielkopolski,Grodzisk Wielkopolski,"52,2333","16,3667",Wielkopolskie,15131,Greater Poland
+Busko-Zdrój,Busko-Zdroj,"50,4667","20,7167",Świętokrzyskie,15014,Holy Cross
+Świdwin,Swidwin,"53,7833","15,7667",Zachodniopomorskie,14937,West Pomerania
+Przeworsk,Przeworsk,"50,0667","22,5",Podkarpackie,14881,Subcarpathian
+Lidzbark Warmiński,Lidzbark Warminski,"54,1167","20,5833",Warmińsko-Mazurskie,14878,Warmian-Masurian
+Nisko,Nisko,"50,52","22,1394",Podkarpackie,14874,Subcarpathian
+Józefosław,Jozefoslaw,"52,1069","21,0392",Mazowieckie,14806,Mazovia
+Radzyń Podlaski,Radzyn Podlaski,"51,7828","22,6242",Lubelskie,14806,Lublin Voivodeship
+Dęblin,Deblin,"51,5667","21,8614",Lubelskie,14791,Lublin Voivodeship
+Łapy,Lapy,"52,9833","22,8833",Podlaskie,14790,Podlaskie
+Złotoryja,Zlotoryja,"51,1333","15,9167",Dolnośląskie,14656,Lower Silesia
+Boguszów-Gorce,Boguszow-Gorce,"50,7667","16,2",Dolnośląskie,14648,Lower Silesia
+Limanowa,Limanowa,"49,7006","20,4267",Małopolskie,14635,Lesser Poland
+Jędrzejów,Jedrzejow,"50,6333","20,3",Świętokrzyskie,14592,Holy Cross
+Ząbkowice Śląskie,Zabkowice Slaskie,"50,5833","16,8167",Dolnośląskie,14578,Lower Silesia
+Mosina,Mosina,"52,2467","16,845",Wielkopolskie,14511,Greater Poland
+Brwinów,Brwinow,"52,1417","20,7167",Mazowieckie,14448,Mazovia
+Choszczno,Choszczno,"53,1667","15,4",Zachodniopomorskie,14399,West Pomerania
+Ożarów Mazowiecki,Ozarow Mazowiecki,"52,2167","20,8",Mazowieckie,14375,Mazovia
+Ustka,Ustka,"54,5833","16,85",Pomorskie,14321,Pomerania
+Radzymin,Radzymin,"52,4167","21,1833",Mazowieckie,14314,Mazovia
+Biały Kamień,Bialy Kamien,"50,7814","16,2539",Dolnośląskie,14278,Lower Silesia
+Kartuzy,Kartuzy,"54,3333","18,2",Pomorskie,14204,Pomerania
+Plewiska,Plewiska,"52,3664","16,8089",Wielkopolskie,14160,Greater Poland
+Staszów,Staszow,"50,5633","21,1717",Świętokrzyskie,14158,Holy Cross
+Nowy Tomyśl,Nowy Tomysl,"52,3167","16,1333",Wielkopolskie,14116,Greater Poland
+Chełmża,Chelmza,"53,1847","18,6042",Kujawsko-Pomorskie,14045,Kuyavian-Pomeranian
+Ostrzeszów,Ostrzeszow,"51,4167","17,9333",Wielkopolskie,14036,Greater Poland
+Kępno,Kepno,"51,2833","17,9833",Wielkopolskie,13951,Greater Poland
+Skoczów,Skoczow,"49,8006","18,7883",Śląskie,13814,Silesia
+Siemiatycze,Siemiatycze,"52,4272","22,8625",Podlaskie,13782,Podlaskie
+Lipno,Lipno,"52,85","19,1667",Kujawsko-Pomorskie,13752,Kuyavian-Pomeranian
+Trzebnica,Trzebnica,"51,305","17,0614",Dolnośląskie,13631,Lower Silesia
+Łęczyca,Leczyca,"52,05","19,2",Łódzkie,13587,Łódź Voivodeship
+Wschowa,Wschowa,"51,8","16,3",Lubuskie,13533,Lubusz
+Głowno,Glowno,"51,9642","19,7117",Łódzkie,13506,Łódź Voivodeship
+Tuchola,Tuchola,"53,6","17,85",Kujawsko-Pomorskie,13408,Kuyavian-Pomeranian
+Zawodzie,Zawodzie,"50,2585","19,0449",Śląskie,13406,Silesia
+Gołdap,Goldap,"54,3161","22,3094",Warmińsko-Mazurskie,13378,Warmian-Masurian
+Słupca,Slupca,"52,3","17,8667",Wielkopolskie,13353,Greater Poland
+Człuchów,Czluchow,"53,65","17,3667",Pomorskie,13343,Pomerania
+Barlinek,Barlinek,53,"15,2",Zachodniopomorskie,13339,West Pomerania
+Morąg,Morag,"53,9167","19,9333",Warmińsko-Mazurskie,13317,Warmian-Masurian
+Wąbrzeźno,Wabrzezno,"53,2833","18,95",Kujawsko-Pomorskie,13317,Kuyavian-Pomeranian
+Dębno,Debno,"52,7333","14,7",Zachodniopomorskie,13291,West Pomerania
+Żnin,Znin,"52,85","17,7",Kujawsko-Pomorskie,13268,Kuyavian-Pomeranian
+Lubsko,Lubsko,"51,7833","14,9667",Lubuskie,13240,Lubusz
+Leżajsk,Lezajsk,"50,2667","22,4333",Podkarpackie,13164,Subcarpathian
+Głuchołazy,Glucholazy,"50,3131","17,3742",Opolskie,13143,Opole Voivodeship
+Kozy,Kozy,"49,845","19,1417",Śląskie,13098,Silesia
+Darłowo,Darlowo,"54,4208","16,4097",Zachodniopomorskie,13081,West Pomerania
+Nidzica,Nidzica,"53,3583","20,425",Warmińsko-Mazurskie,13052,Warmian-Masurian
+Sidlice,Sidlice,"54,3471","18,6171",Pomorskie,12842,Pomerania
+Chojnów,Chojnow,"51,2667","15,9333",Dolnośląskie,12769,Lower Silesia
+Brzeg Dolny,Brzeg Dolny,"51,2708","16,7208",Dolnośląskie,12765,Lower Silesia
+Kochłowice,Kochlowice,"50,2538","18,9015",Śląskie,12738,Silesia
+Chropaczów,Chropaczow,"50,3131","18,915",Śląskie,12589,Silesia
+Kłobuck,Klobuck,"50,9167","18,9333",Śląskie,12513,Silesia
+Wolsztyn,Wolsztyn,"52,1167","16,1167",Wielkopolskie,12504,Greater Poland
+Włodawa,Wlodawa,"51,55","23,55",Lubelskie,12500,Lublin Voivodeship
+Koszutka,Koszutka,"50,2711","19,0211",Śląskie,12431,Silesia
+Koluszki,Koluszki,"51,75","19,8",Łódzkie,12396,Łódź Voivodeship
+Złocieniec,Zlocieniec,"53,5269","16,0122",Zachodniopomorskie,12373,West Pomerania
+Sędziszów Małopolski,Sedziszow Malopolski,"50,0694","21,7014",Podkarpackie,12313,Subcarpathian
+Wołów,Wolow,"51,3414","16,6283",Dolnośląskie,12275,Lower Silesia
+Błonie,Blonie,"52,2","20,6167",Mazowieckie,12152,Mazovia
+Wasilków,Wasilkow,"53,205","23,2044",Podlaskie,12147,Podlaskie
+Strzelin,Strzelin,"50,7833","17,0667",Dolnośląskie,12131,Lower Silesia
+Brzeziny,Brzeziny,"51,8","19,75",Łódzkie,12117,Łódź Voivodeship
+Głubczyce,Glubczyce,"50,2011","17,8247",Opolskie,12100,Opole Voivodeship
+Gierałtowice,Gieraltowice,"50,2167","18,7167",Śląskie,12096,Silesia
+Pasłęk,Paslek,"54,05","19,6667",Warmińsko-Mazurskie,12074,Warmian-Masurian
+Pyrzyce,Pyrzyce,"53,1333","14,8833",Zachodniopomorskie,12041,West Pomerania
+Sławno,Slawno,"54,3667","16,6833",Zachodniopomorskie,12028,West Pomerania
+Warka,Warka,"51,7833","21,2",Mazowieckie,12003,Mazovia
+Węgrów,Wegrow,"52,4","22,0167",Mazowieckie,11993,Mazovia
+Góra Kalwaria,Gora Kalwaria,"51,9733","21,2144",Mazowieckie,11887,Mazovia
+Golub-Dobrzyń,Golub-Dobrzyn,"53,1","19,05",Kujawsko-Pomorskie,11722,Kuyavian-Pomeranian
+Aleksandrów Kujawski,Aleksandrow Kujawski,"52,8767","18,6936",Kujawsko-Pomorskie,11719,Kuyavian-Pomeranian
+Lubaczów,Lubaczow,"50,1667","23,1167",Podkarpackie,11619,Subcarpathian
+Dąbrowa Tarnowska,Dabrowa Tarnowska,"50,1667","20,9833",Małopolskie,11549,Lesser Poland
+Drawsko Pomorskie,Drawsko Pomorskie,"53,5333","15,8",Zachodniopomorskie,11515,West Pomerania
+Mogilno,Mogilno,"52,65","17,95",Kujawsko-Pomorskie,11453,Kuyavian-Pomeranian
+Janów Lubelski,Janow Lubelski,"50,7167","22,4167",Lubelskie,11308,Lublin Voivodeship
+Miechów,Miechow,"50,3578","20,0325",Małopolskie,11215,Lesser Poland
+Góra,Gora,"51,6667","16,55",Dolnośląskie,11173,Lower Silesia
+Szprotawa,Szprotawa,"51,5667","15,5",Lubuskie,11068,Lubusz
+Brzeszcze,Brzeszcze,50,"19,15",Małopolskie,11049,Lesser Poland
+Milicz,Milicz,"51,5333","17,2833",Dolnośląskie,11025,Lower Silesia
+Komorniki,Komorniki,"52,3361","16,8069",Wielkopolskie,10990,Greater Poland
+Koronowo,Koronowo,"53,3167","17,9333",Kujawsko-Pomorskie,10974,Kuyavian-Pomeranian
+Szydłowiec,Szydlowiec,"51,2333","20,85",Mazowieckie,10959,Mazovia
+Rogoźno,Rogozno,"52,7492","16,9997",Wielkopolskie,10959,Greater Poland
+Wronki,Wronki,"52,7","16,3833",Wielkopolskie,10918,Greater Poland
+Krosno Odrzańskie,Krosno Odrzanskie,"52,0333","15,1",Lubuskie,10905,Lubusz
+Wisła,Wisla,"49,6549","18,8595",Śląskie,10887,Silesia
+Węgorzewo,Wegorzewo,"54,2167","21,75",Warmińsko-Mazurskie,10879,Warmian-Masurian
+Puck,Puck,"54,7","18,4",Pomorskie,10868,Pomerania
+Myślibórz,Mysliborz,"52,9333","14,8667",Zachodniopomorskie,10649,West Pomerania
+Nowa Dęba,Nowa Deba,"50,4167","21,7667",Podkarpackie,10647,Subcarpathian
+Lubawa,Lubawa,"53,5","19,75",Warmińsko-Mazurskie,10626,Warmian-Masurian
+Kiełczów,Kielczow,"51,1406","17,1783",Dolnośląskie,10572,Lower Silesia
+Parczew,Parczew,"51,6333","22,8667",Lubelskie,10519,Lublin Voivodeship
+Nowe Miasto Lubawskie,Nowe Miasto Lubawskie,"53,4256","19,5878",Warmińsko-Mazurskie,10492,Warmian-Masurian
+Wapienica,Wapienica,"49,8083","18,9839",Śląskie,10439,Silesia
+Ciechocinek,Ciechocinek,"52,8833","18,7833",Kujawsko-Pomorskie,10415,Kuyavian-Pomeranian
+Suchanino,Suchanino,"54,3667","18,65",Pomorskie,10392,Pomerania
+Zdzieszowice,Zdzieszowice,"50,4192","18,1236",Opolskie,10380,Opole Voivodeship
+Czarnków,Czarnkow,"52,9","16,5667",Wielkopolskie,10370,Greater Poland
+Międzychód,Miedzychod,"52,6","15,8833",Wielkopolskie,10288,Greater Poland
+Murowana Goślina,Murowana Goslina,"52,5667","17,0167",Wielkopolskie,10247,Greater Poland
+Głogów Małopolski,Glogow Malopolski,"50,1667","21,9667",Podkarpackie,10232,Subcarpathian
+Kowary,Kowary,"50,7917","15,8333",Dolnośląskie,10217,Lower Silesia
+Załęże,Zaleze,"50,2672","18,9892",Śląskie,10185,Silesia
+Biskupiec,Biskupiec,"53,85","20,95",Warmińsko-Mazurskie,10163,Warmian-Masurian
+Komorowice,Komorowice,"49,8544","19,0406",Śląskie,10112,Silesia
+Syców,Sycow,"51,31","17,7236",Dolnośląskie,10102,Lower Silesia
+Pińczów,Pinczow,"50,5333","20,5333",Świętokrzyskie,10078,Holy Cross
+Mikuszowice,Mikuszowice,"49,7833","19,0703",Śląskie,10041,Silesia
+Krynica,Krynica,"49,4117","20,955",Małopolskie,10001,Lesser Poland
+Kolno,Kolno,"53,4106","21,9339",Podlaskie,9999,Podlaskie
+Czersk Pomorski,Czersk Pomorski,"53,7928","17,9739",Pomorskie,9997,Pomerania
+Sulęcin,Sulecin,"52,45","15,1167",Lubuskie,9978,Lubusz
+Siechnice,Siechnice,"51,0367","17,1525",Dolnośląskie,9957,Lower Silesia
+Strzelce Krajeńskie,Strzelce Krajenskie,"52,8756","15,5319",Lubuskie,9912,Lubusz
+Krzeszowice,Krzeszowice,"50,1333","19,6333",Małopolskie,9868,Lesser Poland
+Kostrzyń,Kostrzyn,"52,3941","17,2221",Wielkopolskie,9809,Greater Poland
+Banino,Banino,"54,3933","18,4083",Pomorskie,9806,Pomerania
+Drezdenko,Drezdenko,"52,8333","15,8333",Lubuskie,9800,Lubusz
+Łobez,Lobez,"53,6333","15,6167",Zachodniopomorskie,9792,West Pomerania
+Bukowno,Bukowno,"50,2681","19,4631",Małopolskie,9791,Lesser Poland
+Miastko,Miastko,"54,0167","16,9833",Pomorskie,9770,Pomerania
+Gaszowice,Gaszowice,"50,1089","18,4308",Śląskie,9755,Silesia
+Pobiedziska,Pobiedziska,"52,4833","17,4833",Wielkopolskie,9755,Greater Poland
+Włoszczowa,Wloszczowa,"50,8542","19,9669",Świętokrzyskie,9750,Holy Cross
+Gołuchów,Goluchow,"51,8494","17,9314",Wielkopolskie,9703,Greater Poland
+Kokoszki,Kokoszki,"54,3541","18,4915",Pomorskie,9693,Pomerania
+Mońki,Monki,"53,4","22,8",Podlaskie,9675,Podlaskie
+Dobre Miasto,Dobre Miasto,"53,9875","20,3958",Warmińsko-Mazurskie,9629,Warmian-Masurian
+Kudowa-Zdrój,Kudowa-Zdroj,"50,4383","16,2397",Dolnośląskie,9627,Lower Silesia
+Nowy Dwór Gdański,Nowy Dwor Gdanski,"54,2167","19,1167",Pomorskie,9618,Pomerania
+Władysławowo,Wladyslawowo,"54,8339","18,3156",Pomorskie,9613,Pomerania
+Trzebiatów,Trzebiatow,"54,0572","15,2786",Zachodniopomorskie,9591,West Pomerania
+Karczew,Karczew,"52,0833","21,25",Mazowieckie,9566,Mazovia
+Szubin,Szubin,"53,0167","17,75",Kujawsko-Pomorskie,9563,Kuyavian-Pomeranian
+Środa Śląska,Sroda Slaska,"51,15","16,5833",Dolnośląskie,9525,Lower Silesia
+Sztum,Sztum,"53,9217","19,0336",Pomorskie,9515,Pomerania
+Puszczykowo,Puszczykowo,"52,2817","16,8542",Wielkopolskie,9470,Greater Poland
+Bystrzyca Kłodzka,Bystrzyca Klodzka,"50,3","16,65",Dolnośląskie,9414,Lower Silesia
+Ostróda,Ostroda,"53,7","19,9667",Warmińsko-Mazurskie,9410,Warmian-Masurian
+Opalenica,Opalenica,"52,3078","16,4136",Wielkopolskie,9360,Greater Poland
+Blachownia,Blachownia,"50,7833","18,9667",Śląskie,9334,Silesia
+Imielin,Imielin,"50,1478","19,1814",Śląskie,9313,Silesia
+Kruszwica,Kruszwica,"52,6772","18,3292",Kujawsko-Pomorskie,9288,Kuyavian-Pomeranian
+Skwierzyna,Skwierzyna,"52,6","15,5",Lubuskie,9272,Lubusz
+Ryki,Ryki,"51,6333","21,9333",Lubelskie,9229,Lublin Voivodeship
+Maków Mazowiecki,Makow Mazowiecki,"52,8667","21,1",Mazowieckie,9173,Mazovia
+Wysokie Mazowieckie,Wysokie Mazowieckie,"52,9192","22,5144",Podlaskie,9155,Podlaskie
+Olesno,Olesno,"50,875","18,4167",Opolskie,9122,Opole Voivodeship
+Oborniki Śląskie,Oborniki Slaskie,"51,2986","16,9017",Dolnośląskie,9101,Lower Silesia
+Kożuchów,Kozuchow,"51,75","15,6",Lubuskie,9086,Lubusz
+Sucha Beskidzka,Sucha Beskidzka,"49,7403","19,5886",Małopolskie,8951,Lesser Poland
+Czarna Białostocka,Czarna Bialostocka,"53,3","23,2833",Podlaskie,8943,Podlaskie
+Sępólno Krajeńskie,Sepolno Krajenskie,"53,45","17,53",Kujawsko-Pomorskie,8914,Kuyavian-Pomeranian
+Bolszewo,Bolszewo,"54,6242","18,1753",Pomorskie,8808,Pomerania
+Stary Sącz,Stary Sacz,"49,5625","20,6364",Małopolskie,8746,Lesser Poland
+Ustrzyki Dolne,Ustrzyki Dolne,"49,4297","22,5867",Podkarpackie,8717,Subcarpathian
+Kolbuszowa,Kolbuszowa,"50,25","21,7667",Podkarpackie,8710,Subcarpathian
+Goworowo,Goworowo,"52,9006","21,5544",Mazowieckie,8689,Mazovia
+Chełmek,Chelmek,"50,1167","19,25",Małopolskie,8669,Lesser Poland
+Kościelisko,Koscielisko,"49,2908","19,8883",Małopolskie,8661,Lesser Poland
+Żuromin,Zuromin,"53,0667","19,9",Mazowieckie,8592,Mazovia
+Kamień Pomorski,Kamien Pomorski,"53,97","14,7725",Zachodniopomorskie,8564,West Pomerania
+Poniatowa,Poniatowa,"51,1928","22,0647",Lubelskie,8517,Lublin Voivodeship
+Wieruszów,Wieruszow,"51,3","18,15",Łódzkie,8514,Łódź Voivodeship
+Duchnice,Duchnice,"52.2","20.7",Mazowieckie,858,Mazovia

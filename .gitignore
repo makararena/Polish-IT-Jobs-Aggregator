@@ -1,0 +1,32 @@
+# Python virtual environment
+venv/
+src/
+
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment variables
+.env
+
+# IDE or editor directories
+.vscode/
+.idea/
+
+# Other editor files
+*.suo
+*.ntvs_analysis.dat
+*.ncb
+*.swp
+*.swo
+*.log
+
+# System files (optional, if applicable)
+.DS_Store
+Thumbs.db
+
+# Ignore the argos-translate directory and logs
+argos-translate
