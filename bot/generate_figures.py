@@ -9,15 +9,17 @@ import sys
 import plotly.express as px
 import plotly.graph_objects as go
 from matplotlib import colors as mcolors
+from dotenv import load_dotenv
+load_dotenv()
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from data.dictionaries import languages, plot_columns
+from data.dictionaries import languages, plot_columns, not_valid_technologies, keep_technologies
 
 db_config = {
     "host": "localhost",
     "database": "postgres",
     "user": "postgres",
-    "password": "makararena"
+    "password": os.getenv("DB_PASSWORD")
 }
 
 def connect_db(db_config):
@@ -50,30 +52,30 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
                      languages_bar_chart=True, benefits_pie_chart=True, employment_type_pie_chart=True, 
                      experience_level_bar_chart=True, salary_box_plot=True, technologies_bar_chart=True, 
                      employer_bar_chart=True, positions_bar_chart=True, post_text=True, content_daily=True, light_theme=True) :
- 
-
-    df.columns = plot_columns
+    df_plot = df.copy()
+    df_plot = df_plot[df_plot['date_posted'] != date(2024, 9, 2)]
+    df_plot.columns = plot_columns
     
-    df['StartSalary'] = pd.to_numeric(df['StartSalary'], errors='coerce')
-    df['MaxSalary'] = pd.to_numeric(df['MaxSalary'], errors='coerce')
+    df_plot['StartSalary'] = pd.to_numeric(df_plot['StartSalary'], errors='coerce')
+    df_plot['MaxSalary'] = pd.to_numeric(df_plot['MaxSalary'], errors='coerce')
 
-    df['StartSalary'] = df['StartSalary'].fillna(0)
-    df['MaxSalary'] = df['MaxSalary'].fillna(0)
+    df_plot['StartSalary'] = df_plot['StartSalary'].fillna(0)
+    df_plot['MaxSalary'] = df_plot['MaxSalary'].fillna(0)
     
-    df['Salary'] = (df['StartSalary'] + df['MaxSalary']) / 2
-    df['Salary'] = df['Salary'].fillna(0)
+    df_plot['Salary'] = (df_plot['StartSalary'] + df_plot['MaxSalary']) / 2
+    df_plot['Salary'] = df_plot['Salary'].fillna(0)
 
-    df['DatePosted'] = pd.to_datetime(df['DatePosted'])
-    df['Expiration'] = pd.to_datetime(df['Expiration'])
+    df_plot['DatePosted'] = pd.to_datetime(df_plot['DatePosted'])
+    df_plot['Expiration'] = pd.to_datetime(df_plot['Expiration'])
 
-    df['Latitude'] = df['Latitude'].astype(str).str.replace(',', '.').str.split(';').str[0]
-    df['Longitude'] = df['Longitude'].astype(str).str.replace(',', '.').str.split(';').str[0]
+    df_plot['Latitude'] = df_plot['Latitude'].astype(str).str.replace(',', '.').str.split(';').str[0]
+    df_plot['Longitude'] = df_plot['Longitude'].astype(str).str.replace(',', '.').str.split(';').str[0]
 
-    df['Latitude'] = pd.to_numeric(df['Latitude'], errors='coerce')
-    df['Longitude'] = pd.to_numeric(df['Longitude'], errors='coerce')
+    df_plot['Latitude'] = pd.to_numeric(df_plot['Latitude'], errors='coerce')
+    df_plot['Longitude'] = pd.to_numeric(df_plot['Longitude'], errors='coerce')
 
-    df['Latitude'] = df['Latitude'].fillna(0)
-    df['Longitude'] = df['Longitude'].fillna(0)
+    df_plot['Latitude'] = df_plot['Latitude'].fillna(0)
+    df_plot['Longitude'] = df_plot['Longitude'].fillna(0)
     
     geojson_path = '/Users/ivanivsnov/Work-Analysis/data/poland.voivodeships.json'
     with open(geojson_path, 'r') as file:
@@ -118,13 +120,13 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
     
     if histogram_day_month_chart:
         # Day Histogram Chart
-        df['day'] = df['DatePosted'].dt.date
-        daily_counts = df['day'].value_counts().reset_index()
+        df_plot['day'] = df_plot['DatePosted'].dt.date
+        daily_counts = df_plot['day'].value_counts().reset_index()
         daily_counts.columns = ['Day', 'Count']
         daily_counts = daily_counts.sort_values(by='Day')
         daily_counts['Day'] = pd.to_datetime(daily_counts['Day'])
         if daily_counts.empty:
-                print("No data available to plot.")
+            print("No data available to plot.")
         else:
             figure_line_day = px.line(
                 daily_counts, 
@@ -146,27 +148,62 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
             
             figure_line_day.write_image(f'{folder_path}/day_histogram.png', width=1920, height=1080)
 
-            df['month'] = df['DatePosted'].dt.to_period('M').astype(str)
-            monthly_counts = df['month'].value_counts().reset_index()
-            monthly_counts.columns = ['Month', 'Count']
-            monthly_counts = monthly_counts.sort_values(by='Month')
-            monthly_counts['Month'] = pd.to_datetime(monthly_counts['Month'], format='%Y-%m')
+        df_plot['month'] = df_plot['DatePosted'].dt.to_period('M').astype(str)
+        monthly_counts = df_plot['month'].value_counts().reset_index()
+        monthly_counts.columns = ['Month', 'Count']
+        monthly_counts = monthly_counts.sort_values(by='Month')
+        monthly_counts['Month'] = pd.to_datetime(monthly_counts['Month'], format='%Y-%m')
 
-            # Check if there are more than one unique months
-            if len(monthly_counts['Month'].unique()) > 1:
-                figure_bar_month = px.bar(monthly_counts, x='Month', y='Count',
-                                        title='Number of Job Offers per Month',
-                                        labels={'Month': 'Month', 'Count': 'Number of Offers'})
+        # Check if there are more than one unique months
+        if len(monthly_counts['Month'].unique()) > 1:
+            figure_bar_month = px.bar(monthly_counts, x='Month', y='Count',
+                                    title='Number of Job Offers per Month',
+                                    labels={'Month': 'Month', 'Count': 'Number of Offers'})
+            
+            figure_bar_month.update_layout(
+                xaxis_title='Month', yaxis_title='Number of Offers',
+                xaxis=dict(tickformat='%Y-%m', tickangle=-45),
+                template=template
+            )
+            figure_bar_month.write_image(f'{folder_path}/month_histogram.png', width=1920, height=1080)
 
-                figure_bar_month.update_layout(xaxis_title='Month', yaxis_title='Number of Offers',
-                                            xaxis=dict(tickformat='%Y-%m', tickangle=-45),
-                                            template=template)
-                figure_bar_month.write_image(f'{folder_path}/month_histogram.png', width=1920, height=1080)
+        # Weekday Histogram Chart
+        df_plot['weekday'] = df_plot['DatePosted'].dt.day_name()
+        weekday_counts = df_plot['weekday'].value_counts().reindex([
+            'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+        ]).reset_index()
+        weekday_counts.columns = ['Weekday', 'Count']
+        weekday_counts = weekday_counts.sort_values(by='Weekday', key=lambda x: pd.Categorical(x, categories=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], ordered=True))
+
+        if weekday_counts.empty:
+            print("No data available to plot for weekdays.")
+        else:
+            figure_bar_weekday = px.bar(
+                weekday_counts, 
+                x='Weekday', 
+                y='Count',
+                title='Number of Job Offers per Weekday',
+                labels={'Weekday': 'Weekday', 'Count': 'Number of Offers'}
+            )
+            
+            figure_bar_weekday.update_layout(
+                xaxis_title='Weekday', 
+                yaxis_title='Number of Offers',
+                xaxis=dict(
+                    tickangle=-45,
+                    tickfont=dict(size=20)
+                ),
+                yaxis=dict(
+                    tickfont=dict(size=20)
+                ),
+                template=template
+            )
+            figure_bar_weekday.write_image(f'{folder_path}/weekday_histogram.png', width=1920, height=1080)
     
     if map_chart:
-        df['Region'] = df['Region'].str.upper()
-        df = df.assign(Region=df['Region'].str.split(';')).explode('Region')
-        df_grouped = df.groupby('Region').size().reset_index(name='count')
+        df_plot['Region'] = df_plot['Region'].str.upper()
+        df_plot = df_plot.assign(Region=df_plot['Region'].str.split(';')).explode('Region')
+        df_grouped = df_plot.groupby('Region').size().reset_index(name='count')
         df_grouped = df_grouped.rename(columns={'Region': 'name'})
         df_grouped = df_grouped.sort_values(by='count', ascending=False)
         
@@ -194,7 +231,7 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
             figure_polska.write_image(f'{folder_path}/poland_map.png', width=1920, height=1080)
 
     if cities_chart: 
-        df_filtered_cities_map = df.copy()
+        df_filtered_cities_map = df_plot.copy()
         df_filtered_cities_map['City'] = df_filtered_cities_map['City'].replace('Warsaw', 'Warszawa')
         df_filtered_cities_map['City'] = df_filtered_cities_map['City'].astype(str)
         df_filtered_cities_map['Latitude'] = df_filtered_cities_map['Latitude'].astype(str)
@@ -277,7 +314,7 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
             fig_city_bubbles.write_image(f'{folder_path}/city_bubbles_chart.png', width=1920, height=1080)
             
     if city_pie_chart:
-        df_filtered_cities_pie = df.copy() 
+        df_filtered_cities_pie = df_plot.copy() 
         df_filtered_cities_pie['City'] = df_filtered_cities_pie['City'].replace('Warsaw', 'Warszawa')
         df_filtered_cities_pie['City'] = df_filtered_cities_pie['City'].astype(str)
         df_filtered_cities_pie['Latitude'] = df_filtered_cities_pie['Latitude'].astype(str)
@@ -327,7 +364,7 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
             fig_pie_cities.write_image(f'{folder_path}/city_pie_chart.png', width=1920, height=1080)
     
     if languages_bar_chart:
-        df_languages_filtered = df[languages.keys()].sum().reset_index()
+        df_languages_filtered = df_plot[languages.keys()].sum().reset_index()
         df_languages_filtered.columns = ['Language', 'Count']
         df_languages_filtered = df_languages_filtered.sort_values(by='Count', ascending=False)
         
@@ -358,7 +395,7 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
             figure_languages_bar_filtered.write_image(f'{folder_path}/languages_bar_chart.png', width=1920, height=1080)
 
     if benefits_pie_chart:
-        df_benefits_filtered = df[['WorkLifeBalance', 'FinancialRewards', 'HealthWellbeing',
+        df_benefits_filtered = df_plot[['WorkLifeBalance', 'FinancialRewards', 'HealthWellbeing',
                                             'Development', 'WorkplaceCulture', 'MobilityTransport',
                                             'UniqueBenefits', 'SocialInitiatives']].sum().reset_index()
         df_benefits_filtered.columns = ['Benefit', 'Count']
@@ -397,7 +434,7 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
             figure_benefits_pie.write_image(f'{folder_path}/benefits_pie_chart.png', width=1920, height=1080)
 
     if employment_type_pie_chart:
-        df_employment_type_filtered = df[['FullTime', 'Hybrid', 'Remote']].sum().reset_index()
+        df_employment_type_filtered = df_plot[['FullTime', 'Hybrid', 'Remote']].sum().reset_index()
         df_employment_type_filtered.columns = ['Employment Type', 'Count']
         
         df_employment_type_filtered = df_employment_type_filtered.sort_values(by='Count', ascending=False)
@@ -440,7 +477,7 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
             figure_employment_type_pie.write_image(f'{folder_path}/employment_type_pie_chart.png', width=1920, height=1080)
 
     if experience_level_bar_chart:
-        df_experiences_filtered = df[['Internship','Junior','Middle','Senior','Lead']].sum().reset_index()
+        df_experiences_filtered = df_plot[['Internship','Junior','Middle','Senior','Lead']].sum().reset_index()
         df_experiences_filtered.columns = ['Experience', 'Count']
         
         df_experiences_filtered = df_experiences_filtered.sort_values(by='Count', ascending=False)
@@ -499,7 +536,7 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
         colors = [color_map[exp] for exp in experience_levels]
         
         for exp, color in zip(experience_levels, colors):
-            df_exp = df[df[exp] == 1]
+            df_exp = df_plot[df_plot[exp] == 1]
             df_exp = df_exp[df_exp['Salary'] != 0]
             
             Q1 = df_exp['Salary'].quantile(0.25)
@@ -535,43 +572,27 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
                 figure_salary_boxplot.write_image(f'{folder_path}/salary_box_plot.png', width=1920, height=1080)
 
     if technologies_bar_chart:
-        df_filtered = df.copy()
+        df_filtered = df_plot.copy()
 
         # Ensure all values in 'Technologies' are strings
         all_technologies = df_filtered['Technologies'].astype(str).str.split('[,;]', expand=True).stack()
-
-        # Sets of invalid and must-keep technologies
-        not_valid_technologies = {
-            'LESS', 'PROJECT', 'DESIGN',"WINDOWS","SUPPORT","DATA","DATABASE","TEAMS",
-            "DATABASES","MICROSOFT","NIST","MEET","BPMN","APPLICATIONS","MAST","ENGLISH",
-            "BUSINESS ANALYSIS", "DEVELOPMENT", "MANAGEMENT", "ANALYSIS", "PROJECT MANAGEMENT", "PROJECTS",
-            "VMWA","SNOW", "CODE"
-        }
-        keep_technologies = {'C#', 'AWS', 'ERP', 'API', 'CSS', 'IOS', 'C++', 'SAP', 'GIT', 'SQL'}
-
-        # Strip and uppercase technologies
         all_technologies = all_technologies.astype(str).str.strip().str.upper()
 
-        # Filter technologies based on validity
         filtered_technologies = all_technologies.apply(
             lambda tech: tech if (len(tech) > 3 or tech in keep_technologies) and tech not in not_valid_technologies else 'NOT VALID'
         )
         filtered_technologies = filtered_technologies[filtered_technologies != 'NOT VALID']
 
-        # Count occurrences of each technology
         tech_counts = filtered_technologies.value_counts().reset_index()
         tech_counts.columns = ['Technology', 'Count']
 
-        # Exclude empty strings
         tech_counts = tech_counts[tech_counts['Technology'] != '']
 
-        # Get the top 35 technologies by count
         top_technologies = tech_counts.nlargest(35, 'Count')
 
         if df_exp.empty:
             print("No data available to figure_technologies_bar.")
         else:        
-            # Create the bar chart
             figure_technologies_bar = px.bar(
                 top_technologies, 
                 x='Technology', 
@@ -581,7 +602,6 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
                 template=template
             )
 
-            # Customize the layout of the figure
             figure_technologies_bar.update_layout(
                 title = dict(
                     font=dict(size=40)
@@ -592,11 +612,10 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
             )
             figure_technologies_bar.update_xaxes(categoryorder='total descending')
 
-            # Save the figure as an image
             figure_technologies_bar.write_image(f'{folder_path}/technologies_bar_chart.png', width=1920, height=1080)
 
     if employer_bar_chart:
-        employer_counts = df['Employer'].value_counts().reset_index()
+        employer_counts = df_plot['Employer'].value_counts().reset_index()
         employer_counts.columns = ['Employer', 'Count']
         
         employer_counts = employer_counts.sort_values(by='Count', ascending=False)
@@ -626,7 +645,7 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
             employer_bar.write_image(f'{folder_path}/employer_bar_chart.png', width=1920, height=1080)
 
     if positions_bar_chart:
-        role_counts = df['CoreRole'].value_counts().reset_index()
+        role_counts = df_plot['CoreRole'].value_counts().reset_index()
         role_counts.columns = ['Role', 'Count']
         
         role_counts = role_counts.sort_values(by='Count', ascending=False)
@@ -665,9 +684,9 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
 
     if post_text:
         post_date = datetime.now().date()
-        df['DatePosted'] = pd.to_datetime(df['DatePosted'])
-        df['Expiration'] = pd.to_datetime(df['Expiration'])
-        today_jobs_bot = df[df['DatePosted'].dt.date == post_date].shape[0]
+        df_plot['DatePosted'] = pd.to_datetime(df_plot['DatePosted'])
+        df_plot['Expiration'] = pd.to_datetime(df_plot['Expiration'])
+        today_jobs_bot = df_plot[df_plot['DatePosted'].dt.date == post_date].shape[0]
         folder_path = f"figures/{chat_id}"
         os.makedirs(folder_path, exist_ok=True)
         
@@ -792,7 +811,6 @@ if __name__ == "__main__":
     df = fetch_data(query_today, db_config)
     
     if not df.empty:
-        df.columns = plot_columns
         chat_id = str(date.today())
         
         generate_figures(df, chat_id + "-light", histogram_day_month_chart=False, map_chart=True, cities_chart=True, 

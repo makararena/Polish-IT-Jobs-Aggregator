@@ -3,11 +3,14 @@ from matplotlib import colors as mcolors
 import plotly.express as px
 import plotly.graph_objects as go
 import json
+import os
 import datetime
 from datetime import datetime
 import psycopg2
 import pandas as pd
 from dash.exceptions import PreventUpdate
+from dotenv import load_dotenv
+load_dotenv()
 
 from data.dictionaries import plot_columns, languages
 
@@ -37,7 +40,7 @@ def load_data_from_db():
     connection = psycopg2.connect(
         dbname='postgres',
         user='postgres',
-        password='makararena',
+        password=os.getenv("DB_PASSWORD"),
         host='localhost'
     )
     query = "SELECT * FROM jobs"
@@ -78,7 +81,7 @@ custom_colorscale = [
 # App layout
 app.layout = html.Div(children=[
     html.H1(
-        children='🇵🇱 Work-Analysis Project 🇵🇱',
+        children='🇵🇱 IT Jobs Aggregator 🇵🇱',
         style={'font-family': 'Arial', 'font-size': '40px', 'text-align': 'center', 'color': '#333'}
     ),
     html.Div(
@@ -537,7 +540,6 @@ def update_figures(selected_experiences, selected_jobs, start_date, end_date):
     # ----------
     # Languages Bar Chart
     # ----------
-    print(languages)
     df_languages_filtered = df_filtered[languages.keys()].sum().reset_index()
     df_languages_filtered.columns = ['Language', 'Count']
     figure_languages_bar_filtered = px.bar(df_languages_filtered, x='Language', y='Count', 
@@ -566,11 +568,9 @@ def update_figures(selected_experiences, selected_jobs, start_date, end_date):
     # Employment Type Pie Chart
     # ----------
 
-    # Sum the counts and reset the index for employment types
     df_employment_type_filtered = df_filtered[['FullTime', 'Hybrid', 'Remote']].sum().reset_index()
-    df_employment_type_filtered.columns = ['Employment Type', 'Count']  # Rename columns
+    df_employment_type_filtered.columns = ['Employment Type', 'Count'] 
 
-    # Create the pie chart for employment types
     figure_employment_type_pie = px.pie(df_employment_type_filtered, names='Employment Type', values='Count', 
                                         title='Employment Type Distribution',
                                         labels={'Employment Type': 'Employment Type', 'Count': 'Count'},

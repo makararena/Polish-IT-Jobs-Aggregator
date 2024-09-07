@@ -2,7 +2,6 @@
 2. change name because we are getting all the data for previous day
 3. double check graph filters so that if no data it shouldnt be plotted (по мере того как найдешь)
 5. подумай какие еще графики можно добавить (jutro)
-6. Убери Polska из названия компаний
 7. Защита от дебилов для глеба
 8. Можно добавить отсрасль компании in data 
 9. мы можем больше не давать текст, переводить только заголовки и тогда у нас получиься все на англ и давать просто ссылку

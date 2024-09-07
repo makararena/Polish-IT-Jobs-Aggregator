@@ -740,7 +740,9 @@ profession_titles = [
     "Team Coordinator",
     "Open Source Engineer",
     "Data Visualization Specialist",
-    "Internal Manager"
+    "Internal Manager",
+    "ETL Developer",
+    "Uplift Engineer",
 ]
 
 
@@ -797,3 +799,16 @@ language_options = [
         "Swedish 🇸🇪", 
         "Danish 🇩🇰"
     ]
+
+not_valid_technologies = {
+    'LESS', 'PROJECT', 'DESIGN', "WINDOWS", "SUPPORT", "DATA", "DATABASE", "TEAMS",
+    "DATABASES", "MICROSOFT", "NIST", "MEET", "BPMN", "APPLICATIONS", "MAST", "ENGLISH",
+    "BUSINESS ANALYSIS", "DEVELOPMENT", "MANAGEMENT", "ANALYSIS", "PROJECT MANAGEMENT", "PROJECTS",
+    "VMWA", "SNOW", "CODE"
+}
+
+keep_technologies = {
+    'C#', 'AWS', 'ERP', 'API', 'CSS', 'IOS', 'C++', 'SAP', 'GIT', 'SQL', 'PHP', 
+    'XML', 'SSH', 'TLS', 'JWT', 'DNS', 'EC2', 'S3', 'RDS', 'VPC', 'ELB', 'IAM', 
+    'PWA', 'CMS', 'CRM', 'IoT', 'TCP', 'UDP', 'GPU', 'SDK', 'SaaS'
+}

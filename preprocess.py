@@ -16,8 +16,10 @@ from data.dictionaries import (
     contract_values, polish_to_english_months,
     categories_benefits, job_level_dict,
     languages, dict_to_rename, work_type_dict, columns_order, profession_titles,
-    translation_dict
+    translation_dict, not_valid_technologies, keep_technologies
 )
+from dotenv import load_dotenv
+load_dotenv()
 
 
 # Add the path to the argos-translate directory
@@ -30,7 +32,7 @@ db_config = {
     "host": "localhost",
     "database": "postgres",
     "user": "postgres",
-    "password": "makararena"
+    "password": os.getenv("DB_PASSWORD")
 }
 
 query = "SELECT * FROM jobs_upload;"
@@ -342,17 +344,38 @@ df['job_level'] = df['experience_level'].apply(map_job_level)
 job_levels = ['internship', 'junior', 'middle', 'senior', 'lead']
 df = create_category_columns(df, job_levels, 'job_level')
 
-df['employer_name'] = (df['employer_name']
-                       .str.replace(r"\b(sp[.]?\s?z[.]?\s?o[.]?\s?o[.]?)\b", "", case=False, regex=True)
-                       .str.replace(r"\b(SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ)\b", "", case=False)
-                       .str.replace(r"\b(SPÓŁKA KOMANDYTOWA)\b", "", case=False)
-                       .str.replace(r"\b(S[.]?\s?A[.]?)\b", "", case=False, regex=True)
-                       .str.replace(r"\b(Sp[.]?\s?J[.]?)\b", "", case=False, regex=True)
-                       .str.replace(r"\b(Polska)\b", "", case=False)
-                       .str.replace(r"\b(ltd[.]?)\b", "", case=False, regex=True)
-                       .str.replace(r"\b(gmbh)\b", "", case=False, regex=True)
-                       .str.strip())
+def custom_title_case(text):
+    words = text.split()
+    formatted_words = [word.upper() if len(word) <= 3 else word.capitalize() for word in words]
+    return ' '.join(formatted_words)
 
+df['employer_name'] = (
+    df['employer_name']
+    .str.replace(r"\b(SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ|SPÓŁKA KOMANDYTOWA|Spółka Akcyjna|S[.]?\s?A[.]?|Sp[.]?\s?J[.]?|sp[.]?\s?z[.]?\s?o[.]?\s?o[.]?|spzoo|sp\.?z\.?o\.?|\bSP ZOO\b|\bPL\b|\[|\])\b", "", case=False, regex=True)
+    .str.replace(r"\b(Polska|Poland|ltd[.]?|gmbh)\b", "", case=False, regex=True)
+    .str.replace(r"\.\s*|^\s*|\s+$", " ", regex=True) 
+    .str.replace(r"\s+", " ", regex=True)  
+    .str.replace("()","")
+    .str.strip()
+    .apply(custom_title_case) 
+)
+
+df['normalized_name'] = df['employer_name'].str.lower()
+
+def consolidate_names(series):
+    all_names = series.unique()
+    name_map = {}
+    
+    for name in all_names:
+        for other_name in all_names:
+            if name != other_name and name in other_name:
+                name_map[name] = other_name
+                break
+                
+    return series.map(lambda x: name_map.get(x, x))
+
+df['employer_name'] = consolidate_names(df['employer_name'])
+df = df.drop(columns=['normalized_name'])
 
 df.drop(columns=['standardized',
                  'location', 'salary', 'job_level'], inplace=True)
@@ -366,35 +389,41 @@ df.drop(columns="work_type", inplace=True)
 df['technologies_used'] = df['technologies_used'].str.upper()
 
 technologies_set = set()
+
 for technologies in df['technologies_used']:
     if technologies != 'N/A':
         techs = [tech.strip() for tech in technologies.replace(';', ',').split(',')]
         techs = [tech for tech in techs if len(tech) >= 2]
         technologies_set.update(techs)
-        
+
 for technologies in df_unique_jobs['technologies_used']:
     if technologies != 'N/A':
         techs = [tech.strip() for tech in technologies.replace(';', ',').split(',')]
         techs = [tech for tech in techs if len(tech) >= 2]
         technologies_set.update(techs)
 
+# Process and update technologies
 updated_technologies = []
 
 for index, row in df.iterrows():
     if row['technologies_used'] == 'N/A':
         relevant_techs = set()
         for tech in technologies_set:
-            if tech.lower() in row['worker_responsibilities'].lower() or tech.lower() in row['job_requirements'].lower():
-                if len(tech) > 2:
-                    relevant_techs.add(tech.upper()) 
+            tech_upper = tech.upper()
+            tech_lower = tech.lower()
+            if tech_upper not in not_valid_technologies and (tech_lower in row['worker_responsibilities'].lower() or tech_lower in row['job_requirements'].lower()):
+                if len(tech_upper) <= 3 and tech_upper in keep_technologies:
+                    relevant_techs.add(tech_upper)
         
         if relevant_techs:
             updated_technologies.append(';'.join(relevant_techs))
         else:
             updated_technologies.append('N/A')
     else:
-        updated_technologies.append(row['technologies_used'])
-
+        techs = [tech.strip() for tech in row['technologies_used'].replace(';', ',').split(',')]
+        filtered_techs = [tech for tech in techs if len(tech) <= 3 or tech.upper() in keep_technologies]
+        filtered_techs = [tech.upper() for tech in filtered_techs if tech.upper() not in not_valid_technologies]
+        updated_technologies.append(';'.join(filtered_techs) if filtered_techs else 'N/A')
 
 df['technologies_used'] = updated_technologies
 
@@ -407,9 +436,11 @@ for column in df.columns:
 for category, keywords in work_type_dict.items():
     df[category] = df['hybryd_full_remote'].apply(lambda x: int(any(keyword in str(x).lower() for keyword in keywords)))
 
-df.drop(columns=['hybryd_full_remote', 'contract_type', 'experience_level', 'detected_language'], inplace=True) # 
-
+df.drop(columns=['hybryd_full_remote', 'contract_type', 'experience_level', 'detected_language'], inplace=True)
 df = df[columns_order]
+df['date_posted'] = df['date_posted'] - pd.Timedelta(days=1)
+
+print(df['technologies_used'].to_string())
 
 def insert_data_to_db(df, table_name, db_config):
     """Insert data from DataFrame into the specified table in PostgreSQL."""
@@ -432,5 +463,5 @@ def insert_data_to_db(df, table_name, db_config):
 insert_data_to_db(df, 'jobs', db_config)
 
 # Output to files
-# timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-# df.to_excel(f"data/output_{timestamp}.xlsx", index=False, engine="openpyxl")
+timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+df.to_excel(f"data/output_{timestamp}.xlsx", index=False, engine="openpyxl")
