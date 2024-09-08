@@ -7,3 +7,4 @@
 9. мы можем больше не давать текст, переводить только заголовки и тогда у нас получиься все на англ и давать просто ссылку
 10. /start is simply going back to the main menu it's not resetting the bot 
 11. add rocketjobs.pl
+12. reset daily update is not working properly 

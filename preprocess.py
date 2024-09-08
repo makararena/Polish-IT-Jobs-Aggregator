@@ -3,6 +3,7 @@ import os
 import re
 import numpy as np
 import datetime
+from datetime import datetime, timedelta
 import psycopg2
 import pandas as pd
 import openpyxl
@@ -21,8 +22,6 @@ from data.dictionaries import (
 from dotenv import load_dotenv
 load_dotenv()
 
-
-# Add the path to the argos-translate directory
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'argos-translate')))
 
 from translate import detect_language, translate_title
@@ -35,7 +34,7 @@ db_config = {
     "password": os.getenv("DB_PASSWORD")
 }
 
-query = "SELECT * FROM jobs_upload;"
+query = "SELECT * FROM jobs_upload LIMIT 20;"
 query_unique_jobs = "SELECT id, technologies_used FROM jobs;"
 
 cities = pd.read_csv("/Users/ivanivsnov/Work-Analysis/data/cities_and_regions.csv", sep = ",")
@@ -92,7 +91,7 @@ def convert_to_date(date_str):
     match = re.search(r'(\d+)\s*(dni|days)', date_str)
     if match:
         days = int(match.group(1))
-        return (datetime.datetime.now() + datetime.timedelta(days=days)).date()
+        return ((datetime.now() + timedelta(days=days)).date()) - timedelta(days=1)
 
     for pl_month, en_month in polish_to_english_months.items():
         date_str = date_str.replace(pl_month, en_month)
@@ -289,7 +288,11 @@ def extract_job_role(title):
     cosine_sim = cosine_similarity(vectorizer[0:1], vectorizer[1:])
     closest_index = cosine_sim.argmax()
     
-    return profession_titles[closest_index] if cosine_sim[0][closest_index] > 0 else cleaned_title.title()
+    similarity_score = cosine_sim[0][closest_index]
+    if similarity_score > 0.7:
+        return profession_titles[closest_index]
+    else:
+        return cleaned_title.title()
 
 if df.empty:
     print("We don't have new jobs.")
@@ -301,17 +304,17 @@ df['expiration'] = df['expiration'].apply(convert_to_date)
 df['id'] = df['job_title'] + "_" + df['employer_name'] + "_" + df['city'] + "_" + df['expiration'].astype(str)
 df = df.drop_duplicates(subset='id')
 
-# Filter out rows with matching 'id' values
 unique_ids = set(df_unique_jobs['id'])
 df = df[~df['id'].isin(unique_ids)]
     
 def replace_polish_words(text, translation_dict):
-    # Split the job title into words, replace each word, and rejoin into a single string
     words = text.split()
     translated_words = [translation_dict.get(word.lower(), word) for word in words]
     return ' '.join(translated_words)
 
-columns_to_process = ['job_title']
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+print(df.columns)
+columns_to_process = ['job_title','responsibilities','requirements','benefits','offering']
 
 for column in columns_to_process:
     df = process_column(df, column, detect_language, translate_title)
@@ -402,28 +405,36 @@ for technologies in df_unique_jobs['technologies_used']:
         techs = [tech for tech in techs if len(tech) >= 2]
         technologies_set.update(techs)
 
-# Process and update technologies
 updated_technologies = []
 
+def is_technology_present(text, tech):
+    words = text.lower().split()
+    return tech.lower() in words
+
 for index, row in df.iterrows():
-    if row['technologies_used'] == 'N/A':
-        relevant_techs = set()
-        for tech in technologies_set:
-            tech_upper = tech.upper()
-            tech_lower = tech.lower()
-            if tech_upper not in not_valid_technologies and (tech_lower in row['worker_responsibilities'].lower() or tech_lower in row['job_requirements'].lower()):
-                if len(tech_upper) <= 3 and tech_upper in keep_technologies:
-                    relevant_techs.add(tech_upper)
-        
-        if relevant_techs:
-            updated_technologies.append(';'.join(relevant_techs))
-        else:
-            updated_technologies.append('N/A')
+    print(index, row["technologies_used"])
+    
+    if row["technologies_used"] == "N/A":
+        # Initialize a list for new technologies if the current value is 'N/A'
+        new_technologies = []
     else:
-        techs = [tech.strip() for tech in row['technologies_used'].replace(';', ',').split(',')]
-        filtered_techs = [tech for tech in techs if len(tech) <= 3 or tech.upper() in keep_technologies]
-        filtered_techs = [tech.upper() for tech in filtered_techs if tech.upper() not in not_valid_technologies]
-        updated_technologies.append(';'.join(filtered_techs) if filtered_techs else 'N/A')
+        # Split the existing technologies and initialize a set for combining
+        existing_techs = set(row["technologies_used"].split(';'))
+        new_technologies = list(existing_techs)
+    
+    # Process new technologies based on the content of job requirements, etc.
+    for tech in technologies_set:
+        tech_lower = tech.lower()
+        if ((is_technology_present(row["job_requirements"], tech) or 
+             is_technology_present(row["worker_responsibilities"], tech) or 
+             is_technology_present(row["job_title"], tech)) and \
+            ((len(tech) > 2) or (tech in keep_technologies)) and \
+            (tech not in not_valid_technologies)):
+            if tech not in new_technologies:  # Add new technology only if it's not already present
+                new_technologies.append(tech)
+    
+    # Append the combined list to updated_technologies, join with ';' and handle empty lists
+    updated_technologies.append(';'.join(new_technologies) if new_technologies else 'N/A')
 
 df['technologies_used'] = updated_technologies
 
@@ -438,9 +449,13 @@ for category, keywords in work_type_dict.items():
 
 df.drop(columns=['hybryd_full_remote', 'contract_type', 'experience_level', 'detected_language'], inplace=True)
 df = df[columns_order]
-df['date_posted'] = df['date_posted'] - pd.Timedelta(days=1)
+df['date_posted'] = df['date_posted']
 
-print(df['technologies_used'].to_string())
+# # Output to files
+# now = datetime.now()
+# one_day_before = now - timedelta(days=1)
+# timestamp = one_day_before.strftime("%Y%m%d_%H%M%S")
+# df.to_excel(f"data/output_{timestamp}.xlsx", index=False, engine="openpyxl")
 
 def insert_data_to_db(df, table_name, db_config):
     """Insert data from DataFrame into the specified table in PostgreSQL."""
@@ -461,7 +476,3 @@ def insert_data_to_db(df, table_name, db_config):
         print(f"Data inserted into table {table_name}")
 
 insert_data_to_db(df, 'jobs', db_config)
-
-# Output to files
-timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-df.to_excel(f"data/output_{timestamp}.xlsx", index=False, engine="openpyxl")

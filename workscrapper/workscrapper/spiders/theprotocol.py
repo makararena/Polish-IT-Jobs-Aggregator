@@ -1,15 +1,15 @@
 import scrapy
-import datetime
+from datetime import datetime, timedelta
 from workscrapper.items import JobsItem
 
 class JobSpider(scrapy.Spider):
     name = "theprotocol_spider"
     start_url_number = 1
     base_url = "https://theprotocol.it/praca?pageNumber="
-    upload_id = str(datetime.date.today()) + "_" + "theprotocol_spider"
+    upload_id = str(datetime.today() - timedelta(days=1)) + "_" + "theprotocol_spider"
     
     def start_requests(self):
-        while self.start_url_number <= 200:  # Adjust the condition to control the number of pages
+        while self.start_url_number <= 1:  # Adjust the condition to control the number of pages
             start_url = f"{self.base_url}{self.start_url_number}"
             yield scrapy.Request(url=start_url, callback=self.parse)
             self.start_url_number += 1
@@ -74,7 +74,7 @@ class JobSpider(scrapy.Spider):
         ]) or 'N/A'
         
         item['url'] = str(response.url)
-        item['date_posted'] = datetime.date.today()
+        item['date_posted'] = (datetime.today() - timedelta(days=1)).date()
         item['upload_id'] = self.upload_id
         
         yield item

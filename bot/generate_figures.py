@@ -4,7 +4,7 @@ import shutil
 import psycopg2
 import psycopg2.extras
 import pandas as pd
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 import sys
 import plotly.express as px
 import plotly.graph_objects as go
@@ -46,7 +46,7 @@ def fetch_data(query, db_config):
         return pd.DataFrame()
 
 query = "SELECT * FROM jobs;"
-query_today = "SELECT * FROM jobs WHERE date_posted = CURRENT_DATE;"
+query_yesterday = "SELECT * FROM jobs WHERE date_posted = CURRENT_DATE - INTERVAL '1 day';"
 
 def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True, cities_chart=True, city_pie_chart=True, 
                      languages_bar_chart=True, benefits_pie_chart=True, employment_type_pie_chart=True, 
@@ -577,13 +577,7 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
         # Ensure all values in 'Technologies' are strings
         all_technologies = df_filtered['Technologies'].astype(str).str.split('[,;]', expand=True).stack()
         all_technologies = all_technologies.astype(str).str.strip().str.upper()
-
-        filtered_technologies = all_technologies.apply(
-            lambda tech: tech if (len(tech) > 3 or tech in keep_technologies) and tech not in not_valid_technologies else 'NOT VALID'
-        )
-        filtered_technologies = filtered_technologies[filtered_technologies != 'NOT VALID']
-
-        tech_counts = filtered_technologies.value_counts().reset_index()
+        tech_counts = all_technologies.value_counts().reset_index()
         tech_counts.columns = ['Technology', 'Count']
 
         tech_counts = tech_counts[tech_counts['Technology'] != '']
@@ -683,16 +677,16 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
             figure_roles_bar.write_image(f'{folder_path}/positions_bar_chart.png', width=1920, height=1080)
 
     if post_text:
-        post_date = datetime.now().date()
+        post_date = (datetime.now().date() - timedelta(days=1))
         df_plot['DatePosted'] = pd.to_datetime(df_plot['DatePosted'])
         df_plot['Expiration'] = pd.to_datetime(df_plot['Expiration'])
-        today_jobs_bot = df_plot[df_plot['DatePosted'].dt.date == post_date].shape[0]
+        yesterday_jobs_bot = df_plot[df_plot['DatePosted'].dt.date == post_date].shape[0]
         folder_path = f"figures/{chat_id}"
         os.makedirs(folder_path, exist_ok=True)
         
         if content_daily:
             text_content = f"""
-            🌟 Date: {post_date}\n📅 Today's Jobs: {today_jobs_bot}\n📊 Total Jobs in Database: {fetch_data(query, db_config).shape[0]}\nThese jobs can be effectively used for training ML models or performing data analysis.\n😃 Have a nice day!
+            🌟 Date: {post_date}\n📅 Yesterday's Jobs: {yesterday_jobs_bot}\n📊 Total Jobs in Database: {fetch_data(query, db_config).shape[0]}\nThese jobs can be effectively used for training ML models or performing data analysis.\n😃 Have a nice day!
                 """
 
             text_file_path = os.path.join(folder_path, "summary.txt")
@@ -783,7 +777,7 @@ def process_theme(theme_dir, conn, generation_date, theme_type):
     return False
 
 def save_figures_and_text(base_dir, conn):
-    generation_date = str(date.today())
+    generation_date = str(date.today() - timedelta(days=1))
     figures_dir_light = os.path.join(base_dir, generation_date + "-light")
     figures_dir_dark = os.path.join(base_dir, generation_date + "-dark")
     
@@ -808,10 +802,10 @@ if __name__ == "__main__":
     # Establish database connection
     conn = connect_db(db_config)
     
-    df = fetch_data(query_today, db_config)
+    df = fetch_data(query_yesterday, db_config)
     
     if not df.empty:
-        chat_id = str(date.today())
+        chat_id = str(date.today() - timedelta(days=1))
         
         generate_figures(df, chat_id + "-light", histogram_day_month_chart=False, map_chart=True, cities_chart=True, 
                          city_pie_chart=True, languages_bar_chart=True, benefits_pie_chart=True, 
@@ -828,7 +822,7 @@ if __name__ == "__main__":
         # Save figures and text to database
         save_figures_and_text("figures", conn)
     else:
-        print("Dataframe is empty -> no uploads for today")
+        print("Dataframe is empty -> no uploads for yesterday")
 
     # Close the connection
     conn.close()

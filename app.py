@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import json
 import os
 import datetime
-from datetime import datetime
+from datetime import datetime, timedelta
 import psycopg2
 import pandas as pd
 from dash.exceptions import PreventUpdate
@@ -34,7 +34,8 @@ with open(geojson_path, 'r') as file:
     poland_geojson = json.load(file)
 
 geojson_names = [feature['properties']['name'] for feature in poland_geojson['features']]
-last_update_date = datetime.now().strftime("%B %d, %Y")
+yesterday = datetime.now() - timedelta(days=1)
+last_update_date = yesterday.strftime("%B %d, %Y")
 
 def load_data_from_db():
     connection = psycopg2.connect(
@@ -99,7 +100,7 @@ app.layout = html.Div(children=[
     ),
     html.Div([
         html.Div([
-            html.H4(id='today-jobs', style={
+            html.H4(id='yesterday-jobs', style={
                 'font-family': 'Arial', 
                 'font-size': '20px', 
                 'color': '#333',
@@ -336,7 +337,7 @@ html.Div([
 ])
 
 @app.callback(
-    [Output('today-jobs', 'children'),
+    [Output('yesterday-jobs', 'children'),
      Output('current-jobs', 'children'),
      Output('total-jobs', 'children'),
      Output('line-chart-day', 'figure'),
@@ -655,20 +656,9 @@ def update_figures(selected_experiences, selected_jobs, start_date, end_date):
     # ----------
     
     all_technologies = df_filtered['Technologies'].str.split('[,;]', expand=True).stack()
-    
-    not_valid_technologies = {'OWL', 'ANT', 'SED', 'API','LIN','LAN','BAS','NAT','ZIO','LESS','WAN', 'PROJECT', 'DESIGN', 'EDI', 'IAM', 'ZAP', 'RTO', "WINDOWS", "CLOUD","SAM","ROS","MACH"}
-    keep_technologies = {'C#', 'AWS', 'ERP', 'API', 'CSS', 'IOS', 'C++', 'SAP', 'GIT', 'SQL'}
+    all_technologies = all_technologies.astype(str).str.strip().str.upper()
 
-    all_technologies = df_filtered['Technologies'].str.split('[,;]', expand=True).stack()
-
-    all_technologies = all_technologies.str.strip().str.upper()
-
-    filtered_technologies = all_technologies.apply(
-        lambda tech: tech if (len(tech) > 2 or tech in keep_technologies) and tech not in not_valid_technologies else 'NOT VALID'
-    )
-    filtered_technologies = filtered_technologies[filtered_technologies != 'NOT VALID']
-
-    tech_counts = filtered_technologies.value_counts().reset_index()
+    tech_counts = all_technologies.value_counts().reset_index()
     tech_counts.columns = ['Technology', 'Count']
 
     tech_counts = tech_counts[tech_counts['Technology'] != '']
@@ -728,12 +718,15 @@ def update_figures(selected_experiences, selected_jobs, start_date, end_date):
 )
     figure_roles_bar.update_xaxes(categoryorder='total descending')
     
-    today_date = datetime.now().date()
-    today_jobs_count = str(df[df['DatePosted'].dt.date == today_date].shape[0]) + " Jobs Were Posted Today"
-    active_jobs_count = str(df[df['Expiration'].dt.date > today_date].shape[0]) + " Jobs Are Active Today"
+    yesterday_date = (datetime.today() - timedelta(days=1)).date()
+    today_date = datetime.today().date()
+
+    # Calculate counts
+    yesterday_jobs_count = str(df[df['DatePosted'].dt.date == yesterday_date].shape[0]) + " Jobs Were Posted Yesterday"
+    active_jobs_count = str(df[df['Expiration'].dt.date > today_date].shape[0]) + " Jobs Are Active Now"
     total_jobs_count = str(df.shape[0]) + " Jobs Are In This Database"
 
-    return today_jobs_count, active_jobs_count, total_jobs_count, figure_line_day, figure_bar_month, figure_polska_filtered, fig_city_bubbles, fig_pie_filtered, fig_pie_cities, \
+    return yesterday_jobs_count, active_jobs_count, total_jobs_count, figure_line_day, figure_bar_month, figure_polska_filtered, fig_city_bubbles, fig_pie_filtered, fig_pie_cities, \
             figure_experiences_bar_filtered, figure_languages_bar_filtered, figure_salary_boxplot, figure_benefits_pie, \
             figure_employment_type_pie, figure_technologies_bar, figure_employers_bar, figure_roles_bar
 

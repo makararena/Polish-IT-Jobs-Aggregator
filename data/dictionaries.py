@@ -743,6 +743,10 @@ profession_titles = [
     "Internal Manager",
     "ETL Developer",
     "Uplift Engineer",
+    "Graphic Designer",
+    "Infrastructure Analyst",
+    "Tester Salesforce",
+    "Xamarin / Maui Developer",
 ]
 
 
@@ -766,8 +770,8 @@ translation_dict = {
 
 PROJECT_DESCRIPTION = (
     "Welcome to my first major project, a Polish IT jobs aggregator designed to help job seekers find their ideal IT positions.\n\n"
-    "This tool scrapes job data from major Polish websites: pracuj.pl, bulldogjob.pl, and theprotocol.it, stores it in a backup and a current batch database, and processes it to provide insights. You can access the data via a local Dash app or a Telegram bot, which allows for data visualization, downloading, and filtering.\n\n"
-    "For detailed information about the project, please visit the repository:\n"
+    "This tool scrapes job data from major Polish websites: pracuj.pl, bulldogjob.pl, and theprotocol.it. You can access the data via a local Dash app or a Telegram bot, which allows for data visualization, downloading, and filtering.\n\n"
+    "For detailed (technical) information about the project, please visit the repository:\n"
     "🔗 <a href='https://github.com/makararena/Polish-IT-Jobs-Aggregator'>GitHub Repository</a>\n\n"
     "🔗 <b>Connect with Me</b>:\n"
     "GitHub: <a href='https://github.com/makararena'>GitHub</a>\n"
@@ -783,7 +787,7 @@ WELCOME_MESSAGE = (
     "⚠️ If you encounter any issues, just type /start to reset the bot."
 )
 
-no_filters_message = "⚠️ It looks like you haven't set any filters.\n\nIf you'd like to view all data:\n1. Go to the main menu and select Today's Jobs Statistics to see today's statistics.\n2. Choose Jobs by Date Statistics to view statistics for a specific date."
+no_filters_message = "⚠️ It looks like you haven't set any filters.\n\nIf you'd like to view all data:\n1. Go to the main menu and select Yesterday's Jobs to see yesterday's statistics.\n2. Choose Jobs by Date to view statistics for a specific date."
 
 language_options = [
         "English 🇬🇧", 
@@ -810,5 +814,19 @@ not_valid_technologies = {
 keep_technologies = {
     'C#', 'AWS', 'ERP', 'API', 'CSS', 'IOS', 'C++', 'SAP', 'GIT', 'SQL', 'PHP', 
     'XML', 'SSH', 'TLS', 'JWT', 'DNS', 'EC2', 'S3', 'RDS', 'VPC', 'ELB', 'IAM', 
-    'PWA', 'CMS', 'CRM', 'IoT', 'TCP', 'UDP', 'GPU', 'SDK', 'SaaS'
+    'PWA', 'CMS', 'CRM', 'IoT', 'TCP', 'UDP', 'GPU', 'SDK', 'SaaS', 'GCP', 'ICT', 
+    'RCP', 'JIRA', 'VR', 'IPSEC', 'VPN', 'LAN', 'WAN', 'APIs', 'CDN', 'FTP', 'NFS', 
+    'SLA', 'DDoS', 'DRM', 'CLI', 'NAT', 'XSS', 'SSL', 'BGP', 'AES', 'FaaS', 'RPA', 
+    'BI', 'ETL', 'CI', 'CD', 'AI', 'ML', 'QA', 'KPI', 'B2B', 'B2C', 'SEO', 'SEM', 
+    'P2P', 'SMS', 'MFA', 'SDK', 'USB', 'OS', 'UX', 'ID', 'DB', 'VIM', 'GUI', 
+    'CPU', 'RAM', 'SSD', 'DNS', 'IO', 'CGI', 'WWW', 'RPG', 'SRE', 'IAM', 'EFS',
+    'ORM', 'DMZ', 'UDP', 'SAS', 'EAI', 'ALM', 'AMQ', 'ESP', 'CRT', 'IAM', 'VFX',
+    'JWT', 'API', 'VNC', 'XLM', 'IP', 'VR', 'IPX', 'B2G', 'PST', 'ISO', 'IR', 
+    'SMP', 'DFS', 'RPC', 'ASP', 'SIM', 'CDR', 'TLD', 'AVX', 'HDD', 'SPD', 'DDR', 
+    'DMA', 'SSD', 'CRT', 'DAC', 'HD', 'DLT', 'CDP', 'WAF', 'APT', 'IDS', 'IPS', 
+    'MPL', 'MLP', 'ZFS', 'AD', 'DC', 'OSX', 'LVM', 'PDF', 'JVM', 'POD', 'SCM',
+    'LXC', 'EXE', 'JRE', 'NPM', 'UDP', 'PPT', 'USB', 'RTS', 'BGP', 'PKI', 'DLP',
+    'I/O', 'ABI', 'EEP', 'RFC', 'SDI', 'KVM', 'PCI', 'ECC', 'LCD', 'TFT', 'LED',
+    'XOR', 'AES', 'RSA', 'SHA', 'GFS', 'STP', 'QOS', 'DHCP', 'PIP', 'TUN', 'TSL', 
+    'SSL', 'MAC', 'PPP', 'IIS', 'OCR', 'CAD', 'CAM', 'DFS', 'CRT', 'TTL'
 }

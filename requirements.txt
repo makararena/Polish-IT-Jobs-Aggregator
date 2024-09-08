@@ -53,6 +53,7 @@ langdetect==1.0.9
 language_data==1.2.0
 lxml==5.3.0
 magic-filter==1.0.12
+mailutils==0.0.2
 marisa-trie==1.2.0
 markdown-it-py==3.0.0
 MarkupSafe==2.1.5

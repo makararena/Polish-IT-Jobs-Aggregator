@@ -1,12 +1,20 @@
 import pandas as pd
-import io
+import re
 import os
 import asyncio
 import json
 import sys
 import signal
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, types, executor
-from datetime import datetime
+import aiofiles 
+from datetime import datetime, timedelta
 import asyncpg
 import psycopg2
 import psycopg2.extras
@@ -20,6 +28,7 @@ import warnings
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from data.dictionaries import PROJECT_DESCRIPTION, WELCOME_MESSAGE, language_options, no_filters_message
+from send_mail import send_email
 
 warnings.filterwarnings("ignore", message="Using slow pure-python SequenceMatcher")
 warnings.filterwarnings("ignore", message="pandas only supports SQLAlchemy connectable")
@@ -135,7 +144,7 @@ async def get_all_chat_ids():
 
 
 query = "SELECT * FROM jobs;"
-query_today = "SELECT * FROM jobs WHERE date_posted = DATE('now');"
+query_yesterday = "SELECT * FROM jobs WHERE date_posted = CURRENT_DATE - INTERVAL '1 day';"
 user_query = "SELECT user_id, filters FROM user_data;"
 
 df = fetch_data(query, db_config)
@@ -162,6 +171,7 @@ WAITING_FOR_DATA_FORMAT = 'waiting_for_data_format'
 WAITING_CURRENT_FILTERS = 'waiting_current_filters'
 WAITING_RESET_DAILY_UPDATE = 'waiting_reset_daily_update'
 WAITING_FOR_ANOTHER_THEME = 'waiting_for_another_theme' 
+WAITING_FOR_EMAIL = 'waiting_for_email'
 
 
 user_states = {}
@@ -221,7 +231,28 @@ async def check_and_post_files(chat_id, date_str, db_config):
                 except Exception as e:
                     print(f"Error sending summary text: {e}")
         else:
-            await bot.send_message(chat_id, f"No data found for {date_str.replace('-dark', '').replace('-light', '')}")    
+            # No data found, get the closest available date
+            closest_date_query = """
+            SELECT generation_id
+            FROM daily_report
+            WHERE generation_id != $1
+            """
+            
+            closest_date_result = await conn.fetchrow(closest_date_query, date_str)
+            print(closest_date_result)
+            
+            if closest_date_result:
+                closest_date = closest_date_result['generation_id']
+                await bot.send_message(
+                        chat_id, 
+                        f"❌ No data found for {date_str.replace('-dark', '').replace('-light', '')}. "
+                        f"The closest available date is 📅 {closest_date.replace('-dark', '').replace('-light', '')}.\n\n"
+                        "👉 If you want to get data for this date, please type: "
+                        f"`{closest_date.replace('-dark', '').replace('-light', '')}` or type another date after this one."
+                    )
+            else:
+                await bot.send_message(chat_id, f"No data found for {date_str.replace('-dark', '').replace('-light', '')}, and no other available dates.")
+      
     except Exception as e:
         print(f"Error querying the database: {e}")
     finally:
@@ -231,8 +262,8 @@ async def send_start_message(chat_id, to_send_message=True):
     """Send a welcome message with options to the user."""
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     
-    view_today_button = types.KeyboardButton("Today's Jobs Statistics")
-    view_anotherdate_button = types.KeyboardButton("Jobs by Date Statistics")
+    view_yesterday_button = types.KeyboardButton("Yesterday's Jobs")
+    view_anotherdate_button = types.KeyboardButton("Jobs by Date")
     about_project_button = types.KeyboardButton("About Project")
     add_filters_button = types.KeyboardButton("Set Filters 🔍")
     leave_review_button = types.KeyboardButton("Feedback ✍️")
@@ -240,7 +271,7 @@ async def send_start_message(chat_id, to_send_message=True):
     change_graph_theme_button = types.KeyboardButton("Change Graph Theme 🎨")
     
     # Add buttons to the markup
-    markup.add(add_filters_button, view_today_button, view_anotherdate_button)
+    markup.add(add_filters_button, view_yesterday_button, view_anotherdate_button)
     markup.add(about_project_button, leave_review_button, reset_daily_update_button)
     markup.add(change_graph_theme_button)  # Add the new button on a separate row
     
@@ -768,16 +799,16 @@ async def handle_message(message: types.Message):
         elif current_state in [WAITING_FOR_DATA_FORMAT]:
             await post_filter_action_options(message.chat.id)
 
-    elif message.text == "Today's Jobs Statistics":
-        today_date = datetime.now().strftime('%Y-%m-%d')
+    elif message.text == "Yesterday's Jobs":
+        yesterday_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
         filters = user_filters.get(chat_id, {})
         
         light_theme_filter = filters.get("graph_theme", "light")
-        file_suffix = f"{today_date}-{light_theme_filter}"
+        file_suffix = f"{yesterday_date}-{light_theme_filter}"
         
         await check_and_post_files(chat_id, file_suffix, db_config)
 
-    elif message.text == "Jobs by Date Statistics":
+    elif message.text == "Jobs by Date":
         await handle_another_date_selection(message)
         
     elif user_states.get(chat_id) in [WAITING_FOR_ANOTHER_DATE]:
@@ -1092,24 +1123,47 @@ async def handle_message(message: types.Message):
         await post_filter_action_options(chat_id)
             
     elif user_states.get(chat_id) == WAITING_FOR_NOTIFICATION_TIME:
-            try:
+        try:
                 preferred_time = datetime.strptime(message.text, "%H:%M").time()
                 filters = user_filters.get(chat_id, {})
                 filters["notification_time"] = preferred_time.strftime("%H:%M")
                 filters_json = json.dumps(filters)
-                
+
                 insert_user_data(chat_id, filters_json, db_config)
-                
+
                 await bot.send_message(chat_id, 
                     f"⏰ Your daily update time has been set to {preferred_time.strftime('%H:%M')}!\n"
                     "✅ Daily updates have been successfully applied!\n"
                     "🔕 Also, it might be a good idea to mute this bot so you don't wake up too early! 😅"
                 )
-                user_states[chat_id] = None
-                await send_start_message(message.chat.id, to_send_message=False)
-                
-            except ValueError:
-                await bot.send_message(chat_id, "Invalid time format. Please provide the time in HH:MM format (24-hour format).")
+
+                # Ask if the user wants to receive updates by email
+                await bot.send_message(chat_id, 
+                    "Would you like to receive your updates by email as well? If yes, please provide your email address."
+                )
+
+                user_states[chat_id] = WAITING_FOR_EMAIL
+        except ValueError:
+            await bot.send_message(chat_id, "Invalid time format. Please provide the time in HH:MM format (24-hour format).")
+            
+    elif user_states.get(chat_id) == WAITING_FOR_EMAIL:
+        
+        def validate_email(email):
+            email_regex = re.compile(r"[^@]+@[^@]+\.[^@]+")
+            return email_regex.match(email) is not None
+        
+        user_email = message.text.strip()
+        if validate_email(user_email):  # Add your email validation function
+            filters = user_filters.get(chat_id, {})
+            filters["email"] = user_email
+            filters_json = json.dumps(filters)
+            insert_user_data(chat_id, filters_json, db_config)
+
+            await bot.send_message(chat_id, "Great! You'll receive your updates by email as well.")
+            user_states[chat_id] = None
+            await send_start_message(message.chat.id, to_send_message=False)
+        else:
+            await bot.send_message(chat_id, "Invalid email address. Please provide a valid email address.")
                 
     elif message.text == "Light Theme 🌞":
         chat_id = message.chat.id
@@ -1136,6 +1190,46 @@ async def send_message(user_id, text):
     except Exception as e:
         print(f"Failed to send message to {user_id}: {e}")
         
+async def send_email(subject, body, to_email, excel_data, csv_data):
+    from_email = 'makararena.pl@gmail.com'
+    password = os.getenv("EMAIL_PASSWORD")
+
+    if password is None:
+        raise ValueError("EMAIL_PASSWORD environment variable not set")
+
+    # Create the email message
+    msg = MIMEMultipart()
+    msg['From'] = from_email
+    msg['To'] = to_email
+    msg['Subject'] = subject
+    
+    # Create the email body with a closing message
+    closing_message = f"\n\nSome day you'll find your dream job!\n 🌟 Have a nice day! 😊 \n\n"
+    body += closing_message
+    msg.attach(MIMEText(body, 'plain'))
+
+    # Attach the Excel file
+    attachment_excel = MIMEApplication(excel_data)
+    attachment_excel.add_header('Content-Disposition', 'attachment; filename="data.xlsx"')
+    msg.attach(attachment_excel)
+
+    # Attach the CSV file
+    attachment_csv = MIMEApplication(csv_data)
+    attachment_csv.add_header('Content-Disposition', 'attachment; filename="data.csv"')
+    msg.attach(attachment_csv)
+
+    # Additional text about the attachments
+    msg.attach(MIMEText("\nHere are both Excel and CSV data files attached.", 'plain'))
+
+    try:
+        # Send the email
+        with smtplib.SMTP('smtp.gmail.com', 587) as server:
+            server.starttls()
+            server.login(from_email, password)
+            server.send_message(msg)
+        print(f"Email successfully sent to {to_email}")
+    except Exception as e:
+        print(f"Failed to send email: {e}")
         
 async def check_and_send_notifications():
     while True:
@@ -1158,31 +1252,44 @@ async def check_and_send_notifications():
             else:
                 print(f"Unexpected type for filters for user_id {chat_id}")
                 continue
-            notification_time = filters_dict['notification_time'] 
+
+            notification_time = filters_dict['notification_time']
+            user_email = filters_dict.get('email')
+
             if notification_time == now:
-                df_today = fetch_data(query_today, db_config) 
-                message, excel, csv, _ = add_filters_to_df(df_today, filters_dict, is_csv=False, is_excel=False, is_spark=True)
+                df_yesterday = fetch_data(query_yesterday, db_config)
+                message, excel_data, csv_data, _ = add_filters_to_df(df_yesterday, filters_dict, is_csv=False, is_excel=False, is_spark=True)
                 
+                if user_email:
+                    subject = "Your Daily Update" + str(datetime.now().strftime('%Y-%m-%d'))
+                    body = f"Here is your daily update for {datetime.now().strftime('%Y-%m-%d')}."
+
                 try:
                     if message:
                         for part in message.split('\n'):
                             await send_message(chat_id, part)
+                    
+                    # Send Excel and CSV files via bot and email
                     excel_message = "⬇️ Here is all the data in the Excel file ⬇️"
                     csv_message = "⬇️ Here is all the data in the CSV file ⬇️"
 
-                    if excel:
+                    if excel_data and csv_data:
                         await bot.send_message(chat_id, excel_message)
-                        await bot.send_document(chat_id, ('data.xlsx', excel))
-
-                    if csv:
+                        await bot.send_document(chat_id, ('data.xlsx', excel_data))
+                        
                         await bot.send_message(chat_id, csv_message)
-                        await bot.send_document(chat_id, (f'data.csv', csv))
-                    
+                        await bot.send_document(chat_id, ('data.csv', csv_data))
+
+                        if user_email:
+                            # Send a single email with both attachments
+                            await send_email(subject, body, user_email, excel_data, csv_data)
+
                     closing_message = f"\nSome day you'll find your dream job! 🌟 Have a nice day! 😊"
                     await bot.send_message(chat_id, closing_message)
 
                 except Exception as e:
                     print(f"Failed to send message or file to user_id {chat_id}: {e}")
+                    
         await asyncio.sleep(60)
 
 async def on_startup(dp):

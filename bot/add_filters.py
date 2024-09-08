@@ -1,7 +1,7 @@
 import pandas as pd
 import io
 import openpyxl
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def add_filters_to_df(df, filters, is_excel=False, is_csv=False, is_spark=False):
     filtered_df = df.copy()
@@ -57,9 +57,10 @@ def add_filters_to_df(df, filters, is_excel=False, is_csv=False, is_spark=False)
         
     if 'expiration_date' in filters:
         expiration_date = filters['expiration_date']
-        today = pd.to_datetime(datetime.today().date()) 
+        yesterday = (datetime.today() - timedelta(days=1)).date()
+        yesterday_timestamp = pd.to_datetime(yesterday)
         if expiration_date == 'current':
-            filtered_df = filtered_df[filtered_df['expiration'] >= today]
+            filtered_df = filtered_df[filtered_df['expiration'] >= yesterday_timestamp]
 
     if is_csv:
         filtered_df.drop(columns=['id', 'core_role', 'lat', 'long', 'upload_id'], inplace=True)
@@ -79,7 +80,7 @@ def add_filters_to_df(df, filters, is_excel=False, is_csv=False, is_spark=False)
     elif is_spark:
         filtered_df.drop(columns=['id', 'core_role', 'lat', 'long', 'upload_id'], inplace=True)
         if filtered_df.shape[0] < 15:
-            intro_message = f"\nHi there! 😊 Here are the new data based on your criteria for today:\n"
+            intro_message = f"\nHi there! 😊 Here are the all data based on your criteria for yesterday:\n"
             result_message = intro_message
             for _, row in filtered_df.iterrows():
                 result_message += f"📌 {row['job_title']} - {row['employer_name']}   "
@@ -97,7 +98,7 @@ def add_filters_to_df(df, filters, is_excel=False, is_csv=False, is_spark=False)
             return result_message, output_excel.getvalue(), output_csv.getvalue(), 'text-excel'
         else: 
             num_jobs = filtered_df.shape[0]
-            result_message = f"Hi, for today we have {num_jobs} jobs based on your criteria: here you go:"
+            result_message = f"Hi, for yesterday we had {num_jobs} jobs based on your criteria: here you go:"
 
             output_excel = io.BytesIO()
             with pd.ExcelWriter(output_excel, engine='openpyxl') as writer:
