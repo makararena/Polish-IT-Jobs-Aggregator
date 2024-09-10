@@ -93,7 +93,7 @@ app.layout = html.Div(children=[
             ),
             html.Img(
                 src='/assets/ProjectSchemaWH.png',
-                style={'width': '900px', 'height': 'auto', 'margin-left': 'auto'}  # Set margin-left to auto for alignment
+                style={'width': '900px', 'height': 'auto', 'margin-left': 'auto'}
             )
         ],
         style={'display': 'flex', 'align-items': 'center', 'justify-content': 'flex-end', 'margin-bottom': '20px','margin-right': '40px'}

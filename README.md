@@ -28,6 +28,10 @@ The project offers two web services:
    - Change graphs to light or dark theme
    - Set daily alarms to receive information about new job postings matching your filters
 
+3. **Automated Email Updates** : The program includes automatic email sending capabilities::
+   - Email notifications about program execution and all preprocessing statuses are sent automatically to the main email.
+   - Daily Update emails are sent to users, providing them with the latest job postings and relevant information.
+
 ## Project Potential
 
 While the program may not be perfect and the code could be improved, the idea has great potential. This program can serve as a skeleton for new ideas in different areas. For example, it could be adapted to create a database of all flats in Poland (currently experiencing a boom). By rewriting the scrapers for relevant websites, changing database fields, and adjusting the filters, you could create a similar system for another sphere.
@@ -231,24 +235,38 @@ The current version of the program has room for improvement. Some algorithms cou
    );
 
    -- This table is for storing daily report figures
-   CREATE TABLE daily_report (
-     generation_date DATE PRIMARY KEY,
-     benefits_pie_chart BYTEA,
-     city_bubbles_chart BYTEA,
-     city_pie_chart BYTEA,
-     employer_bar_chart BYTEA,
-     employment_type_pie_chart BYTEA,
-     experience_level_bar_chart BYTEA,
-     languages_bar_chart BYTEA,
-     salary_box_plot BYTEA,
-     poland_map BYTEA,
-     positions_bar_chart BYTEA,
-     technologies_bar_chart BYTEA,
-     summary TEXT
-   );
+  CREATE TABLE daily_report (
+      generation_id VARCHAR(50) PRIMARY KEY,
+      benefits_pie_chart BYTEA,
+      city_bubbles_chart BYTEA,
+      city_pie_chart BYTEA,
+      employer_bar_chart BYTEA,
+      employment_type_pie_chart BYTEA,
+      experience_level_bar_chart BYTEA,
+      languages_bar_chart BYTEA,
+      salary_box_plot BYTEA,
+      poland_map BYTEA,
+      positions_bar_chart BYTEA,
+      technologies_bar_chart BYTEA,
+      summary TEXT
+  );
    ```
+5. **Add execute permissions to scripts (macOS and Linux only)**
+   - For macOS and Linux:
+     ```bash
+     chmod +x main.sh
+     chmod +x control_bot.sh
+     ```
 
-5. **Run the script**
+6. **Create .env file**
+   - Create a file named `.env` in the root directory of the project with the following content:
+     ```plaintext
+     TELEGRAM_TOKEN=your_telegram_bot_token
+     DB_PASSWORD=your_database_password
+     EMAIL_PASSWORD=your_email_password
+     ```
+
+7. **Run the script**
    - For macOS and Linux:
      ```bash
      ./main.sh
@@ -264,7 +282,7 @@ The current version of the program has room for improvement. Some algorithms cou
      main.bat
      ```
 
-6. **Set up automated script execution**
+8. **Set up automated script execution**
    - For macOS and Linux:
      Run `crontab -e` and add the following line:
      ```

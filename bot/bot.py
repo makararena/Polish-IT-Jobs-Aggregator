@@ -419,7 +419,7 @@ async def handle_filters(message: types.Message):
     data_type_button = types.KeyboardButton("Use Only Current Data 📅")
     clear_filters_button = types.KeyboardButton("Clear Filters 🗑️")
     check_filters_button = types.KeyboardButton("Current Filters 🔍")
-    main_menu_button = types.KeyboardButton("Main Menu 🏠")
+    main_menu_button = types.KeyboardButton("Back ⬅️")
 
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     
@@ -477,30 +477,40 @@ async def confirm_daily_update(message: types.Message):
     filters = user_filters.get(chat_id, {})
     
     if filters:
-        # Build the filters message directly within the confirmation message
+        # Build the filters message, skipping certain keys like graph_theme, notification_time, and email
         filters_info = ""
         for key, value in filters.items():
-            if key != "graph_theme" and key != "notification_time":
+            if key not in {"graph_theme", "notification_time", "email"} and value:  # Ensure the filter has a value
                 filters_info += f"{key.replace('_', ' ').capitalize()}: {value}\n"
 
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-        confirm_button = types.KeyboardButton("Yes, apply for Daily Updates ✅")
-        back_button = types.KeyboardButton("Back ⬅️")
-        
-        markup.add(confirm_button, back_button)
+        if filters_info:  # Check if any filters were added to the message
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+            confirm_button = types.KeyboardButton("Yes, apply for Daily Updates ✅")
+            back_button = types.KeyboardButton("Back ⬅️")
+            
+            markup.add(confirm_button, back_button)
 
-        await bot.send_message(
-            chat_id, 
-            f"Your current filters are:\n{filters_info}\nAre you sure you want to apply for daily updates?", 
-            reply_markup=markup
-        )
-        
-        user_states[chat_id] = WAITING_FOR_DAILY_UPDATE_CONFIRMATION
+            await bot.send_message(
+                chat_id, 
+                f"Your current filters are:\n{filters_info}\nAre you sure you want to apply for daily updates?", 
+                reply_markup=markup
+            )
+            
+            user_states[chat_id] = WAITING_FOR_DAILY_UPDATE_CONFIRMATION
+        else:
+            # No valid filters were found
+            await bot.send_message(
+                chat_id,
+                "You don't have any valid filters set. Please set your filters first."
+            )
+            await handle_filters(message)
+
     else:
+        # No filters at all
         await bot.send_message(
             chat_id,
             "You don't have any filters set. Please set your filters first."
-        )      
+        )
         await handle_filters(message)
 
     
@@ -514,7 +524,7 @@ async def post_filter_action_options(chat_id):
     check_filters_button = types.KeyboardButton("Current Filters 🔍")
     clear_filters_button = types.KeyboardButton("Clear Filters 🗑️")
     apply_daily_update_button = types.KeyboardButton("Apply for Daily Update 📅")  
-    back_button = types.KeyboardButton("Main Menu 🏠")  
+    back_button = types.KeyboardButton("Back ⬅️")  
     
     markup.add(add_another_button, download_data_button, check_graphs_button, check_filters_button, clear_filters_button)
     markup.add(apply_daily_update_button) 
@@ -790,20 +800,20 @@ async def handle_message(message: types.Message):
         current_state = user_states.get(chat_id) 
         user_states.pop(chat_id, None)  
         
-        if current_state in [WAITING_FOR_ANOTHER_DATE, WAITING_FOR_REVIEW, WAITING_FOR_ANOTHER_THEME]:
+        if current_state in [WAITING_FOR_ANOTHER_DATE, WAITING_FOR_REVIEW, WAITING_FOR_ANOTHER_THEME, WAITING_FOR_FILTERS]:
             await send_start_message(message.chat.id, to_send_message=False)
         elif current_state in [WAITING_FOR_EXPERIENCE, WAITING_FOR_CORE_ROLE, WAITING_FOR_WORK_TYPE, WAITING_FOR_COMPANY,
-                               WAITING_FOR_CITY, WAITING_FOR_REGION, WAITING_FOR_LANGUAGE, WAITING_FOR_DAILY_UPDATE_CONFIRMATION,
+                               WAITING_FOR_CITY, WAITING_FOR_REGION, WAITING_FOR_LANGUAGE,
                                WAITING_FOR_CITY_INPUT, WAITING_FOR_CORE_ROLE_INPUT, WAITING_FOR_COMPANY_INPUT]:
             await handle_filters(message) 
-        elif current_state in [WAITING_FOR_DATA_FORMAT]:
+        elif current_state in [WAITING_FOR_DATA_FORMAT, WAITING_FOR_NOTIFICATION_TIME, WAITING_FOR_DAILY_UPDATE_CONFIRMATION, WAITING_FOR_EMAIL]:
             await post_filter_action_options(message.chat.id)
 
     elif message.text == "Yesterday's Jobs":
         yesterday_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
         filters = user_filters.get(chat_id, {})
         
-        light_theme_filter = filters.get("graph_theme", "light")
+        light_theme_filter = filters.get("graph_theme", "dark")
         file_suffix = f"{yesterday_date}-{light_theme_filter}"
         
         await check_and_post_files(chat_id, file_suffix, db_config)
@@ -819,14 +829,14 @@ async def handle_message(message: types.Message):
                 
                 # Retrieve user's filters
                 filters = user_filters.get(chat_id, {})
-                light_theme_filter = filters.get("graph_theme", "light")
+                light_theme_filter = filters.get("graph_theme", "dark")
                 file_suffix = f"{date_str}-{light_theme_filter}"
                 
                 # Call the function with the date and filters
                 await check_and_post_files(chat_id, file_suffix, db_config)
             
             except ValueError:
-                await bot.send_message(chat_id, "Invalid date format. Please provide the date in YYYY-MM-DD format or press 'Exit' to return.")
+                await bot.send_message(chat_id, "Invalid date format. Please provide the date in YYYY-MM-DD format or press 'Back ⬅️' to return.")
 
     elif message.text == "About Project":
         await send_project_info(chat_id)
@@ -865,7 +875,7 @@ async def handle_message(message: types.Message):
             if filters:
                 filters_info = ""
                 for key, value in filters.items():
-                    if key != "graph_theme" and key != "notification_time":
+                    if key != "graph_theme" and key != "notification_time" and key != "email":
                         filters_info += f"{key.replace('_', ' ').capitalize()}: {value}\n"
 
                 confirmation_msg = (
@@ -891,13 +901,29 @@ async def handle_message(message: types.Message):
         await handle_reset_daily_update_confirmation(message)
     
     elif user_states.get(chat_id) == WAITING_FOR_DAILY_UPDATE_CONFIRMATION:
+        # Check if the user already has a notification time
+        filters = user_filters.get(chat_id, {})
+        previous_time = filters.get("notification_time")
+
+        buttons = [
+            types.KeyboardButton("Back ⬅️"),
+        ]
+
+        if previous_time:
+            buttons.append(types.KeyboardButton("Use Previous Time"))
+
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        keyboard.add(*buttons)
+
         if message.text == "Yes, apply for Daily Updates ✅":
-            await bot.send_message(chat_id, "When do you want to receive the daily update? Please provide the time in the format HH:MM (24-hour format).")
+            await bot.send_message(chat_id, f"When do you want to receive the daily update? Please provide the time in the format HH:MM (24-hour format). If you want to use your previous time {previous_time} please type 'Use Previous Time'", reply_markup=keyboard)
             user_states[chat_id] = WAITING_FOR_NOTIFICATION_TIME
+
         elif message.text == "Back ⬅️":
             await bot.send_message(chat_id, "Returning to the previous menu.")
-            user_states[chat_id] = None 
-            await handle_filters(message) 
+            user_states[chat_id] = None
+            await handle_filters(message)
+
 
     elif message.text == "Add Filter 🚀":
         await handle_filters(message) 
@@ -908,8 +934,17 @@ async def handle_message(message: types.Message):
         
     elif message.text == "🔄 Clear Filters":
         current_filters = user_filters.get(chat_id, {})
+        
         theme = current_filters.get('graph_theme', 'dark')
-        user_filters[chat_id] = {'graph_theme': theme}
+        notification_time = current_filters.get('notification_time', None)
+        email = current_filters.get('email', None)
+        
+        user_filters[chat_id] = {
+            'graph_theme': theme,
+            'notification_time': notification_time,
+            'email': email
+        }
+        
         await handle_start_over(message)
 
     elif message.text == "🔍 Keep Filters":
@@ -944,10 +979,18 @@ async def handle_message(message: types.Message):
         elif message.text == "Clear Filters 🗑️":
             chat_id = message.chat.id
             current_filters = user_filters.get(chat_id, {})
-            theme = current_filters.get('graph_theme', 'dark')
-            user_filters[chat_id] = {'graph_theme': theme}
             
-            await bot.send_message(chat_id, "All filters have been cleared.")
+            theme = current_filters.get('graph_theme', 'dark')
+            notification_time = current_filters.get('notification_time', None)
+            email = current_filters.get('email', None)
+            
+            user_filters[chat_id] = {
+                'graph_theme': theme,
+                'notification_time': notification_time,
+                'email': email
+            }
+            
+            await bot.send_message(chat_id, "All other filters have been cleared, but notification time and email were kept.")
             await handle_filters(message)
             
         elif message.text == "Apply for Daily Update 📅":
@@ -960,7 +1003,7 @@ async def handle_message(message: types.Message):
             if filters:
                 filters_msg = "\n".join([f"{key.replace('_', ' ').capitalize()}: {value}" 
                                         for key, value in filters.items() 
-                                        if key != "graph_theme" and key != "notification_time"])
+                                        if key != "graph_theme" and key != "notification_time" and key != "email"])
                 if filters_msg: 
                     await bot.send_message(chat_id, f"Your current filters are:\n{filters_msg}")
                 else:
@@ -969,15 +1012,7 @@ async def handle_message(message: types.Message):
                 await bot.send_message(chat_id, "You have not applied any filters yet.")
             
             await post_filter_action_options(chat_id)
-
-        elif message.text == "Main Menu 🏠":
-            user_states[chat_id] = None 
-            await send_start_message(chat_id, to_send_message=False) 
             
-    elif message.text == "Main Menu 🏠":
-        user_states[chat_id] = None 
-        await send_start_message(chat_id, to_send_message=False) 
-
     elif user_states.get(chat_id) == WAITING_FOR_EXPERIENCE:
         experience_level = message.text
         if experience_level in ["👶 Intern", "🌱 Junior", "🌿 Middle", "🌳 Senior", "🌟 Lead"]:
@@ -1000,13 +1035,16 @@ async def handle_message(message: types.Message):
             await bot.send_message(chat_id, "Please type the core role you want to filter by:")
             user_states[chat_id] = WAITING_FOR_CORE_ROLE_INPUT
         else:
-            current_value = user_filters.setdefault(chat_id, {}).get('core_role', '')
-            if current_value:
-                user_filters[chat_id]['core_role'] = f"{current_value};{core_role}"
+            if core_role in df['core_role'].values:
+                current_value = user_filters.setdefault(chat_id, {}).get('core_role', '')
+                if current_value:
+                    user_filters[chat_id]['core_role'] = f"{current_value};{core_role}"
+                else:
+                    user_filters[chat_id]['core_role'] = core_role
+                await bot.send_message(chat_id, f"Added filter for core role: {core_role.capitalize()}")
+                await post_filter_action_options(chat_id)
             else:
-                user_filters[chat_id]['core_role'] = core_role
-            await bot.send_message(chat_id, f"Added filter for core role: {core_role.capitalize()}")
-            await post_filter_action_options(chat_id)
+                await bot.send_message(chat_id, "Invalid core role. Please type a valid core role from the dataset.")
 
     elif user_states.get(chat_id) == WAITING_FOR_CORE_ROLE_INPUT:
         core_role = message.text
@@ -1029,27 +1067,35 @@ async def handle_message(message: types.Message):
 
     elif user_states.get(chat_id) == WAITING_FOR_WORK_TYPE:
         work_type = message.text
-        current_value = user_filters.setdefault(chat_id, {}).get('work_type', '')
-        if current_value:
-            user_filters[chat_id]['work_type'] = f"{current_value};{work_type}"
+        if work_type in ['Full-time', 'Hybrid', 'Remote']:
+            current_value = user_filters.setdefault(chat_id, {}).get('work_type', '')
+            if current_value:
+                user_filters[chat_id]['work_type'] = f"{current_value};{work_type}"
+            else:
+                user_filters[chat_id]['work_type'] = work_type
+            await bot.send_message(chat_id, f"Added filter for work type: {work_type.capitalize()}")
+            await post_filter_action_options(chat_id)
         else:
-            user_filters[chat_id]['work_type'] = work_type
-        await bot.send_message(chat_id, f"Added filter for work type: {work_type}")
-        await post_filter_action_options(chat_id)
+            await bot.send_message(chat_id, "Invalid work type. Please choose a value from the keyboard.")
 
     elif user_states.get(chat_id) == WAITING_FOR_COMPANY:
         company = message.text
+        # Assuming df is your DataFrame that contains companies in a column called 'company'
         if company == "Other 🔄":
             await bot.send_message(chat_id, "Please type the company you want to filter by:")
             user_states[chat_id] = WAITING_FOR_COMPANY_INPUT
         else:
-            current_value = user_filters.setdefault(chat_id, {}).get('company', '')
-            if current_value:
-                user_filters[chat_id]['company'] = f"{current_value};{company}"
+            # Check if the company exists in the DataFrame
+            if company in df['employer_name'].values:
+                current_value = user_filters.setdefault(chat_id, {}).get('company', '')
+                if current_value:
+                    user_filters[chat_id]['company'] = f"{current_value};{company}"
+                else:
+                    user_filters[chat_id]['company'] = company
+                await bot.send_message(chat_id, f"Added filter for company: {company.capitalize()}")
+                await post_filter_action_options(chat_id)
             else:
-                user_filters[chat_id]['company'] = company
-            await bot.send_message(chat_id, f"Added filter for company: {company}")
-            await post_filter_action_options(chat_id)
+                await bot.send_message(chat_id, "Invalid company. Please choose a valid company from the keyboard or select 'Other 🔄' to input manually.")
 
     elif user_states.get(chat_id) == WAITING_FOR_COMPANY_INPUT:
         company = message.text
@@ -1071,17 +1117,22 @@ async def handle_message(message: types.Message):
 
     elif user_states.get(chat_id) == WAITING_FOR_CITY:
         city = message.text
+        # Assuming df is your DataFrame that contains cities in a column called 'city'
         if city == "Other 🔄":
             await bot.send_message(chat_id, "Please type the city you want to filter by:")
             user_states[chat_id] = WAITING_FOR_CITY_INPUT
         else:
-            current_value = user_filters.setdefault(chat_id, {}).get('city', '')
-            if current_value:
-                user_filters[chat_id]['city'] = f"{current_value};{city}"
+            # Check if the city exists in the DataFrame
+            if city in df['city'].values:
+                current_value = user_filters.setdefault(chat_id, {}).get('city', '')
+                if current_value:
+                    user_filters[chat_id]['city'] = f"{current_value};{city}"
+                else:
+                    user_filters[chat_id]['city'] = city
+                await bot.send_message(chat_id, f"Added filter for city: {city.capitalize()}")
+                await post_filter_action_options(chat_id)
             else:
-                user_filters[chat_id]['city'] = city
-            await bot.send_message(chat_id, f"Added filter for city: {city.capitalize()}")
-            await post_filter_action_options(chat_id)
+                await bot.send_message(chat_id, "Invalid city. Please choose a valid city from the dataset or select 'Other 🔄' to input manually.")
 
     elif user_states.get(chat_id) == WAITING_FOR_CITY_INPUT:
         custom_city = message.text
@@ -1104,28 +1155,56 @@ async def handle_message(message: types.Message):
 
     elif user_states.get(chat_id) == WAITING_FOR_REGION:
         region = message.text
-        current_value = user_filters.setdefault(chat_id, {}).get('region', '')
-        if current_value:
-            user_filters[chat_id]['region'] = f"{current_value};{region}"
+        if region in df['region'].values:
+            current_value = user_filters.setdefault(chat_id, {}).get('region', '')
+            if current_value:
+                user_filters[chat_id]['region'] = f"{current_value};{region}"
+            else:
+                user_filters[chat_id]['region'] = region
+            await bot.send_message(chat_id, f"Added filter for region: {region.capitalize()}")
+            await post_filter_action_options(chat_id)
         else:
-            user_filters[chat_id]['region'] = region
-        await bot.send_message(chat_id, f"Added filter for region: {region.capitalize()}")
-        await post_filter_action_options(chat_id)
+            await bot.send_message(chat_id, "Invalid region. Please choose a valid region from the dataset.")
 
     elif user_states.get(chat_id) == WAITING_FOR_LANGUAGE:
         language = message.text
-        current_value = user_filters.setdefault(chat_id, {}).get('language', '')
-        if current_value:
-            user_filters[chat_id]['language'] = f"{current_value};{language}"
+        if language in ["English 🇬🇧", "German 🇩🇪", "French 🇫🇷", "Spanish 🇪🇸", "Italian 🇮🇹", "Dutch 🇳🇱", \
+                        "Russian 🇷🇺", "Mandarin 🇨🇳", "Japanese 🇯🇵", "Portuguese 🇵🇹", "Swedish 🇸🇪", "Danish 🇩🇰"]:
+            current_value = user_filters.setdefault(chat_id, {}).get('language', '')
+            if current_value:
+                user_filters[chat_id]['language'] = f"{current_value};{language}"
+            else:
+                user_filters[chat_id]['language'] = language
+            await bot.send_message(chat_id, f"Added filter for language: {language.capitalize()}")
+            await post_filter_action_options(chat_id)
         else:
-            user_filters[chat_id]['language'] = language
-        await bot.send_message(chat_id, f"Added filter for language: {language.capitalize()}")
-        await post_filter_action_options(chat_id)
+            await bot.send_message(chat_id, "Invalid language. Please choose a valid language from the dataset.")
             
     elif user_states.get(chat_id) == WAITING_FOR_NOTIFICATION_TIME:
-        try:
+        buttons = [
+            types.KeyboardButton("Back ⬅️"),
+            types.KeyboardButton("Skip 🚫"),  # Option to skip adding email
+        ]
+
+        filters = user_filters.get(chat_id, {})
+        previous_time = filters.get("notification_time")
+        previous_email = filters.get("email")
+
+        # Handle the case when the user selects "Use Previous Time"
+        if message.text == "Use Previous Time":
+            filters_json = json.dumps(filters)
+            insert_user_data(chat_id, filters_json, db_config)
+
+            await bot.send_message(chat_id, 
+                f"⏰ Your daily update time has been set to {previous_time}!\n"
+                "✅ Daily updates have been successfully applied!\n"
+                "🔕 It might also be a good idea to mute this bot so you don't wake up too early! 😅"
+            )
+
+        else:
+            # Handle the case when the user enters a custom time
+            try:
                 preferred_time = datetime.strptime(message.text, "%H:%M").time()
-                filters = user_filters.get(chat_id, {})
                 filters["notification_time"] = preferred_time.strftime("%H:%M")
                 filters_json = json.dumps(filters)
 
@@ -1134,36 +1213,76 @@ async def handle_message(message: types.Message):
                 await bot.send_message(chat_id, 
                     f"⏰ Your daily update time has been set to {preferred_time.strftime('%H:%M')}!\n"
                     "✅ Daily updates have been successfully applied!\n"
-                    "🔕 Also, it might be a good idea to mute this bot so you don't wake up too early! 😅"
+                    "🔕 It might also be a good idea to mute this bot so you don't wake up too early! 😅"
                 )
+            except ValueError:
+                await bot.send_message(chat_id, "Invalid time format. Please provide the time in HH:MM format (24-hour format).")
+                return  # Exit to avoid asking for email if time format is invalid
 
-                # Ask if the user wants to receive updates by email
-                await bot.send_message(chat_id, 
-                    "Would you like to receive your updates by email as well? If yes, please provide your email address."
-                )
+        # Prepare the keyboard with email options
+        if previous_email:
+            buttons.append(types.KeyboardButton("Use Previous Email"))
 
-                user_states[chat_id] = WAITING_FOR_EMAIL
-        except ValueError:
-            await bot.send_message(chat_id, "Invalid time format. Please provide the time in HH:MM format (24-hour format).")
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        keyboard.add(*buttons)
+
+        # Ask if the user wants to continue with their current email or provide a new one
+        email_prompt = (
+            f"Would you like to continue with your current email {previous_email} for receiving updates? "
+            f"If you'd like to use your previous email, you can type 'Use Previous Email' or select it from the buttons below. "
+            f"Otherwise, please provide your new email address."
+        )
+        await bot.send_message(chat_id, email_prompt, reply_markup=keyboard)
+
+        user_states[chat_id] = WAITING_FOR_EMAIL
+
             
     elif user_states.get(chat_id) == WAITING_FOR_EMAIL:
-        
+        if message.text == "Skip 🚫":
+            await bot.send_message(chat_id, "You have opted to skip adding an email.")
+            user_states[chat_id] = None  # Reset state
+            await send_start_message(message.chat.id, to_send_message=False)
+            
         def validate_email(email):
             email_regex = re.compile(r"[^@]+@[^@]+\.[^@]+")
             return email_regex.match(email) is not None
+        filters = user_filters.get(chat_id, {})
+        previous_email = filters.get("email")
+
         
-        user_email = message.text.strip()
-        if validate_email(user_email):  # Add your email validation function
-            filters = user_filters.get(chat_id, {})
+        if message.text == "Use Previous Email" and previous_email:
+            # Use the previous email if it exists
+            filters["email"] = previous_email
+            filters_json = json.dumps(filters)
+            insert_user_data(chat_id, filters_json, db_config)
+
+            await bot.send_message(chat_id, 
+                f"📧 Your email has been set to {previous_email}!\n"
+                "✅ You'll also receive your daily updates by email!"
+            )
+            user_states[chat_id] = None  # Reset state after email confirmation
+            await send_start_message(message.chat.id, to_send_message=False)
+
+        elif message.text == "Back ⬅️":
+            # Go back to the previous step
+            await bot.send_message(chat_id, "Returning to the previous menu.")
+            user_states[chat_id] = WAITING_FOR_NOTIFICATION_TIME
+            await handle_filters(message)
+
+        elif validate_email(message.text.strip()):
+            # If the user provides a new valid email
+            user_email = message.text.strip()
             filters["email"] = user_email
             filters_json = json.dumps(filters)
             insert_user_data(chat_id, filters_json, db_config)
 
             await bot.send_message(chat_id, "Great! You'll receive your updates by email as well.")
-            user_states[chat_id] = None
+            user_states[chat_id] = None  # Reset state after email confirmation
             await send_start_message(message.chat.id, to_send_message=False)
+
         else:
             await bot.send_message(chat_id, "Invalid email address. Please provide a valid email address.")
+            
                 
     elif message.text == "Light Theme 🌞":
         chat_id = message.chat.id
@@ -1261,7 +1380,7 @@ async def check_and_send_notifications():
                 message, excel_data, csv_data, _ = add_filters_to_df(df_yesterday, filters_dict, is_csv=False, is_excel=False, is_spark=True)
                 
                 if user_email:
-                    subject = "Your Daily Update" + str(datetime.now().strftime('%Y-%m-%d'))
+                    subject = "Your Daily Update " + str(datetime.now().strftime('%Y-%m-%d'))
                     body = f"Here is your daily update for {datetime.now().strftime('%Y-%m-%d')}."
 
                 try:

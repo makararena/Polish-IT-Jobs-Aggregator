@@ -312,8 +312,6 @@ def replace_polish_words(text, translation_dict):
     translated_words = [translation_dict.get(word.lower(), word) for word in words]
     return ' '.join(translated_words)
 
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-print(df.columns)
 columns_to_process = ['job_title','responsibilities','requirements','benefits','offering']
 
 for column in columns_to_process:
@@ -411,9 +409,7 @@ def is_technology_present(text, tech):
     words = text.lower().split()
     return tech.lower() in words
 
-for index, row in df.iterrows():
-    print(index, row["technologies_used"])
-    
+for index, row in df.iterrows():    
     if row["technologies_used"] == "N/A":
         # Initialize a list for new technologies if the current value is 'N/A'
         new_technologies = []
@@ -451,7 +447,7 @@ df.drop(columns=['hybryd_full_remote', 'contract_type', 'experience_level', 'det
 df = df[columns_order]
 df['date_posted'] = df['date_posted']
 
-# # Output to files
+## Output to files
 # now = datetime.now()
 # one_day_before = now - timedelta(days=1)
 # timestamp = one_day_before.strftime("%Y%m%d_%H%M%S")

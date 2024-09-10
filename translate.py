@@ -2,6 +2,7 @@ from langdetect import detect, DetectorFactory
 from langdetect.lang_detect_exception import LangDetectException
 import argostranslate.package
 import argostranslate.translate
+import re
 
 # Set seed for consistent language detection
 DetectorFactory.seed = 0
@@ -9,6 +10,10 @@ DetectorFactory.seed = 0
 def detect_language(title):
     """Detect if the text is English or Polish; otherwise, return 'unknown'."""
     try:
+        # Check for Polish-specific characters
+        polish_letters = re.search(r'[ąćęłńóśźż]', title)
+        if polish_letters:
+            return 'pl'
         detected_language = detect(title)
         if detected_language == 'pl':
             return detected_language
