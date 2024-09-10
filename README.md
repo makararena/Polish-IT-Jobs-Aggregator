@@ -251,6 +251,7 @@ The current version of the program has room for improvement. Some algorithms cou
       summary TEXT
   );
    ```
+   
 5. **Add execute permissions to scripts (macOS and Linux only)**
    - For macOS and Linux:
      ```bash
