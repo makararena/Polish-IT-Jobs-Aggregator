@@ -10,7 +10,7 @@ class JobSpider(scrapy.Spider):
     upload_id = str(datetime.today() - timedelta(days=1)) + "_" + "buldogjob_spider"
     
     def start_requests(self):
-        while self.start_url_number <= 1:  # Adjust the condition to control the number of pages
+        while self.start_url_number <= 1:
             start_url = f"{self.base_url}{self.start_url_number}"
             yield scrapy.Request(url=start_url, callback=self.parse)
             self.start_url_number += 1
@@ -24,13 +24,10 @@ class JobSpider(scrapy.Spider):
     def parse_job_details(self, response):
         item = JobsItem() 
         
-        # Extract job title
         item['job_title'] = response.css('aside div p.font-medium.text-3xl::text').get() or 'N/A'
         
-        # Extract employer name
         item['employer_name'] = response.css('aside div p.mb-1::text').get() or 'N/A'
         
-        # Extract location and other details
         all_texts = response.css('p.text-md.xl\\:text-c22.leading-6::text').getall()
         item['location'] = all_texts[4:] if len(all_texts) > 4 else 'N/A'
         item['expiration'] = all_texts[0] if len(all_texts) > 0 else 'N/A'
@@ -38,7 +35,6 @@ class JobSpider(scrapy.Spider):
         item['experience_level'] = all_texts[1] if len(all_texts) > 1 else 'N/A'
         item['hybryd_full_remote'] = 'N/A'
 
-        # Extract salary details
         salaries = []
         salary_details = response.css('aside div.mb-4')
         for detail in salary_details:
@@ -53,28 +49,23 @@ class JobSpider(scrapy.Spider):
         
         item['salary'] = ' / '.join(salaries) if salaries else 'N/A'
         
-        # Extract technologies
         item['technologies'] = 'N/A'
         
-        # Extract responsibilities
         item['responsibilities'] = ';'.join([
             resp.strip()
             for resp in response.css('section#1-panel div.content.list--check ul li::text').getall()
         ]) or 'N/A'
 
-        # Extract requirements
         item['requirements'] = ';'.join([
             req.strip()
             for req in response.css('section#3-panel div.content.list--check ul li::text').getall()
         ]) or 'N/A'
 
-        # Extract offering
         item['offering'] = ';'.join([
             offer.strip()
             for offer in response.css('section#2-panel div.content.list--check ul li::text').getall()
         ]) or 'N/A'
 
-        # Extract benefits
         item['benefits'] = ';'.join([
             benefit.strip()
             for benefit in response.css('ul.BenefitsList_benefits__data__fDPbB li::text').getall()

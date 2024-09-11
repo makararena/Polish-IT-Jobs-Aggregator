@@ -25,14 +25,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import warnings
+warnings.filterwarnings("ignore", message="Using slow pure-python SequenceMatcher")
+warnings.filterwarnings("ignore", message="pandas only supports SQLAlchemy")
+warnings.simplefilter("ignore")
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from data.dictionaries import PROJECT_DESCRIPTION, WELCOME_MESSAGE, language_options, no_filters_message
 from send_mail import send_email
 
-warnings.filterwarnings("ignore", message="Using slow pure-python SequenceMatcher")
-warnings.filterwarnings("ignore", message="pandas only supports SQLAlchemy connectable")
-warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -409,6 +409,7 @@ async def handle_filters(message: types.Message):
     """Send a message asking the user which filters they want to apply."""
     chat_id = message.chat.id
 
+    # Define buttons
     experience_button = types.KeyboardButton("Experience Level 💼")
     core_role_button = types.KeyboardButton("Role 🎯")
     company_button = types.KeyboardButton("Company 🏢")
@@ -422,16 +423,19 @@ async def handle_filters(message: types.Message):
     main_menu_button = types.KeyboardButton("Back ⬅️")
 
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    
     markup.add(experience_button, core_role_button, 
                 company_button, city_button, 
                 region_button, language_button, 
-                work_type_button, clear_filters_button, data_type_button)
+                work_type_button, clear_filters_button)
+
+    if 'expiration_date' in user_filters.get(chat_id, {}):
+        data_type_button = types.KeyboardButton("Use All Data 🔄")
+    markup.add(data_type_button)
+    
     markup.add(check_filters_button, main_menu_button)
     
     await bot.send_message(chat_id, "What would you like to filter by?", reply_markup=markup)
     user_states[chat_id] = WAITING_FOR_FILTERS
-
 
 async def handle_experience_selection(message: types.Message):
     """Send a message asking the user to select their experience level."""
@@ -972,6 +976,11 @@ async def handle_message(message: types.Message):
             user_filters[chat_id]['expiration_date'] = 'current'
             await bot.send_message(chat_id, "✅ You have selected to view only current job postings 📅. Expired listings will be excluded from your results 🗂️.")
             await post_filter_action_options(chat_id)
+        elif message.text == "Use All Data 🔄":
+            if chat_id in user_filters and 'expiration_date' in user_filters[chat_id]:
+                del user_filters[chat_id]['expiration_date']
+            await bot.send_message(chat_id, "✅ You have selected to view all data, including expired job postings 🔄.")
+            await handle_filters(message)
         elif message.text == "Download Data ⬇️":
             await handle_download_filtered_data(message)
         elif message.text == "Check Graphs 📊":

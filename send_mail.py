@@ -7,28 +7,22 @@ from email.mime.base import MIMEBase
 from email import encoders
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
 load_dotenv()
 
 def send_email(subject, body, to_email, attachment_path=None):
-    # Email account credentials
     from_email = 'makararena.pl@gmail.com'
     password = os.getenv("EMAIL_PASSWORD")
 
     if password is None:
         raise ValueError("EMAIL_PASSWORD environment variable not set")
 
-    # Create message
     msg = MIMEMultipart()
     msg['From'] = from_email
     msg['To'] = to_email
     msg['Subject'] = subject
 
-    # Attach body
     msg.attach(MIMEText(body, 'plain'))
 
-    # Attach file
-    print(attachment_path)
     if attachment_path:
         try:
             with open(attachment_path, 'rb') as attachment:
@@ -42,7 +36,6 @@ def send_email(subject, body, to_email, attachment_path=None):
             print(f"Attachment file {attachment_path} not found")
             return
 
-    # Send email
     try:
         with smtplib.SMTP('smtp.gmail.com', 587) as server:
             server.starttls()

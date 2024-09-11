@@ -9,7 +9,7 @@ class JobSpider(scrapy.Spider):
     upload_id = str(datetime.today() - timedelta(days=1)) + "_" + "theprotocol_spider"
     
     def start_requests(self):
-        while self.start_url_number <= 1:  # Adjust the condition to control the number of pages
+        while self.start_url_number <= 1:
             start_url = f"{self.base_url}{self.start_url_number}"
             yield scrapy.Request(url=start_url, callback=self.parse)
             self.start_url_number += 1
@@ -35,37 +35,31 @@ class JobSpider(scrapy.Spider):
         salary = ' '.join(salary).strip()
         units = response.css('p[data-test="text-contractUnits"]::text').getall()
         units = ' '.join(units).strip()
-        # Correct the definition and assignment of `salary_type`
         salary_type = response.css('p[data-test="text-contractUnits"]::text').get()
         salary_type = salary_type.strip() if salary_type else 'N/A'
 
         item['salary'] = f"{salary} {salary_type}".strip()
         
-        # Done
         item['technologies'] = ';'.join([
             tech.strip()
             for tech in response.css('div[data-test="chip-technology"] span::text').getall()
         ]) or 'N/A'
         
-        # Done
         item['responsibilities'] = ';'.join([
             resp.strip()
             for resp in response.css('div[data-test="section-responsibilities"] *::text').getall()
         ]) or 'N/A'
 
-        # Done
         item['requirements'] = ';'.join([
             resp.strip()
             for resp in response.css('div[data-test="section-requirements"] *::text').getall()
         ]) or 'N/A'
 
-        # Done
         item['offering'] = ';'.join([
             resp.strip()
             for resp in response.css('div[data-test="section-offered"] ul.l1b2shk9 li.l1s7r86q div.r4179ok.bldcnq5.ihmj1ec::text').getall()
         ]) or 'N/A'
 
-        # Done 
         item['benefits'] = ';'.join([
             benefit.strip()
             for benefit in response.css('div[data-test="section-training-space"] ul.l1b2shk9 li.l1s7r86q div.r4179ok.bldcnq5.ihmj1ec::text').getall() + \

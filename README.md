@@ -46,21 +46,39 @@ The current version of the program has room for improvement. Some algorithms cou
 
 ## How the App Works:
 
-1. **Download Python 3.11.6**
-   - For macOS:
-     - Use Homebrew:
-       ```bash
-       brew install python@3.11.6
-       ```
-     - Or download from the official Python website and run the installer.
-   - For Windows:
-     - Download from the official Python website and run the installer.
-   - For Linux:
-     - Use your distribution's package manager, e.g., for Ubuntu:
-       ```bash
-       sudo apt-get update
-       sudo apt-get install python3.11.6
-       ```
+# 1. Install Python 3.11.6
+  # For macOS:
+  # Using Homebrew:
+  brew install python@3.11.6
+
+  # Alternatively, download the installer from the official Python website and run it.
+
+  # For Linux:
+  # Use your distribution's package manager, for example, on Ubuntu:
+  sudo apt update
+  sudo apt install -y make build-essential libssl-dev zlib1g-dev \
+  libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
+  libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev \
+  libffi-dev liblzma-dev
+
+  # Install pyenv:
+  curl https://pyenv.run | bash
+
+  # Add pyenv to your shell configuration:
+  echo -e 'export PYENV_ROOT="$HOME/.pyenv"\nexport PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+  echo -e 'eval "$(pyenv init --path)"\neval "$(pyenv init -)"' >> ~/.bashrc
+
+  # For Zsh users, use this instead:
+  echo -e 'export PYENV_ROOT="$HOME/.pyenv"\nexport PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
+  echo -e 'eval "$(pyenv init --path)"\neval "$(pyenv init -)"' >> ~/.zshrc
+
+  # Refresh your shell:
+  exec "$SHELL"
+
+  # Install Python 3.11.6 with pyenv:
+  pyenv install 3.11.6
+  pyenv global 3.11.6
+
 
 2. **Clone this repository and navigate to the directory**
    ```bash

@@ -26,7 +26,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'argos-t
 
 from translate import detect_language, translate_title
 
-# Database connection details
+import warnings
+warnings.filterwarnings("ignore", message="pandas only supports SQLAlchemy connectable")
+
 db_config = {
     "host": "localhost",
     "database": "postgres",
@@ -37,7 +39,7 @@ db_config = {
 query = "SELECT * FROM jobs_upload LIMIT 20;"
 query_unique_jobs = "SELECT id, technologies_used FROM jobs;"
 
-cities = pd.read_csv("/Users/ivanivsnov/Work-Analysis/data/cities_and_regions.csv", sep = ",")
+cities = pd.read_csv("./data/cities_and_regions.csv", sep = ",")
 
 cities_pln = cities['city'].to_list()
 cities_eng = cities['city_ascii'].to_list()
@@ -411,14 +413,11 @@ def is_technology_present(text, tech):
 
 for index, row in df.iterrows():    
     if row["technologies_used"] == "N/A":
-        # Initialize a list for new technologies if the current value is 'N/A'
         new_technologies = []
     else:
-        # Split the existing technologies and initialize a set for combining
         existing_techs = set(row["technologies_used"].split(';'))
         new_technologies = list(existing_techs)
     
-    # Process new technologies based on the content of job requirements, etc.
     for tech in technologies_set:
         tech_lower = tech.lower()
         if ((is_technology_present(row["job_requirements"], tech) or 
@@ -426,10 +425,9 @@ for index, row in df.iterrows():
              is_technology_present(row["job_title"], tech)) and \
             ((len(tech) > 2) or (tech in keep_technologies)) and \
             (tech not in not_valid_technologies)):
-            if tech not in new_technologies:  # Add new technology only if it's not already present
+            if tech not in new_technologies:
                 new_technologies.append(tech)
     
-    # Append the combined list to updated_technologies, join with ';' and handle empty lists
     updated_technologies.append(';'.join(new_technologies) if new_technologies else 'N/A')
 
 df['technologies_used'] = updated_technologies

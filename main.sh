@@ -1,12 +1,13 @@
 #!/bin/bash
 
 # Define paths
-LOG_DIR="$HOME/Work-Analysis/logs"
+PROJECT_DIR="$(pwd)"
+LOG_DIR="$PROJECT_DIR/logs"
 MAIN_LOG_FILE="$LOG_DIR/main.log"
 BOT_LOG_FILE="$LOG_DIR/bot.log"
 ZIP_FILE="/tmp/logs.zip"
 EMAIL="makararena@gmail.com"
-CRON_PATTERN="57 15 * * * $HOME/Work-Analysis/main.sh"
+CRON_PATTERN="57 15 * * * $PROJECT_DIR/main.sh"
 
 # Ensure the script exits on any error
 set -e
@@ -25,7 +26,7 @@ echo "Cron job started at $(date)" | tee -a "$MAIN_LOG_FILE"
 crontab -l | grep -v "$CRON_PATTERN" | crontab - 2>> "$MAIN_LOG_FILE"
 
 # Navigate to the project directory
-cd "$HOME/Work-Analysis" || { echo "Failed to change directory to $HOME/Work-Analysis" | tee -a "$MAIN_LOG_FILE"; exit 1; }
+cd "$PROJECT_DIR" || { echo "Failed to change directory to $PROJECT_DIR" | tee -a "$MAIN_LOG_FILE"; exit 1; }
 
 # Create the virtual environment if it does not exist
 if [ ! -d "venv" ]; then
@@ -80,9 +81,8 @@ echo "Running Scrapy spiders at $(date)" | tee -a "$MAIN_LOG_FILE"
   wait $SPIDER3_PID
 } >> "$MAIN_LOG_FILE" 2>&1
 
-
 # Navigate back to the parent project directory
-cd ../..
+cd "$PROJECT_DIR"
 
 # Run the preprocess script
 python3 preprocess.py >> "$MAIN_LOG_FILE" 2>&1
@@ -96,7 +96,7 @@ python3 send_mail.py --subject "Daily Logs and Status" --body "Program logs atta
 echo "Email with main logs sent at $(date)" | tee -a "$MAIN_LOG_FILE"
 
 # Run the bot control script
-~/Work-Analysis/control_bot.sh >> "$BOT_LOG_FILE" 2>&1
+"$PROJECT_DIR/control_bot.sh" >> "$BOT_LOG_FILE" 2>&1
 
 # Create a ZIP of the logs directory
 zip -r "$ZIP_FILE" "$LOG_DIR" >> "$MAIN_LOG_FILE" 2>&1

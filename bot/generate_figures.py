@@ -15,6 +15,9 @@ load_dotenv()
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from data.dictionaries import languages, plot_columns, not_valid_technologies, keep_technologies
 
+import warnings
+warnings.filterwarnings("ignore", message="pandas only supports SQLAlchemy connectable")
+
 db_config = {
     "host": "localhost",
     "database": "postgres",
@@ -77,7 +80,7 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
     df_plot['Latitude'] = df_plot['Latitude'].fillna(0)
     df_plot['Longitude'] = df_plot['Longitude'].fillna(0)
     
-    geojson_path = '/Users/ivanivsnov/Work-Analysis/data/poland.voivodeships.json'
+    geojson_path = '../data/poland.voivodeships.json'
     with open(geojson_path, 'r') as file:
         poland_geojson = json.load(file)
 
@@ -154,7 +157,6 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
         monthly_counts = monthly_counts.sort_values(by='Month')
         monthly_counts['Month'] = pd.to_datetime(monthly_counts['Month'], format='%Y-%m')
 
-        # Check if there are more than one unique months
         if len(monthly_counts['Month'].unique()) > 1:
             figure_bar_month = px.bar(monthly_counts, x='Month', y='Count',
                                     title='Number of Job Offers per Month',
@@ -167,7 +169,6 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
             )
             figure_bar_month.write_image(f'{folder_path}/month_histogram.png', width=1920, height=1080)
 
-        # Weekday Histogram Chart
         df_plot['weekday'] = df_plot['DatePosted'].dt.day_name()
         weekday_counts = df_plot['weekday'].value_counts().reindex([
             'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
@@ -283,7 +284,7 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
 
             fig_city_bubbles.update_layout(
                 mapbox=dict(
-                    style=style,  # Dark map style
+                    style=style,
                     center=dict(lat=51.9194, lon=19.1451), 
                     zoom=6.3,  
                     layers=[{
@@ -573,8 +574,6 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
 
     if technologies_bar_chart:
         df_filtered = df_plot.copy()
-
-        # Ensure all values in 'Technologies' are strings
         all_technologies = df_filtered['Technologies'].astype(str).str.split('[,;]', expand=True).stack()
         all_technologies = all_technologies.astype(str).str.strip().str.upper()
         tech_counts = all_technologies.value_counts().reset_index()
@@ -708,11 +707,10 @@ def read_image(file_path):
             binary_data = file.read()
         return binary_data
     except FileNotFoundError:
-        return None  # Return None if the file doesn't exist
+        return None
 
 def insert_figures_and_text(conn, generation_date_with_info, figures, summary_text):
     cursor = conn.cursor()
-    # Prepare the SQL query with placeholders for images and text
     insert_query = """INSERT INTO daily_report (
                           generation_id, 
                           benefits_pie_chart, city_bubbles_chart, city_pie_chart, 
@@ -735,8 +733,7 @@ def insert_figures_and_text(conn, generation_date_with_info, figures, summary_te
                           positions_bar_chart = EXCLUDED.positions_bar_chart,
                           technologies_bar_chart = EXCLUDED.technologies_bar_chart,
                           summary = EXCLUDED.summary"""
-    
-    # Execute the insert query with the provided data
+
     cursor.execute(insert_query, (
         generation_date_with_info, 
         figures.get('benefits_pie_chart'), figures.get('city_bubbles_chart'), figures.get('city_pie_chart'), 
@@ -746,7 +743,6 @@ def insert_figures_and_text(conn, generation_date_with_info, figures, summary_te
         figures.get('technologies_bar_chart'), summary_text
     ))
     
-    # Commit the transaction
     conn.commit()
     cursor.close()        
     
@@ -756,7 +752,6 @@ def process_theme(theme_dir, conn, generation_date, theme_type):
     
     # Check if the directory exists
     if os.path.exists(theme_dir):
-        # Read all PNG files as binary data and store them in the dictionary
         chart_files = ['benefits_pie_chart', 'city_bubbles_chart', 'city_pie_chart', 
                        'employer_bar_chart', 'employment_type_pie_chart', 'experience_level_bar_chart',
                        'languages_bar_chart', 'salary_box_plot', 'poland_map', 
@@ -765,11 +760,9 @@ def process_theme(theme_dir, conn, generation_date, theme_type):
         for chart in chart_files:
             figures[chart] = read_image(os.path.join(theme_dir, f'{chart}.png'))
         
-        # Read the summary text
         summary_file_path = os.path.join(theme_dir, "summary.txt")
         with open(summary_file_path, 'r') as file:
             summary_text = file.read()
-        # Insert the figures and text into the database
         generation_date_with_info = f"{generation_date}-{theme_type}"
         insert_figures_and_text(conn, generation_date_with_info, figures, summary_text)
         
@@ -780,14 +773,10 @@ def save_figures_and_text(base_dir, conn):
     generation_date = str(date.today() - timedelta(days=1))
     figures_dir_light = os.path.join(base_dir, generation_date + "-light")
     figures_dir_dark = os.path.join(base_dir, generation_date + "-dark")
-    
-    # Process light theme
+
     light_processed = process_theme(figures_dir_light, conn, generation_date, "light")
-    
-    # Process dark theme
     dark_processed = process_theme(figures_dir_dark, conn, generation_date, "dark")
     
-    # Clean up directories after processing
     try:
         if light_processed:
             shutil.rmtree(figures_dir_light)
@@ -799,7 +788,6 @@ def save_figures_and_text(base_dir, conn):
         print(f"Error deleting directories: {e}")
         
 if __name__ == "__main__":
-    # Establish database connection
     conn = connect_db(db_config)
     
     df = fetch_data(query_yesterday, db_config)
@@ -819,11 +807,8 @@ if __name__ == "__main__":
                          technologies_bar_chart=True, employer_bar_chart=True, positions_bar_chart=True, 
                          post_text=True, content_daily=True, light_theme=False)
         
-        # Save figures and text to database
         save_figures_and_text("figures", conn)
     else:
         print("Dataframe is empty -> no uploads for yesterday")
-
-    # Close the connection
     conn.close()
         

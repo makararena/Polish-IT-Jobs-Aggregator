@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Define paths
-LOG_DIR="$HOME/Work-Analysis/logs"
+PROJECT_DIR="$(pwd)"
+LOG_DIR="$PROJECT_DIR/logs"
 BOT_LOG_FILE="$LOG_DIR/bot.log"
 EMAIL="makararena@gmail.com"
 PID_FILE="/tmp/bot.pid"
@@ -16,7 +17,7 @@ log_message() {
 # Function to start the bot
 start_bot() {
   log_message "Starting bot and generating figures" >> "$BOT_LOG_FILE"
-  cd bot || { log_message "Failed to change directory to bot"; exit 1; }
+  cd "$PROJECT_DIR/bot" || { log_message "Failed to change directory to bot"; exit 1; }
 
   # Run generate_figures.py and bot.py
   {
@@ -48,7 +49,7 @@ stop_bot() {
 # Function to send bot logs via email
 send_bot_logs() {
   log_message "Sending bot logs via email"
-  cd .. || { log_message "Failed to change directory"; exit 1; }
+  cd "$PROJECT_DIR" || { log_message "Failed to change directory"; exit 1; }
   python3 send_mail.py --subject "Bot Logs" --body "Bot logs attached." --to "$EMAIL" --attachment "$BOT_LOG_FILE"
   log_message "Email with bot logs sent"
 }
@@ -68,5 +69,4 @@ start_bot
 # Ensure the bot is stopped when the script is interrupted
 trap 'stop_bot; send_bot_logs' EXIT
 
-# Keep the script running to handle interruptions
 wait
