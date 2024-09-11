@@ -253,21 +253,21 @@ The current version of the program has room for improvement. Some algorithms cou
    );
 
    -- This table is for storing daily report figures
-  CREATE TABLE daily_report (
-      generation_id VARCHAR(50) PRIMARY KEY,
-      benefits_pie_chart BYTEA,
-      city_bubbles_chart BYTEA,
-      city_pie_chart BYTEA,
-      employer_bar_chart BYTEA,
-      employment_type_pie_chart BYTEA,
-      experience_level_bar_chart BYTEA,
-      languages_bar_chart BYTEA,
-      salary_box_plot BYTEA,
-      poland_map BYTEA,
-      positions_bar_chart BYTEA,
-      technologies_bar_chart BYTEA,
-      summary TEXT
-  );
+     CREATE TABLE daily_report (
+         generation_id VARCHAR(50) PRIMARY KEY,
+         benefits_pie_chart BYTEA,
+         city_bubbles_chart BYTEA,
+         city_pie_chart BYTEA,
+         employer_bar_chart BYTEA,
+         employment_type_pie_chart BYTEA,
+         experience_level_bar_chart BYTEA,
+         languages_bar_chart BYTEA,
+         salary_box_plot BYTEA,
+         poland_map BYTEA,
+         positions_bar_chart BYTEA,
+         technologies_bar_chart BYTEA,
+         summary TEXT
+     );
    ```
    
 5. **Add execute permissions to scripts (macOS and Linux only)**
