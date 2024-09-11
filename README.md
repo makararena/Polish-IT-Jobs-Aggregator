@@ -44,44 +44,45 @@ The current version of the program has room for improvement. Some algorithms cou
 
 ![Project Schema](./assets/ProjectSchema.png)
 
-## How the App Works:
+## How to start this program:
 
 1. **Install Python 3.11.6**
-  **For macOS:**
-  - Using Homebrew:
-  ```bash
-  brew install python@3.11.6
-  ```
-  * Alternatively, download the installer from the official Python website and run it.
 
-  **For Linux:**
-  - Use your distribution's package manager, for example, on Ubuntu:
-  ```bash
-  sudo apt update
-  sudo apt install -y make build-essential libssl-dev zlib1g-dev \
-  libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
-  libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev \
-  libffi-dev liblzma-dev
-  ```
-  - Install pyenv:
-  ```bash
-  curl https://pyenv.run | bash
+   - **For macOS:**
+     - Using Homebrew:
+       ```bash
+       brew install python@3.11
+       ```
+     - Alternatively, download the installer from the [official Python website](https://www.python.org/downloads/) and run it.
 
-  # Add pyenv to your shell configuration:
-  echo -e 'export PYENV_ROOT="$HOME/.pyenv"\nexport PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
-  echo -e 'eval "$(pyenv init --path)"\neval "$(pyenv init -)"' >> ~/.bashrc
+   - **For Linux:**
+     ```bash
+     # Update package list and install dependencies:
+     sudo apt update
+     sudo apt install -y make build-essential libssl-dev zlib1g-dev \
+     libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
+     libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev \
+     libffi-dev liblzma-dev
 
-  # For Zsh users, use this instead:
-  echo -e 'export PYENV_ROOT="$HOME/.pyenv"\nexport PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
-  echo -e 'eval "$(pyenv init --path)"\neval "$(pyenv init -)"' >> ~/.zshrc
+     # Install pyenv:
+     curl https://pyenv.run | bash
 
-  # Refresh your shell:
-  exec "$SHELL"
+     # Add pyenv to your shell configuration:
+     echo -e 'export PYENV_ROOT="$HOME/.pyenv"\nexport PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+     echo -e 'eval "$(pyenv init --path)"\neval "$(pyenv init -)"' >> ~/.bashrc
 
-  # Install Python 3.11.6 with pyenv:
-  pyenv install 3.11.6
-  pyenv global 3.11.6
-  ```
+     # For Zsh users, use this instead:
+     echo -e 'export PYENV_ROOT="$HOME/.pyenv"\nexport PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
+     echo -e 'eval "$(pyenv init --path)"\neval "$(pyenv init -)"' >> ~/.zshrc
+
+     # Refresh your shell:
+     exec "$SHELL"
+
+     # Install Python 3.11.6 with pyenv:
+     pyenv install 3.11.6
+     pyenv global 3.11.6
+     ```
+
 
 2. **Clone this repository and navigate to the directory**
    ```bash
