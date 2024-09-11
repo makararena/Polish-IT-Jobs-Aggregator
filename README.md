@@ -47,21 +47,24 @@ The current version of the program has room for improvement. Some algorithms cou
 ## How the App Works:
 
 # 1. Install Python 3.11.6
-  # For macOS:
-  # Using Homebrew:
+  **For macOS:**
+  - Using Homebrew:
+  ```bash
   brew install python@3.11.6
+  ```
+  * Alternatively, download the installer from the official Python website and run it.
 
-  # Alternatively, download the installer from the official Python website and run it.
-
-  # For Linux:
-  # Use your distribution's package manager, for example, on Ubuntu:
+  **For Linux:**
+  - Use your distribution's package manager, for example, on Ubuntu:
+  ```bash
   sudo apt update
   sudo apt install -y make build-essential libssl-dev zlib1g-dev \
   libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
   libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev \
   libffi-dev liblzma-dev
-
-  # Install pyenv:
+  ```
+  - Install pyenv:
+  ```bash
   curl https://pyenv.run | bash
 
   # Add pyenv to your shell configuration:
@@ -78,7 +81,7 @@ The current version of the program has room for improvement. Some algorithms cou
   # Install Python 3.11.6 with pyenv:
   pyenv install 3.11.6
   pyenv global 3.11.6
-
+  ```
 
 2. **Clone this repository and navigate to the directory**
    ```bash
