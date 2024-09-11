@@ -8,6 +8,7 @@ This program starts with web scraping, accessing the three main IT job posting w
 1. [pracuj.pl](https://www.pracuj.pl)
 2. [buldogjob.pl](https://buldogjob.pl)
 3. [theprotocol.it](https://theprotocol.it)
+
 The program retrieves all the data about IT jobs posted daily. The entire job-scraping process takes about two hours.
 
 After collecting the data, it is stored in two different databases:
@@ -22,7 +23,7 @@ After preprocessing, the data is saved to the main jobs table, which contains al
 
 The project offers two web services:
 
-1. **Dash App**: A local web application that you can access if you run the program on your own computer. (Website hosting is not currently available due to costs)
+1. **Dash App**: A local web application that you can access if you run the program on your own computer.
 
 2. **Telegram Bot** : A detailed and convenient bot that allows you to:
    - Access all data through graphs
@@ -33,7 +34,7 @@ The project offers two web services:
    - Set daily alarms to receive information about new job postings matching your filters
 
 3. **Automated Email Updates** : The program includes automatic email sending capabilities::
-   - Email notifications about program execution and all preprocessing statuses are sent automatically to the main email.
+   - Email notifications about program execution and all preprocessing statuses are sent automatically to the host email.
    - Daily Update emails are sent to users, providing them with the latest job postings and relevant information.
 
 ## Project Potential
