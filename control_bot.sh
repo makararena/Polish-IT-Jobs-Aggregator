@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/bin/zsh
 
 # Define paths
 PROJECT_DIR="$(pwd)"
 LOG_DIR="$PROJECT_DIR/logs"
 BOT_LOG_FILE="$LOG_DIR/bot.log"
 EMAIL="makararena@gmail.com"
-PID_FILE="/tmp/bot.pid"
+PID_FILE="$LOG_DIR/bot.pid"
 MAIN_LOG_FILE="$LOG_DIR/main.log"
 
 # Function to log messages with timestamps
@@ -58,7 +58,7 @@ send_bot_logs() {
 mkdir -p "$LOG_DIR"
 
 # Log script start
-log_message "Script started"
+log_message "Bot control script started"
 
 # Stop any currently running bot
 stop_bot
