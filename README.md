@@ -4,7 +4,11 @@ Welcome to my first big project, on which I have spent more than 2 months of my 
 
 ## Project Overview
 
-This program starts with web scraping, accessing the three main IT job posting websites in Poland: pracuj.pl, buldogjob, and theprotocol.it. The program retrieves all the data about IT jobs posted daily. The entire job-scraping process takes about two hours.
+This program starts with web scraping, accessing the three main IT job posting websites in Poland:
+1. [pracuj.pl](https://www.pracuj.pl)
+2. [buldogjob.pl](https://buldogjob.pl)
+3. [theprotocol.it](https://theprotocol.it)
+The program retrieves all the data about IT jobs posted daily. The entire job-scraping process takes about two hours.
 
 After collecting the data, it is stored in two different databases:
 1. **Historical Data Lake (Backup Table)**: Stores all raw data to ensure nothing is lost.
