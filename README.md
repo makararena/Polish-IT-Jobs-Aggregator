@@ -46,7 +46,7 @@ The current version of the program has room for improvement. Some algorithms cou
 
 ## How the App Works:
 
-# 1. Install Python 3.11.6
+1. **Install Python 3.11.6**
   **For macOS:**
   - Using Homebrew:
   ```bash
