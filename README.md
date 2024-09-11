@@ -108,9 +108,9 @@ The current version of the program has room for improvement. Some algorithms cou
        ```
      - **Create a new PostgreSQL database and user:**
        ```bash
-       createdb work_analysis
+       createdb polish_it_jobs_aggregator
        psql -c "CREATE USER your_user WITH PASSWORD 'your_password';"
-       psql -c "GRANT ALL PRIVILEGES ON DATABASE work_analysis TO your_user;"
+       psql -c "GRANT ALL PRIVILEGES ON DATABASE polish_it_jobs_aggregator TO your_user;"
        ```
 
    - **For Linux:**
@@ -129,15 +129,15 @@ The current version of the program has room for improvement. Some algorithms cou
        ```
      - **Create a new PostgreSQL database and user:**
        ```bash
-       sudo -u postgres psql -c "CREATE DATABASE work_analysis;"
+       sudo -u postgres psql -c "CREATE DATABASE polish_it_jobs_aggregator;"
        sudo -u postgres psql -c "CREATE USER your_user WITH PASSWORD 'your_password';"
-       sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE work_analysis TO your_user;"
+       sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE polish_it_jobs_aggregator TO your_user;"
        ```
 
    - **Verify PostgreSQL installation and connectivity:**
      - **On macOS and Linux:**
        ```bash
-       psql -U your_user -d work_analysis -c "\dt"
+       psql -U your_user -d polish_it_jobs_aggregator -c "\dt"
        ```
 
 4. **Create Tables in PostgreSQL**  
