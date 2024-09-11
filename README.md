@@ -86,35 +86,54 @@ The current version of the program has room for improvement. Some algorithms cou
 
 2. **Clone this repository and navigate to the directory**
    ```bash
-   git clone https://github.com/yourusername/work-analysis.git
-   cd work-analysis
+   git clonehttps://github.com/makararena/Polish-IT-Jobs-Aggregator.git
+   cd Polish-IT-Jobs-Aggregator
    ```
 
-3. **Set up PostgreSQL with Docker**
-   - Install Docker:
-     - For macOS: Download Docker Desktop from the official Docker website.
-     - For Windows: Download Docker Desktop from the official Docker website.
-     - For Linux: Follow the official Docker installation guide for your distribution.
+3. **Set up PostgreSQL**
 
-   - Pull the PostgreSQL Docker image:
-     ```bash
-     docker pull postgres
-     ```
+   - **For macOS:**
+     - **Install PostgreSQL:**
+       ```bash
+       brew install postgresql
+       ```
+     - **Start the PostgreSQL service:**
+       ```bash
+       brew services start postgresql
+       ```
+     - **Create a new PostgreSQL database and user:**
+       ```bash
+       createdb work_analysis
+       psql -c "CREATE USER your_user WITH PASSWORD 'your_password';"
+       psql -c "GRANT ALL PRIVILEGES ON DATABASE work_analysis TO your_user;"
+       ```
 
-   - Create and run a PostgreSQL container:
-     ```bash
-     docker run --name work-analysis-db -e POSTGRES_PASSWORD=your_password -e POSTGRES_USER=your_user -e POSTGRES_DB=work_analysis -p 5432:5432 -d postgres
-     ```
+   - **For Linux:**
+     - **Install PostgreSQL:**
+       ```bash
+       sudo apt update
+       sudo apt install -y postgresql postgresql-contrib
+       ```
+     - **Start the PostgreSQL service:**
+       ```bash
+       sudo systemctl start postgresql
+       ```
+     - **Enable PostgreSQL to start on boot:**
+       ```bash
+       sudo systemctl enable postgresql
+       ```
+     - **Create a new PostgreSQL database and user:**
+       ```bash
+       sudo -u postgres psql -c "CREATE DATABASE work_analysis;"
+       sudo -u postgres psql -c "CREATE USER your_user WITH PASSWORD 'your_password';"
+       sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE work_analysis TO your_user;"
+       ```
 
-   - Verify that the container is running:
-     ```bash
-     docker ps
-     ```
-
-   - Access the PostgreSQL database (optional):
-     ```bash
-     docker exec -it work-analysis-db psql -U your_user -d work_analysis
-     ```
+   - **Verify PostgreSQL installation and connectivity:**
+     - **On macOS and Linux:**
+       ```bash
+       psql -U your_user -d work_analysis -c "\dt"
+       ```
 
 4. **Create Tables in PostgreSQL**  
    Open your PostgreSQL instance and run the following SQL commands to create the necessary tables:
@@ -290,19 +309,8 @@ The current version of the program has room for improvement. Some algorithms cou
      ```
 
 7. **Run the script**
-   - For macOS and Linux:
      ```bash
      ./main.sh
-     ```
-   - For Windows:
-     Create a batch file named `main.bat` with the following content:
-     ```batch
-     @echo off
-     python main.py
-     ```
-     Then run it:
-     ```
-     main.bat
      ```
 
 8. **Set up automated script execution**
@@ -311,14 +319,6 @@ The current version of the program has room for improvement. Some algorithms cou
      ```
      00 5 * * * /path/to/your/main.sh >> /path/to/your/logs.log 2>&1
      ```
-   - For Windows:
-     Use Task Scheduler:
-     1. Open Task Scheduler
-     2. Create a new task
-     3. Set the trigger to run daily at 5:00 AM
-     4. Set the action to start a program: `C:\Windows\System32\cmd.exe`
-     5. Add arguments: `/c C:\path\to\your\main.bat >> C:\path\to\your\logs.log 2>&1`
 
-Remember to replace `/path/to/your/` or `C:\path\to\your\` with the actual path to your script and log file.
 
-This setup will allow you to run the Work-Analysis project on macOS, Windows, and Linux systems, with automated daily execution.
+This setup will allow you to run the Work-Analysis project on macOS, and Linux systems, with automated daily execution.
