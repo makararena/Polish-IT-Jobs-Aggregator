@@ -47,6 +47,7 @@ The current version of the program has room for improvement. Some algorithms cou
 
 ## Things to Add
 * Windows instructions and scripts
+* Polish and Russian languages
 * An additional table and analysis on companies
 * Improved bot keyboard layout
 * Proper naming conventions in all files, and optimization of the code
