@@ -999,7 +999,7 @@ async def handle_message(message: types.Message):
                 'email': email
             }
             
-            await bot.send_message(chat_id, "All other filters have been cleared, but notification time and email were kept.")
+            await bot.send_message(chat_id, "All filters have been cleared.")
             await handle_filters(message)
             
         elif message.text == "Apply for Daily Update 📅":
@@ -1206,7 +1206,6 @@ async def handle_message(message: types.Message):
 
             await bot.send_message(chat_id, 
                 f"⏰ Your daily update time has been set to {previous_time}!\n"
-                "✅ Daily updates have been successfully applied!\n"
                 "🔕 It might also be a good idea to mute this bot so you don't wake up too early! 😅"
             )
 
@@ -1238,8 +1237,6 @@ async def handle_message(message: types.Message):
         # Ask if the user wants to continue with their current email or provide a new one
         email_prompt = (
             f"Would you like to continue with your current email {previous_email} for receiving updates? "
-            f"If you'd like to use your previous email, you can type 'Use Previous Email' or select it from the buttons below. "
-            f"Otherwise, please provide your new email address."
         )
         await bot.send_message(chat_id, email_prompt, reply_markup=keyboard)
 
@@ -1397,22 +1394,15 @@ async def check_and_send_notifications():
                         for part in message.split('\n'):
                             await send_message(chat_id, part)
                     
-                    # Send Excel and CSV files via bot and email
-                    excel_message = "⬇️ Here is all the data in the Excel file ⬇️"
-                    csv_message = "⬇️ Here is all the data in the CSV file ⬇️"
-
                     if excel_data and csv_data:
-                        await bot.send_message(chat_id, excel_message)
                         await bot.send_document(chat_id, ('data.xlsx', excel_data))
-                        
-                        await bot.send_message(chat_id, csv_message)
                         await bot.send_document(chat_id, ('data.csv', csv_data))
 
                         if user_email:
                             # Send a single email with both attachments
                             await send_email(subject, body, user_email, excel_data, csv_data)
 
-                    closing_message = f"\nSome day you'll find your dream job! 🌟 Have a nice day! 😊"
+                    closing_message = f"\nYour dream job awaits! 🌟 Have a nice day! 😊"
                     await bot.send_message(chat_id, closing_message)
 
                 except Exception as e:

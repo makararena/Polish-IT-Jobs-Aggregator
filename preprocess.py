@@ -448,11 +448,49 @@ df.drop(columns=['hybryd_full_remote', 'contract_type', 'experience_level', 'det
 df = df[columns_order]
 df['date_posted'] = df['date_posted']
 
-## Output to files
-# now = datetime.now()
-# one_day_before = now - timedelta(days=1)
-# timestamp = one_day_before.strftime("%Y%m%d_%H%M%S")
-# df.to_excel(f"data/output_{timestamp}.xlsx", index=False, engine="openpyxl")
+def print_section(header, data):
+    print(f"\n{'-' * 40}")
+    print(f"{header}")
+    print(f"{'-' * 40}")
+    print(data)
+
+print_section("Benefits Description", df[['work_life_balance', 'financial_rewards_and_benefits',
+                                         'health_and_wellbeing', 'personal_and_professional_development',
+                                         'workplace_environment_and_culture', 'mobility_and_transport',
+                                         'unique_benefits', 'community_and_social_initiatives']].describe().to_string())
+
+print_section("Contracts Description", df[['b2b_contract', 'employment_contract', 'mandate_contract', 
+                                           'substitution_agreement', 'work_contract', 'agency_agreement', 
+                                           'temporary_staffing_agreement', 'specific_work_contract', 
+                                           'internship_apprenticeship_contract', 'temporary_employment_contract']].describe().to_string())
+
+print_section("Languages Description", df[['language_english', 'language_german', 'language_french', 
+                                           'language_spanish', 'language_italian', 'language_dutch', 
+                                           'language_russian', 'language_chinese_mandarin', 
+                                           'language_japanese', 'language_portuguese', 'language_swedish', 
+                                           'language_danish']].describe().to_string())
+
+print_section("Experience Level Description", df[['internship', 'junior', 'middle', 'senior', 'lead']].describe().to_string())
+
+print_section("Work Type Description", df[['full_time', 'hybrid', 'remote']].describe().to_string())
+
+
+duplicate_ids = df[df.duplicated(subset='id', keep=False)]
+if not duplicate_ids.empty:
+    print("Duplicate upload_ids found:\n")
+    print(duplicate_ids[['id']].to_string(index=False) + '\n')
+else:
+    print("All upload_ids are unique.\n")
+    
+print("Dates Description")
+print(df[['expiration', 'date_posted']].describe().to_string())
+
+print_section("Salary Description", df[['start_salary', 'max_salary']].describe().to_string())
+
+print_section("Job Title Value Counts", df['job_title'].value_counts().to_string())
+print_section("Core Role Value Counts", df['core_role'].value_counts().to_string())
+print_section("Employer Name Value Counts", df['employer_name'].value_counts().to_string())
+print(f"\n{'-' * 40}")
 
 def insert_data_to_db(df, table_name, db_config):
     """Insert data from DataFrame into the specified table in PostgreSQL."""

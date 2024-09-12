@@ -770,7 +770,8 @@ translation_dict = {
 
 PROJECT_DESCRIPTION = (
     "Welcome to my first major project, a Polish IT jobs aggregator designed to help job seekers find their ideal IT positions.\n\n"
-    "This tool scrapes job data from major Polish websites: pracuj.pl, bulldogjob.pl, and theprotocol.it. You can access the data via a local Dash app or a Telegram bot, which allows for data visualization, downloading, and filtering.\n\n"
+    "This tool scrapes job data from major Polish websites: pracuj.pl, bulldogjob.pl, and theprotocol.it.\n\n"
+    "Whether you're a job seeker eager to find the perfect IT role or simply exploring opportunities in the Polish job market, this aggregator is tailored to provide you with up-to-date and comprehensive job listings.\n\n"
     "For detailed (technical) information about the project, please visit the repository:\n"
     "🔗 <a href='https://github.com/makararena/Polish-IT-Jobs-Aggregator'>GitHub Repository</a>\n\n"
     "🔗 <b>Connect with Me</b>:\n"
