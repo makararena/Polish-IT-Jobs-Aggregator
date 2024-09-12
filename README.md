@@ -296,7 +296,17 @@ The current version of the program has room for improvement. Some algorithms cou
          technologies_bar_chart BYTEA,
          summary TEXT
      );
-   ```
+
+
+  -- Drop the main table if it exists
+  DROP TABLE IF EXISTS public.jobs;
+  DROP TABLE IF EXISTS public.jobs_upload;
+  DROP TABLE IF EXISTS public.jobs_upload_backup;
+  DROP TABLE IF EXISTS public.user_data;
+  DROP TABLE IF EXISTS public.user_data_before_exit;
+  DROP TABLE IF EXISTS public.user_reviews;
+  DROP TABLE IF EXISTS daily_report;
+  ```
    
 5. **Add execute permissions to scripts (macOS and Linux only)**
    - For macOS and Linux:

@@ -42,7 +42,7 @@ dp = Dispatcher(bot)
 
 db_config = {
     "host": "localhost",
-    "database": "postgres",
+    "database": "polish_it_jobs_aggregator",
     "user": "postgres",
     "password": os.getenv("DB_PASSWORD")
 }

@@ -39,7 +39,7 @@ last_update_date = yesterday.strftime("%B %d, %Y")
 
 def load_data_from_db():
     connection = psycopg2.connect(
-        dbname='postgres',
+        dbname='polish_it_jobs_aggregator',
         user='postgres',
         password=os.getenv("DB_PASSWORD"),
         host='localhost'

@@ -6,7 +6,7 @@ class PostgreSQLPipeline:
     def open_spider(self, spider):
         # Connect to the PostgreSQL database
         self.connection = psycopg2.connect(
-            dbname='postgres',
+            dbname='polish_it_jobs_aggregator',
             user='postgres',
             password='makararena',
             host='localhost'

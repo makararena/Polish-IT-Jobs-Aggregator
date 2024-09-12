@@ -10,7 +10,7 @@ class JobSpider(scrapy.Spider):
     upload_id = str(datetime.today() - timedelta(days=1)) + "_" + "pracuj_pl_spider"
     
     def start_requests(self):
-        while self.start_url_number <= 1:
+        while self.start_url_number <= 200:
             start_url = f"{self.base_url}{self.start_url_number}"
             yield scrapy.Request(url=start_url, callback=self.parse)
             self.start_url_number += 1

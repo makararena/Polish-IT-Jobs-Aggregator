@@ -22,6 +22,9 @@ from data.dictionaries import (
 from dotenv import load_dotenv
 load_dotenv()
 
+os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
+
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'argos-translate')))
 
 from translate import detect_language, translate_title
@@ -31,12 +34,12 @@ warnings.filterwarnings("ignore", message="pandas only supports SQLAlchemy conne
 
 db_config = {
     "host": "localhost",
-    "database": "postgres",
+    "database": "polish_it_jobs_aggregator",
     "user": "postgres",
     "password": os.getenv("DB_PASSWORD")
 }
 
-query = "SELECT * FROM jobs_upload LIMIT 20;"
+query = "SELECT * FROM jobs_upload;"
 query_unique_jobs = "SELECT id, technologies_used FROM jobs;"
 
 cities = pd.read_csv("./data/cities_and_regions.csv", sep = ",")

@@ -66,7 +66,7 @@ stop_bot
 # Start the bot
 start_bot
 
-# Ensure the bot is stopped when the script is interrupted
-trap 'stop_bot; send_bot_logs' EXIT
+# Handle signals such as SIGINT (Ctrl+C) and SIGTERM to stop the bot and send logs
+trap 'stop_bot; send_bot_logs; exit' SIGINT SIGTERM EXIT
 
 wait

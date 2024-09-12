@@ -2,7 +2,7 @@
 
 set -e
 
-cd ~/Polish-IT-Jobs-Aggregator/
+cd ~/dev/test/Polish-IT-Jobs-Aggregator/
 
 # Define paths
 PROJECT_DIR="$(pwd)"
@@ -47,23 +47,6 @@ echo "Starting to install dependencies at $(date)" | tee -a "$MAIN_LOG_FILE"
 pip install -r requirements.txt 2>&1 | tee -a "$MAIN_LOG_FILE"
 # Log the completion of dependency installation
 echo "Finished installing dependencies at $(date)" | tee -a "$MAIN_LOG_FILE"
-
-# Clone the repository if it does not exist
-if [ ! -d "argos-translate" ]; then
-  git clone https://github.com/argosopentech/argos-translate.git >> "$MAIN_LOG_FILE" 2>&1
-  echo "Repository cloned at $(date)" | tee -a "$MAIN_LOG_FILE"
-else
-  echo "Repository already cloned at $(date)" | tee -a "$MAIN_LOG_FILE"
-fi
-
-echo $(pwd) >> "$MAIN_LOG_FILE" 2>&1
-# Move the script into the cloned repository if it doesn't already exist there
-if [ ! -f "argos-translate/translate.py" ]; then
-  mv translate.py argos-translate/ >> "$MAIN_LOG_FILE" 2>&1
-  echo "Script moved to repository at $(date)" | tee -a "$MAIN_LOG_FILE"
-else
-  echo "Script already in repository at $(date)" | tee -a "$MAIN_LOG_FILE"
-fi
 
 # Navigate to the Scrapy project directory
 if [ -d "workscrapper/workscrapper" ]; then
