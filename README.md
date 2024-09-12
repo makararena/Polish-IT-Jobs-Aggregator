@@ -52,6 +52,7 @@ The current version of the program has room for improvement. Some algorithms cou
 * Improved bot keyboard layout
 * Proper naming conventions in all files, and optimization of the code
 * Add justjoin.it scraper
+* Increase refresh rate from daily to hourly
 
 
 ## Project Schema

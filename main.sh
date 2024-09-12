@@ -11,7 +11,7 @@ MAIN_LOG_FILE="$LOG_DIR/main.log"
 BOT_LOG_FILE="$LOG_DIR/bot.log"
 ZIP_FILE="$LOG_DIR/logs.zip"
 EMAIL="makararena@gmail.com"
-
+TODAYS_DATE=$(date +"%Y-%m-%d_%H-%M-%S")
 # Log start time
 echo "Script started at $(date)" >> "$MAIN_LOG_FILE"
 
@@ -117,20 +117,13 @@ else
 fi
 
 # Send email with the main logs before starting the bot
-python3 send_mail.py --subject "Daily Logs and Status" --body "Program logs attached." --to "$EMAIL" --attachment "$MAIN_LOG_FILE"
+
+python3 send_mail.py --subject "Daily Logs and Status - $TODAYS_DATE" --body "Program logs attached." --to "$EMAIL" --attachment "$MAIN_LOG_FILE"
 echo "Email with main logs sent at $(date)" | tee -a "$MAIN_LOG_FILE"
 
 # Start the bot script
 "$PROJECT_DIR/control_bot.sh" >> "$BOT_LOG_FILE" 2>&1
 echo "Bot script started at $(date)" | tee -a "$MAIN_LOG_FILE"
-
-# Create a ZIP of the logs directory
-zip -r "$ZIP_FILE" "$LOG_DIR" >> "$MAIN_LOG_FILE" 2>&1
-echo "ZIP created at $(date)" | tee -a "$MAIN_LOG_FILE"
-
-# Send the email with the ZIP file attached
-python3 send_mail.py --subject "Daily Logs and Status" --body "Task completed. Logs attached." --to "$EMAIL" --attachment "$ZIP_FILE"
-echo "Email with ZIP sent at $(date)" | tee -a "$MAIN_LOG_FILE"
 
 # Log end time
 echo "Script ended at $(date)" | tee -a "$MAIN_LOG_FILE"

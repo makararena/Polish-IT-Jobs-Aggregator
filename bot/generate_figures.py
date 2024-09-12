@@ -579,7 +579,7 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
         tech_counts = all_technologies.value_counts().reset_index()
         tech_counts.columns = ['Technology', 'Count']
 
-        tech_counts = tech_counts[tech_counts['Technology'] != '']
+        tech_counts = tech_counts[tech_counts['Technology'] != 'N/A']
 
         top_technologies = tech_counts.nlargest(35, 'Count')
 
@@ -692,13 +692,8 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
             with open(text_file_path, "w") as text_file:
                 text_file.write(text_content)
         else :
-            text_content = f"""
-                Here is your set of graphs! I hope it would be useful 
-
-                            """
             text_file_path = os.path.join(folder_path, "summary.txt")
-            with open(text_file_path, "w") as text_file:
-                text_file.write(text_content)
+
         
         
 def read_image(file_path):

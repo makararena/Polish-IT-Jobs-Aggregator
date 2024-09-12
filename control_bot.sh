@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # Define paths
 PROJECT_DIR="$(pwd)"
@@ -7,6 +7,7 @@ BOT_LOG_FILE="$LOG_DIR/bot.log"
 EMAIL="makararena@gmail.com"
 PID_FILE="$LOG_DIR/bot.pid"
 MAIN_LOG_FILE="$LOG_DIR/main.log"
+TODAYS_DATE=$(date +"%Y-%m-%d_%H-%M-%S")
 
 # Function to log messages with timestamps
 log_message() {
@@ -50,7 +51,7 @@ stop_bot() {
 send_bot_logs() {
   log_message "Sending bot logs via email"
   cd "$PROJECT_DIR" || { log_message "Failed to change directory"; exit 1; }
-  python3 send_mail.py --subject "Bot Logs" --body "Bot logs attached." --to "$EMAIL" --attachment "$BOT_LOG_FILE"
+  python3 send_mail.py --subject "Bot Logs - $TODAYS_DATE" --body "Bot logs attached." --to "$EMAIL" --attachment "$BOT_LOG_FILE"
   log_message "Email with bot logs sent"
 }
 

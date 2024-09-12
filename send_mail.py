@@ -10,6 +10,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def send_email(subject, body, to_email, attachment_path=None):
+    print(f"\n{'-' * 40}")
+    print(f"Seding email to {to_email}")
+    print(f"\n{'-' * 40}")
     from_email = 'makararena.pl@gmail.com'
     password = os.getenv("EMAIL_PASSWORD")
 
