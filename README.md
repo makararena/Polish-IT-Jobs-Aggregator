@@ -45,6 +45,13 @@ While the program may not be perfect and the code could be improved, the idea ha
 
 The current version of the program has room for improvement. Some algorithms could be optimized, and the bot has some bugs that need to be addressed. Due to time constraints (job searching and CS studies), major updates are not expected until next summer. However, this project has provided valuable experience in database handling, SQL, web scraping, and analytical Python tools like pandas, numpy, and dash.
 
+## Things to Add
+* Windows instructions and scripts
+* An additional table and analysis on companies
+* Improved bot keyboard layout
+* Proper naming conventions in all files, and optimization of the code
+
+
 ## Project Schema
 
 ![Project Schema](./assets/ProjectSchema.png)
@@ -64,6 +71,7 @@ The current version of the program has room for improvement. Some algorithms cou
      ```bash
      # Update package list and install dependencies:
      sudo apt update
+
      sudo apt install -y make build-essential libssl-dev zlib1g-dev \
      libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
      libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev \
@@ -298,7 +306,7 @@ The current version of the program has room for improvement. Some algorithms cou
      );
    ```
    
-5. **Add execute permissions to scripts (macOS and Linux only)**
+5. **Add execute permissions to scripts**
    - For macOS and Linux:
      ```bash
      chmod +x main.sh
