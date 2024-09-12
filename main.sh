@@ -22,6 +22,11 @@ mkdir -p "$LOG_DIR"
 : > "$MAIN_LOG_FILE"
 : > "$BOT_LOG_FILE"
 
+if [ -f "$ZIP_FILE" ]; then
+  rm "$ZIP_FILE"
+  echo "Existing ZIP file removed at $(date)" | tee -a "$MAIN_LOG_FILE"
+fi
+
 # Log start of log clearing
 echo "Log files cleared at $(date)" | tee -a "$MAIN_LOG_FILE"
 
@@ -44,7 +49,7 @@ echo "Virtual environment activated at $(date)" | tee -a "$MAIN_LOG_FILE"
 # Log the start of dependency installation
 echo "Starting to install dependencies at $(date)" | tee -a "$MAIN_LOG_FILE"
 # Install the dependencies and display the output in real-time
-pip install -r requirements.txt 2>&1 | tee -a "$MAIN_LOG_FILE"
+pip install -r requirements.txt
 # Log the completion of dependency installation
 echo "Finished installing dependencies at $(date)" | tee -a "$MAIN_LOG_FILE"
 
