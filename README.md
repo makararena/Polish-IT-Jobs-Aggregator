@@ -310,14 +310,14 @@ The current version of the program has room for improvement. Some algorithms cou
 
 
   -- Drop the main table if it exists
-  DROP TABLE IF EXISTS jobs;
-  DROP TABLE IF EXISTS jobs_upload;
-  DROP TABLE IF EXISTS jobs_upload_backup;
-  DROP TABLE IF EXISTS user_data;
-  DROP TABLE IF EXISTS user_data_before_exit;
-  DROP TABLE IF EXISTS user_reviews;
-  DROP TABLE IF EXISTS daily_report;
-  ```
+    DROP TABLE IF EXISTS jobs;
+    DROP TABLE IF EXISTS jobs_upload;
+    DROP TABLE IF EXISTS jobs_upload_backup;
+    DROP TABLE IF EXISTS user_data;
+    DROP TABLE IF EXISTS user_data_before_exit;
+    DROP TABLE IF EXISTS user_reviews;
+    DROP TABLE IF EXISTS daily_report;
+    ```
    
 5. **Add execute permissions to scripts**
    - For macOS and Linux:
