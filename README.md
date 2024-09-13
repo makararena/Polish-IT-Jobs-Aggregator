@@ -341,7 +341,7 @@ The current version of the program has room for improvement. Some algorithms cou
   - For macOS and Linux:
     Run `crontab -e` and add the following line:
     ```
-    00 5 * * * /path/to/your/main.sh >> /path/to/your/logs.log 2>&1
+    00 2 * * * ~/pathto/Polish-IT-Jobs-Aggregator/main.sh ~/pathto/Polish-IT-Jobs-Aggregator >> ~/pathto/Polish-IT-Jobs-Aggregator/logs/main.log 2>&1
     ```
 
 

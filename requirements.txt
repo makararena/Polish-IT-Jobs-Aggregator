@@ -37,6 +37,7 @@ fonttools==4.53.1
 frozenlist==1.4.1
 fsspec==2024.6.1
 fuzzywuzzy==0.18.0
+huggingface-hub==0.24.7
 hyperlink==21.0.0
 idna==3.7
 incremental==24.7.2
@@ -91,9 +92,11 @@ pytz==2024.1
 PyYAML==6.0.2
 queuelib==1.7.0
 rapidfuzz==3.9.7
+regex==2024.9.11
 requests==2.32.3
 requests-file==2.1.0
 rich==13.7.1
+safetensors==0.4.5
 scikit-learn==1.5.1
 scipy==1.14.1
 Scrapy==2.11.2
@@ -112,9 +115,11 @@ tenacity==9.0.0
 thinc==8.2.5
 threadpoolctl==3.5.0
 tldextract==5.1.2
+tokenizers==0.19.1
 toml==0.10.2
 torch==2.2.0
 tqdm==4.66.5
+transformers==4.44.2
 Twisted==24.7.0
 typer==0.12.3
 typing_extensions==4.12.2
