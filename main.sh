@@ -2,7 +2,7 @@
 
 set -e
 
-cd ~/dev/test/Polish-IT-Jobs-Aggregator/
+cd ~/dev/Polish-IT-Jobs-Aggregator/
 
 # Define paths
 PROJECT_DIR="$(pwd)"
