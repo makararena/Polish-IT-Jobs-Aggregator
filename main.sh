@@ -11,6 +11,7 @@ MAIN_LOG_FILE="$LOG_DIR/main.log"
 BOT_LOG_FILE="$LOG_DIR/bot.log"
 ZIP_FILE="$LOG_DIR/logs.zip"
 EMAIL="makararena@gmail.com"
+TORCH_USE_CUDA_DSA=1
 TODAYS_DATE=$(date +"%Y-%m-%d_%H-%M-%S")
 # Log start time
 echo "Script started at $(date)" >> "$MAIN_LOG_FILE"

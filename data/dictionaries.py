@@ -765,7 +765,8 @@ translation_dict = {
     "manualny": "Manual",
     "informatyki": "IT",
     "analityczka": "Analyst",
-    "technik serwisu" : "Service Technician"
+    "technik serwisu" : "Service Technician",
+    "programistka" : "Developer",
 }
 
 PROJECT_DESCRIPTION = (

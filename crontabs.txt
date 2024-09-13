@@ -1,0 +1,4 @@
+15 15 * * * /Users/ivanivsnov/Polish-IT-Jobs-Aggregator/main.sh >> /Users/ivanivsnov/Polish-IT-Jobs-Aggregator/logs/main.log 2>&1
+
+
+*/5 * * * * /Users/ivanivsnov/Polish-IT-Jobs-Aggregator/main.sh >> /Users/ivanivsnov/Polish-IT-Jobs-Aggregator/logs/main.log 2>&1
