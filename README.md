@@ -308,41 +308,41 @@ The current version of the program has room for improvement. Some algorithms cou
          summary TEXT
      );
 
-   -- Drop the main table if it exists
-    DROP TABLE IF EXISTS jobs;
-    DROP TABLE IF EXISTS jobs_upload;
-    DROP TABLE IF EXISTS jobs_upload_backup;
-    DROP TABLE IF EXISTS user_data;
-    DROP TABLE IF EXISTS user_data_before_exit;
-    DROP TABLE IF EXISTS user_reviews;
-    DROP TABLE IF EXISTS daily_report;
-  ```
+    -- Drop the main table if it exists
+      DROP TABLE IF EXISTS jobs;
+      DROP TABLE IF EXISTS jobs_upload;
+      DROP TABLE IF EXISTS jobs_upload_backup;
+      DROP TABLE IF EXISTS user_data;
+      DROP TABLE IF EXISTS user_data_before_exit;
+      DROP TABLE IF EXISTS user_reviews;
+      DROP TABLE IF EXISTS daily_report;
+    ```
 5. **Add execute permissions to scripts**
-   - For macOS and Linux:
-     ```bash
-     chmod +x main.sh
-     chmod +x control_bot.sh
-     ```
+  - For macOS and Linux:
+    ```bash
+    chmod +x main.sh
+    chmod +x control_bot.sh
+    ```
 
 6. **Create .env file**
-   - Create a file named `.env` in the root directory of the project with the following content:
-     ```plaintext
-     TELEGRAM_TOKEN=your_telegram_bot_token
-     DB_PASSWORD=your_database_password
-     EMAIL_PASSWORD=your_email_password
-     ```
+  - Create a file named `.env` in the root directory of the project with the following content:
+    ```plaintext
+    TELEGRAM_TOKEN=your_telegram_bot_token
+    DB_PASSWORD=your_database_password
+    EMAIL_PASSWORD=your_email_password
+    ```
 
 7. **Run the script**
-     ```bash
-     ./main.sh
-     ```
+    ```bash
+    ./main.sh
+    ```
 
 8. **Set up automated script execution**
-   - For macOS and Linux:
-     Run `crontab -e` and add the following line:
-     ```
-     00 5 * * * /path/to/your/main.sh >> /path/to/your/logs.log 2>&1
-     ```
+  - For macOS and Linux:
+    Run `crontab -e` and add the following line:
+    ```
+    00 5 * * * /path/to/your/main.sh >> /path/to/your/logs.log 2>&1
+    ```
 
 
 This setup will allow you to run the Work-Analysis project on macOS, and Linux systems, with automated daily execution.

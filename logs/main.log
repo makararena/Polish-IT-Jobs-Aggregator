@@ -1,13 +1,13 @@
-Log files cleared at Fri Sep 13 18:43:00 CEST 2024
-Log files cleared at Fri Sep 13 18:43:00 CEST 2024
-Changed directory to /Users/ivanivsnov/dev/Polish-IT-Jobs-Aggregator at Fri Sep 13 18:43:00 CEST 2024
-Changed directory to /Users/ivanivsnov/dev/Polish-IT-Jobs-Aggregator at Fri Sep 13 18:43:00 CEST 2024
-Virtual environment already exists at Fri Sep 13 18:43:00 CEST 2024
-Virtual environment already exists at Fri Sep 13 18:43:00 CEST 2024
-Virtual environment activated at Fri Sep 13 18:43:00 CEST 2024
-Virtual environment activated at Fri Sep 13 18:43:00 CEST 2024
-Starting to install dependencies at Fri Sep 13 18:43:00 CEST 2024
-Starting to install dependencies at Fri Sep 13 18:43:00 CEST 2024
+Log files cleared at Fri Sep 13 18:45:00 CEST 2024
+Log files cleared at Fri Sep 13 18:45:00 CEST 2024
+Changed directory to /Users/ivanivsnov/dev/Polish-IT-Jobs-Aggregator at Fri Sep 13 18:45:00 CEST 2024
+Changed directory to /Users/ivanivsnov/dev/Polish-IT-Jobs-Aggregator at Fri Sep 13 18:45:00 CEST 2024
+Virtual environment already exists at Fri Sep 13 18:45:00 CEST 2024
+Virtual environment already exists at Fri Sep 13 18:45:00 CEST 2024
+Virtual environment activated at Fri Sep 13 18:45:00 CEST 2024
+Virtual environment activated at Fri Sep 13 18:45:00 CEST 2024
+Starting to install dependencies at Fri Sep 13 18:45:00 CEST 2024
+Starting to install dependencies at Fri Sep 13 18:45:00 CEST 2024
 Collecting xx-sent-ud-sm@ https://github.com/explosion/spacy-models/releases/download/xx_sent_ud_sm-3.7.0/xx_sent_ud_sm-3.7.0-py3-none-any.whl#sha256=aafb609d5a895a62ed9672fbef2aa8061106a4b164a700999a376f8529acc3ad (from -r requirements.txt (line 128))
   Using cached https://github.com/explosion/spacy-models/releases/download/xx_sent_ud_sm-3.7.0/xx_sent_ud_sm-3.7.0-py3-none-any.whl (4.3 MB)
 Requirement already satisfied: aiofiles==23.2.1 in ./venv/lib/python3.11/site-packages (from -r requirements.txt (line 1)) (23.2.1)
@@ -140,47 +140,47 @@ Requirement already satisfied: wrapt==1.16.0 in ./venv/lib/python3.11/site-packa
 Requirement already satisfied: yarl==1.9.4 in ./venv/lib/python3.11/site-packages (from -r requirements.txt (line 129)) (1.9.4)
 Requirement already satisfied: zope.interface==7.0.1 in ./venv/lib/python3.11/site-packages (from -r requirements.txt (line 130)) (7.0.1)
 Requirement already satisfied: setuptools in ./venv/lib/python3.11/site-packages (from ctranslate2==4.3.1->-r requirements.txt (line 24)) (65.5.0)
-Finished installing dependencies at Fri Sep 13 18:43:09 CEST 2024
-Finished installing dependencies at Fri Sep 13 18:43:09 CEST 2024
-Changed directory to workscrapper/workscrapper at Fri Sep 13 18:43:09 CEST 2024
-Changed directory to workscrapper/workscrapper at Fri Sep 13 18:43:09 CEST 2024
+Finished installing dependencies at Fri Sep 13 18:45:08 CEST 2024
+Finished installing dependencies at Fri Sep 13 18:45:08 CEST 2024
+Changed directory to workscrapper/workscrapper at Fri Sep 13 18:45:08 CEST 2024
+Changed directory to workscrapper/workscrapper at Fri Sep 13 18:45:08 CEST 2024
 /Users/ivanivsnov/dev/Polish-IT-Jobs-Aggregator/workscrapper/workscrapper
-Running Scrapy spiders at Fri Sep 13 18:43:09 CEST 2024
-Running Scrapy spiders at Fri Sep 13 18:43:09 CEST 2024
-2024-09-13 18:43:11 [scrapy.utils.log] INFO: Scrapy 2.11.2 started (bot: workscrapper)
-2024-09-13 18:43:11 [scrapy.utils.log] INFO: Scrapy 2.11.2 started (bot: workscrapper)
-2024-09-13 18:43:11 [scrapy.utils.log] INFO: Scrapy 2.11.2 started (bot: workscrapper)
-2024-09-13 18:43:11 [scrapy.utils.log] INFO: Versions: lxml 5.3.0.0, libxml2 2.12.9, cssselect 1.2.0, parsel 1.9.1, w3lib 2.2.1, Twisted 24.7.0, Python 3.11.6 (v3.11.6:8b6ee5ba3b, Oct  2 2023, 11:18:21) [Clang 13.0.0 (clang-1300.0.29.30)], pyOpenSSL 24.2.1 (OpenSSL 3.3.1 4 Jun 2024), cryptography 43.0.0, Platform macOS-14.5-arm64-arm-64bit
-2024-09-13 18:43:11 [scrapy.utils.log] INFO: Versions: lxml 5.3.0.0, libxml2 2.12.9, cssselect 1.2.0, parsel 1.9.1, w3lib 2.2.1, Twisted 24.7.0, Python 3.11.6 (v3.11.6:8b6ee5ba3b, Oct  2 2023, 11:18:21) [Clang 13.0.0 (clang-1300.0.29.30)], pyOpenSSL 24.2.1 (OpenSSL 3.3.1 4 Jun 2024), cryptography 43.0.0, Platform macOS-14.5-arm64-arm-64bit
-2024-09-13 18:43:11 [scrapy.utils.log] INFO: Versions: lxml 5.3.0.0, libxml2 2.12.9, cssselect 1.2.0, parsel 1.9.1, w3lib 2.2.1, Twisted 24.7.0, Python 3.11.6 (v3.11.6:8b6ee5ba3b, Oct  2 2023, 11:18:21) [Clang 13.0.0 (clang-1300.0.29.30)], pyOpenSSL 24.2.1 (OpenSSL 3.3.1 4 Jun 2024), cryptography 43.0.0, Platform macOS-14.5-arm64-arm-64bit
-2024-09-13 18:43:11 [scrapy.addons] INFO: Enabled addons:
+Running Scrapy spiders at Fri Sep 13 18:45:08 CEST 2024
+Running Scrapy spiders at Fri Sep 13 18:45:08 CEST 2024
+2024-09-13 18:45:09 [scrapy.utils.log] INFO: Scrapy 2.11.2 started (bot: workscrapper)
+2024-09-13 18:45:09 [scrapy.utils.log] INFO: Scrapy 2.11.2 started (bot: workscrapper)
+2024-09-13 18:45:09 [scrapy.utils.log] INFO: Scrapy 2.11.2 started (bot: workscrapper)
+2024-09-13 18:45:09 [scrapy.utils.log] INFO: Versions: lxml 5.3.0.0, libxml2 2.12.9, cssselect 1.2.0, parsel 1.9.1, w3lib 2.2.1, Twisted 24.7.0, Python 3.11.6 (v3.11.6:8b6ee5ba3b, Oct  2 2023, 11:18:21) [Clang 13.0.0 (clang-1300.0.29.30)], pyOpenSSL 24.2.1 (OpenSSL 3.3.1 4 Jun 2024), cryptography 43.0.0, Platform macOS-14.5-arm64-arm-64bit
+2024-09-13 18:45:09 [scrapy.utils.log] INFO: Versions: lxml 5.3.0.0, libxml2 2.12.9, cssselect 1.2.0, parsel 1.9.1, w3lib 2.2.1, Twisted 24.7.0, Python 3.11.6 (v3.11.6:8b6ee5ba3b, Oct  2 2023, 11:18:21) [Clang 13.0.0 (clang-1300.0.29.30)], pyOpenSSL 24.2.1 (OpenSSL 3.3.1 4 Jun 2024), cryptography 43.0.0, Platform macOS-14.5-arm64-arm-64bit
+2024-09-13 18:45:09 [scrapy.utils.log] INFO: Versions: lxml 5.3.0.0, libxml2 2.12.9, cssselect 1.2.0, parsel 1.9.1, w3lib 2.2.1, Twisted 24.7.0, Python 3.11.6 (v3.11.6:8b6ee5ba3b, Oct  2 2023, 11:18:21) [Clang 13.0.0 (clang-1300.0.29.30)], pyOpenSSL 24.2.1 (OpenSSL 3.3.1 4 Jun 2024), cryptography 43.0.0, Platform macOS-14.5-arm64-arm-64bit
+2024-09-13 18:45:09 [scrapy.addons] INFO: Enabled addons:
 []
-2024-09-13 18:43:11 [scrapy.addons] INFO: Enabled addons:
+2024-09-13 18:45:09 [scrapy.addons] INFO: Enabled addons:
 []
-2024-09-13 18:43:11 [scrapy.addons] INFO: Enabled addons:
+2024-09-13 18:45:09 [scrapy.addons] INFO: Enabled addons:
 []
-2024-09-13 18:43:11 [scrapy.extensions.telnet] INFO: Telnet Password: 37892a8c8a7d6a8b
-2024-09-13 18:43:11 [scrapy.extensions.telnet] INFO: Telnet Password: b9ed256030899020
-2024-09-13 18:43:11 [scrapy.extensions.telnet] INFO: Telnet Password: ab16f9730169e4a0
-2024-09-13 18:43:11 [scrapy.middleware] INFO: Enabled extensions:
+2024-09-13 18:45:09 [scrapy.extensions.telnet] INFO: Telnet Password: 762dd08116daf723
+2024-09-13 18:45:09 [scrapy.extensions.telnet] INFO: Telnet Password: 6db1e54ce0ac67f5
+2024-09-13 18:45:09 [scrapy.extensions.telnet] INFO: Telnet Password: 0fc96ea74705d3ef
+2024-09-13 18:45:09 [scrapy.middleware] INFO: Enabled extensions:
 ['scrapy.extensions.corestats.CoreStats',
  'scrapy.extensions.telnet.TelnetConsole',
  'scrapy.extensions.memusage.MemoryUsage',
  'scrapy.extensions.logstats.LogStats',
  'scrapy.extensions.throttle.AutoThrottle']
-2024-09-13 18:43:11 [scrapy.middleware] INFO: Enabled extensions:
+2024-09-13 18:45:09 [scrapy.middleware] INFO: Enabled extensions:
 ['scrapy.extensions.corestats.CoreStats',
  'scrapy.extensions.telnet.TelnetConsole',
  'scrapy.extensions.memusage.MemoryUsage',
  'scrapy.extensions.logstats.LogStats',
  'scrapy.extensions.throttle.AutoThrottle']
-2024-09-13 18:43:11 [scrapy.middleware] INFO: Enabled extensions:
+2024-09-13 18:45:09 [scrapy.middleware] INFO: Enabled extensions:
 ['scrapy.extensions.corestats.CoreStats',
  'scrapy.extensions.telnet.TelnetConsole',
  'scrapy.extensions.memusage.MemoryUsage',
  'scrapy.extensions.logstats.LogStats',
  'scrapy.extensions.throttle.AutoThrottle']
-2024-09-13 18:43:11 [scrapy.crawler] INFO: Overridden settings:
+2024-09-13 18:45:09 [scrapy.crawler] INFO: Overridden settings:
 {'AUTOTHROTTLE_ENABLED': True,
  'BOT_NAME': 'workscrapper',
  'CONCURRENT_REQUESTS': 20,
@@ -196,7 +196,7 @@ Running Scrapy spiders at Fri Sep 13 18:43:09 CEST 2024
  'TWISTED_REACTOR': 'twisted.internet.asyncioreactor.AsyncioSelectorReactor',
  'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
                '(KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36'}
-2024-09-13 18:43:11 [scrapy.crawler] INFO: Overridden settings:
+2024-09-13 18:45:09 [scrapy.crawler] INFO: Overridden settings:
 {'AUTOTHROTTLE_ENABLED': True,
  'BOT_NAME': 'workscrapper',
  'CONCURRENT_REQUESTS': 20,
@@ -212,7 +212,7 @@ Running Scrapy spiders at Fri Sep 13 18:43:09 CEST 2024
  'TWISTED_REACTOR': 'twisted.internet.asyncioreactor.AsyncioSelectorReactor',
  'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
                '(KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36'}
-2024-09-13 18:43:11 [scrapy.crawler] INFO: Overridden settings:
+2024-09-13 18:45:09 [scrapy.crawler] INFO: Overridden settings:
 {'AUTOTHROTTLE_ENABLED': True,
  'BOT_NAME': 'workscrapper',
  'CONCURRENT_REQUESTS': 20,
@@ -228,7 +228,7 @@ Running Scrapy spiders at Fri Sep 13 18:43:09 CEST 2024
  'TWISTED_REACTOR': 'twisted.internet.asyncioreactor.AsyncioSelectorReactor',
  'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
                '(KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36'}
-2024-09-13 18:43:11 [scrapy.middleware] INFO: Enabled downloader middlewares:
+2024-09-13 18:45:10 [scrapy.middleware] INFO: Enabled downloader middlewares:
 ['scrapy.downloadermiddlewares.offsite.OffsiteMiddleware',
  'scrapy.downloadermiddlewares.robotstxt.RobotsTxtMiddleware',
  'scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware',
@@ -242,7 +242,7 @@ Running Scrapy spiders at Fri Sep 13 18:43:09 CEST 2024
  'scrapy.downloadermiddlewares.cookies.CookiesMiddleware',
  'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware',
  'scrapy.downloadermiddlewares.stats.DownloaderStats']
-2024-09-13 18:43:11 [scrapy.middleware] INFO: Enabled downloader middlewares:
+2024-09-13 18:45:10 [scrapy.middleware] INFO: Enabled downloader middlewares:
 ['scrapy.downloadermiddlewares.offsite.OffsiteMiddleware',
  'scrapy.downloadermiddlewares.robotstxt.RobotsTxtMiddleware',
  'scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware',
@@ -256,7 +256,7 @@ Running Scrapy spiders at Fri Sep 13 18:43:09 CEST 2024
  'scrapy.downloadermiddlewares.cookies.CookiesMiddleware',
  'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware',
  'scrapy.downloadermiddlewares.stats.DownloaderStats']
-2024-09-13 18:43:11 [scrapy.middleware] INFO: Enabled downloader middlewares:
+2024-09-13 18:45:10 [scrapy.middleware] INFO: Enabled downloader middlewares:
 ['scrapy.downloadermiddlewares.offsite.OffsiteMiddleware',
  'scrapy.downloadermiddlewares.robotstxt.RobotsTxtMiddleware',
  'scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware',
@@ -270,33 +270,33 @@ Running Scrapy spiders at Fri Sep 13 18:43:09 CEST 2024
  'scrapy.downloadermiddlewares.cookies.CookiesMiddleware',
  'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware',
  'scrapy.downloadermiddlewares.stats.DownloaderStats']
-2024-09-13 18:43:11 [scrapy.middleware] INFO: Enabled spider middlewares:
+2024-09-13 18:45:10 [scrapy.middleware] INFO: Enabled spider middlewares:
 ['scrapy.spidermiddlewares.httperror.HttpErrorMiddleware',
  'scrapy.spidermiddlewares.referer.RefererMiddleware',
  'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware',
  'scrapy.spidermiddlewares.depth.DepthMiddleware']
-2024-09-13 18:43:11 [scrapy.middleware] INFO: Enabled spider middlewares:
+2024-09-13 18:45:10 [scrapy.middleware] INFO: Enabled spider middlewares:
 ['scrapy.spidermiddlewares.httperror.HttpErrorMiddleware',
  'scrapy.spidermiddlewares.referer.RefererMiddleware',
  'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware',
  'scrapy.spidermiddlewares.depth.DepthMiddleware']
-2024-09-13 18:43:11 [scrapy.middleware] INFO: Enabled spider middlewares:
+2024-09-13 18:45:10 [scrapy.middleware] INFO: Enabled spider middlewares:
 ['scrapy.spidermiddlewares.httperror.HttpErrorMiddleware',
  'scrapy.spidermiddlewares.referer.RefererMiddleware',
  'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware',
  'scrapy.spidermiddlewares.depth.DepthMiddleware']
-2024-09-13 18:43:11 [scrapy.middleware] INFO: Enabled item pipelines:
+2024-09-13 18:45:10 [scrapy.middleware] INFO: Enabled item pipelines:
 ['workscrapper.pipelines.PostgreSQLPipeline']
-2024-09-13 18:43:11 [scrapy.middleware] INFO: Enabled item pipelines:
+2024-09-13 18:45:10 [scrapy.middleware] INFO: Enabled item pipelines:
 ['workscrapper.pipelines.PostgreSQLPipeline']
-2024-09-13 18:43:11 [scrapy.middleware] INFO: Enabled item pipelines:
+2024-09-13 18:45:10 [scrapy.middleware] INFO: Enabled item pipelines:
 ['workscrapper.pipelines.PostgreSQLPipeline']
-2024-09-13 18:43:11 [scrapy.core.engine] INFO: Spider opened
-2024-09-13 18:43:11 [scrapy.core.engine] INFO: Spider opened
-2024-09-13 18:43:11 [scrapy.core.engine] INFO: Spider opened
-2024-09-13 18:43:11 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
-2024-09-13 18:43:11 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
-2024-09-13 18:43:11 [scrapy.extensions.telnet] INFO: Telnet console listening on 127.0.0.1:6023
-2024-09-13 18:43:11 [scrapy.extensions.telnet] INFO: Telnet console listening on 127.0.0.1:6030
-2024-09-13 18:43:11 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
-2024-09-13 18:43:11 [scrapy.extensions.telnet] INFO: Telnet console listening on 127.0.0.1:6031
+2024-09-13 18:45:10 [scrapy.core.engine] INFO: Spider opened
+2024-09-13 18:45:10 [scrapy.core.engine] INFO: Spider opened
+2024-09-13 18:45:10 [scrapy.core.engine] INFO: Spider opened
+2024-09-13 18:45:10 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2024-09-13 18:45:10 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2024-09-13 18:45:10 [scrapy.extensions.telnet] INFO: Telnet console listening on 127.0.0.1:6023
+2024-09-13 18:45:10 [scrapy.extensions.telnet] INFO: Telnet console listening on 127.0.0.1:6030
+2024-09-13 18:45:10 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2024-09-13 18:45:10 [scrapy.extensions.telnet] INFO: Telnet console listening on 127.0.0.1:6031
