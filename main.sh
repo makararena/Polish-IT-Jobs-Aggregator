@@ -2,7 +2,15 @@
 
 set -e
 
-cd ~/dev/Polish-IT-Jobs-Aggregator/
+# Check if a directory was passed as an argument
+if [ -z "$1" ]; then
+  echo "Error: No project directory provided."
+  exit 1
+fi
+
+PROJECT_DIR="$1"
+
+cd "$PROJECT_DIR"
 
 # Define paths
 PROJECT_DIR="$(pwd)"

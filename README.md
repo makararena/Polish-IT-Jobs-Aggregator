@@ -156,15 +156,15 @@ The current version of the program has room for improvement. Some algorithms cou
 
    ```sql
    -- This is the main table where all the preprocessed job data is stored
-   CREATE TABLE public.jobs (
-       id varchar(255) NOT NULL,
-       job_title varchar(255) NULL,
-       core_role varchar(255) NULL,
-       employer_name varchar(255) NULL,
-       city varchar(255) NULL,
-       lat varchar(255) NULL,
-       long varchar(255) NULL,
-       region varchar(255) NULL,
+   CREATE TABLE jobs (
+       id varchar NOT NULL,
+       job_title varchar NULL,
+       core_role varchar NULL,
+       employer_name varchar NULL,
+       city varchar NULL,
+       lat varchar NULL,
+       long varchar NULL,
+       region varchar NULL,
        start_salary float8 NULL,
        max_salary float8 NULL,
        technologies_used text NULL,
@@ -218,7 +218,7 @@ The current version of the program has room for improvement. Some algorithms cou
    );
 
    -- This table stores daily job data for processing. It is reset after each batch
-   CREATE TABLE public.jobs_upload (
+   CREATE TABLE jobs_upload (
        id serial4 NOT NULL,
        job_title varchar NULL,
        employer_name varchar NULL,
@@ -240,7 +240,7 @@ The current version of the program has room for improvement. Some algorithms cou
    );
 
    -- This is the backup table. It stores job data to revert to a previous state if needed
-   CREATE TABLE public.jobs_upload_backup (
+   CREATE TABLE jobs_upload_backup (
        id serial4 NOT NULL,
        job_title varchar NULL,
        employer_name varchar NULL,
@@ -262,14 +262,14 @@ The current version of the program has room for improvement. Some algorithms cou
    );
 
    -- This table stores user filters for sending daily updates
-   CREATE TABLE public.user_data (
+   CREATE TABLE user_data (
        user_id int8 NOT NULL,
        filters jsonb NULL,
        CONSTRAINT user_data_pkey PRIMARY KEY (user_id)
    );
 
    -- This table stores user data to preserve bot state before exit and restore it later
-   CREATE TABLE public.user_data_before_exit (
+   CREATE TABLE user_data_before_exit (
        chat_id int8 NOT NULL,
        state jsonb NULL,
        filters jsonb NULL,
@@ -277,7 +277,7 @@ The current version of the program has room for improvement. Some algorithms cou
    );
 
    -- This table stores user reviews
-   CREATE TABLE public.user_reviews (
+   CREATE TABLE user_reviews (
        id serial4 NOT NULL,
        chat_id int8 NOT NULL,
        username varchar(50) NULL,
@@ -310,12 +310,12 @@ The current version of the program has room for improvement. Some algorithms cou
 
 
   -- Drop the main table if it exists
-  DROP TABLE IF EXISTS public.jobs;
-  DROP TABLE IF EXISTS public.jobs_upload;
-  DROP TABLE IF EXISTS public.jobs_upload_backup;
-  DROP TABLE IF EXISTS public.user_data;
-  DROP TABLE IF EXISTS public.user_data_before_exit;
-  DROP TABLE IF EXISTS public.user_reviews;
+  DROP TABLE IF EXISTS jobs;
+  DROP TABLE IF EXISTS jobs_upload;
+  DROP TABLE IF EXISTS jobs_upload_backup;
+  DROP TABLE IF EXISTS user_data;
+  DROP TABLE IF EXISTS user_data_before_exit;
+  DROP TABLE IF EXISTS user_reviews;
   DROP TABLE IF EXISTS daily_report;
   ```
    

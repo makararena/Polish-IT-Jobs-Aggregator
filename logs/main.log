@@ -1,16 +1,16 @@
-Log files cleared at Fri Sep 13 15:15:00 CEST 2024
-Log files cleared at Fri Sep 13 15:15:00 CEST 2024
-Changed directory to /Users/ivanivsnov/Polish-IT-Jobs-Aggregator at Fri Sep 13 15:15:00 CEST 2024
-Changed directory to /Users/ivanivsnov/Polish-IT-Jobs-Aggregator at Fri Sep 13 15:15:00 CEST 2024
-Virtual environment already exists at Fri Sep 13 15:15:00 CEST 2024
-Virtual environment already exists at Fri Sep 13 15:15:00 CEST 2024
-Virtual environment activated at Fri Sep 13 15:15:00 CEST 2024
-Virtual environment activated at Fri Sep 13 15:15:00 CEST 2024
-Starting to install dependencies at Fri Sep 13 15:15:00 CEST 2024
-Starting to install dependencies at Fri Sep 13 15:15:00 CEST 2024
+Log files cleared at Fri Sep 13 18:38:00 CEST 2024
+Log files cleared at Fri Sep 13 18:38:00 CEST 2024
+Changed directory to /Users/ivanivsnov/dev/Polish-IT-Jobs-Aggregator at Fri Sep 13 18:38:00 CEST 2024
+Changed directory to /Users/ivanivsnov/dev/Polish-IT-Jobs-Aggregator at Fri Sep 13 18:38:00 CEST 2024
+Virtual environment already exists at Fri Sep 13 18:38:00 CEST 2024
+Virtual environment already exists at Fri Sep 13 18:38:00 CEST 2024
+Virtual environment activated at Fri Sep 13 18:38:00 CEST 2024
+Virtual environment activated at Fri Sep 13 18:38:00 CEST 2024
+Starting to install dependencies at Fri Sep 13 18:38:00 CEST 2024
+Starting to install dependencies at Fri Sep 13 18:38:00 CEST 2024
 Collecting xx-sent-ud-sm@ https://github.com/explosion/spacy-models/releases/download/xx_sent_ud_sm-3.7.0/xx_sent_ud_sm-3.7.0-py3-none-any.whl#sha256=aafb609d5a895a62ed9672fbef2aa8061106a4b164a700999a376f8529acc3ad (from -r requirements.txt (line 128))
   Downloading https://github.com/explosion/spacy-models/releases/download/xx_sent_ud_sm-3.7.0/xx_sent_ud_sm-3.7.0-py3-none-any.whl (4.3 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.3/4.3 MB 7.2 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.3/4.3 MB 3.4 MB/s eta 0:00:00
 Requirement already satisfied: aiofiles==23.2.1 in ./venv/lib/python3.11/site-packages (from -r requirements.txt (line 1)) (23.2.1)
 Requirement already satisfied: aiogram==2.21 in ./venv/lib/python3.11/site-packages (from -r requirements.txt (line 2)) (2.21)
 Requirement already satisfied: aiohappyeyeballs==2.4.0 in ./venv/lib/python3.11/site-packages (from -r requirements.txt (line 3)) (2.4.0)
@@ -141,46 +141,47 @@ Requirement already satisfied: wrapt==1.16.0 in ./venv/lib/python3.11/site-packa
 Requirement already satisfied: yarl==1.9.4 in ./venv/lib/python3.11/site-packages (from -r requirements.txt (line 129)) (1.9.4)
 Requirement already satisfied: zope.interface==7.0.1 in ./venv/lib/python3.11/site-packages (from -r requirements.txt (line 130)) (7.0.1)
 Requirement already satisfied: setuptools in ./venv/lib/python3.11/site-packages (from ctranslate2==4.3.1->-r requirements.txt (line 24)) (65.5.0)
-Finished installing dependencies at Fri Sep 13 15:15:04 CEST 2024
-Finished installing dependencies at Fri Sep 13 15:15:04 CEST 2024
-Repository already cloned at Fri Sep 13 15:15:04 CEST 2024
-Repository already cloned at Fri Sep 13 15:15:04 CEST 2024
-/Users/ivanivsnov/Polish-IT-Jobs-Aggregator
-Script already in repository at Fri Sep 13 15:15:04 CEST 2024
-Script already in repository at Fri Sep 13 15:15:04 CEST 2024
-Changed directory to workscrapper/workscrapper at Fri Sep 13 15:15:04 CEST 2024
-Changed directory to workscrapper/workscrapper at Fri Sep 13 15:15:04 CEST 2024
-/Users/ivanivsnov/Polish-IT-Jobs-Aggregator/workscrapper/workscrapper
-Running Scrapy spiders at Fri Sep 13 15:15:04 CEST 2024
-Running Scrapy spiders at Fri Sep 13 15:15:04 CEST 2024
-2024-09-13 15:15:06 [scrapy.utils.log] INFO: Scrapy 2.11.2 started (bot: workscrapper)
-2024-09-13 15:15:06 [scrapy.utils.log] INFO: Scrapy 2.11.2 started (bot: workscrapper)
-2024-09-13 15:15:06 [scrapy.utils.log] INFO: Scrapy 2.11.2 started (bot: workscrapper)
-2024-09-13 15:15:06 [scrapy.utils.log] INFO: Versions: lxml 5.3.0.0, libxml2 2.12.9, cssselect 1.2.0, parsel 1.9.1, w3lib 2.2.1, Twisted 24.7.0, Python 3.11.6 (v3.11.6:8b6ee5ba3b, Oct  2 2023, 11:18:21) [Clang 13.0.0 (clang-1300.0.29.30)], pyOpenSSL 24.2.1 (OpenSSL 3.3.1 4 Jun 2024), cryptography 43.0.0, Platform macOS-14.5-arm64-arm-64bit
-2024-09-13 15:15:06 [scrapy.utils.log] INFO: Versions: lxml 5.3.0.0, libxml2 2.12.9, cssselect 1.2.0, parsel 1.9.1, w3lib 2.2.1, Twisted 24.7.0, Python 3.11.6 (v3.11.6:8b6ee5ba3b, Oct  2 2023, 11:18:21) [Clang 13.0.0 (clang-1300.0.29.30)], pyOpenSSL 24.2.1 (OpenSSL 3.3.1 4 Jun 2024), cryptography 43.0.0, Platform macOS-14.5-arm64-arm-64bit
-2024-09-13 15:15:06 [scrapy.utils.log] INFO: Versions: lxml 5.3.0.0, libxml2 2.12.9, cssselect 1.2.0, parsel 1.9.1, w3lib 2.2.1, Twisted 24.7.0, Python 3.11.6 (v3.11.6:8b6ee5ba3b, Oct  2 2023, 11:18:21) [Clang 13.0.0 (clang-1300.0.29.30)], pyOpenSSL 24.2.1 (OpenSSL 3.3.1 4 Jun 2024), cryptography 43.0.0, Platform macOS-14.5-arm64-arm-64bit
-2024-09-13 15:15:06 [scrapy.addons] INFO: Enabled addons:
+Finished installing dependencies at Fri Sep 13 18:38:10 CEST 2024
+Finished installing dependencies at Fri Sep 13 18:38:10 CEST 2024
+Changed directory to workscrapper/workscrapper at Fri Sep 13 18:38:10 CEST 2024
+Changed directory to workscrapper/workscrapper at Fri Sep 13 18:38:10 CEST 2024
+/Users/ivanivsnov/dev/Polish-IT-Jobs-Aggregator/workscrapper/workscrapper
+Running Scrapy spiders at Fri Sep 13 18:38:10 CEST 2024
+Running Scrapy spiders at Fri Sep 13 18:38:10 CEST 2024
+2024-09-13 18:38:11 [scrapy.utils.log] INFO: Scrapy 2.11.2 started (bot: workscrapper)
+2024-09-13 18:38:11 [scrapy.utils.log] INFO: Scrapy 2.11.2 started (bot: workscrapper)
+2024-09-13 18:38:11 [scrapy.utils.log] INFO: Scrapy 2.11.2 started (bot: workscrapper)
+2024-09-13 18:38:11 [scrapy.utils.log] INFO: Versions: lxml 5.3.0.0, libxml2 2.12.9, cssselect 1.2.0, parsel 1.9.1, w3lib 2.2.1, Twisted 24.7.0, Python 3.11.6 (v3.11.6:8b6ee5ba3b, Oct  2 2023, 11:18:21) [Clang 13.0.0 (clang-1300.0.29.30)], pyOpenSSL 24.2.1 (OpenSSL 3.3.1 4 Jun 2024), cryptography 43.0.0, Platform macOS-14.5-arm64-arm-64bit
+2024-09-13 18:38:11 [scrapy.utils.log] INFO: Versions: lxml 5.3.0.0, libxml2 2.12.9, cssselect 1.2.0, parsel 1.9.1, w3lib 2.2.1, Twisted 24.7.0, Python 3.11.6 (v3.11.6:8b6ee5ba3b, Oct  2 2023, 11:18:21) [Clang 13.0.0 (clang-1300.0.29.30)], pyOpenSSL 24.2.1 (OpenSSL 3.3.1 4 Jun 2024), cryptography 43.0.0, Platform macOS-14.5-arm64-arm-64bit
+2024-09-13 18:38:11 [scrapy.utils.log] INFO: Versions: lxml 5.3.0.0, libxml2 2.12.9, cssselect 1.2.0, parsel 1.9.1, w3lib 2.2.1, Twisted 24.7.0, Python 3.11.6 (v3.11.6:8b6ee5ba3b, Oct  2 2023, 11:18:21) [Clang 13.0.0 (clang-1300.0.29.30)], pyOpenSSL 24.2.1 (OpenSSL 3.3.1 4 Jun 2024), cryptography 43.0.0, Platform macOS-14.5-arm64-arm-64bit
+2024-09-13 18:38:11 [scrapy.addons] INFO: Enabled addons:
 []
-2024-09-13 15:15:06 [scrapy.addons] INFO: Enabled addons:
+2024-09-13 18:38:11 [scrapy.addons] INFO: Enabled addons:
 []
-2024-09-13 15:15:06 [scrapy.addons] INFO: Enabled addons:
+2024-09-13 18:38:11 [scrapy.addons] INFO: Enabled addons:
 []
-2024-09-13 15:15:06 [scrapy.extensions.telnet] INFO: Telnet Password: 7851a20c483608ed
-2024-09-13 15:15:06 [scrapy.extensions.telnet] INFO: Telnet Password: 5041f92e37aecc9c
-2024-09-13 15:15:06 [scrapy.extensions.telnet] INFO: Telnet Password: d090e6c146742517
-2024-09-13 15:15:06 [scrapy.middleware] INFO: Enabled extensions:
+2024-09-13 18:38:11 [scrapy.extensions.telnet] INFO: Telnet Password: 993c4861e0bfca84
+2024-09-13 18:38:11 [scrapy.extensions.telnet] INFO: Telnet Password: e815e073b2905a32
+2024-09-13 18:38:11 [scrapy.extensions.telnet] INFO: Telnet Password: 91e673fc70e37f3c
+2024-09-13 18:38:11 [scrapy.middleware] INFO: Enabled extensions:
 ['scrapy.extensions.corestats.CoreStats',
  'scrapy.extensions.telnet.TelnetConsole',
  'scrapy.extensions.memusage.MemoryUsage',
  'scrapy.extensions.logstats.LogStats',
  'scrapy.extensions.throttle.AutoThrottle']
-2024-09-13 15:15:06 [scrapy.middleware] INFO: Enabled extensions:
+2024-09-13 18:38:11 [scrapy.middleware] INFO: Enabled extensions:
 ['scrapy.extensions.corestats.CoreStats',
  'scrapy.extensions.telnet.TelnetConsole',
  'scrapy.extensions.memusage.MemoryUsage',
  'scrapy.extensions.logstats.LogStats',
  'scrapy.extensions.throttle.AutoThrottle']
-2024-09-13 15:15:06 [scrapy.crawler] INFO: Overridden settings:
+2024-09-13 18:38:11 [scrapy.middleware] INFO: Enabled extensions:
+['scrapy.extensions.corestats.CoreStats',
+ 'scrapy.extensions.telnet.TelnetConsole',
+ 'scrapy.extensions.memusage.MemoryUsage',
+ 'scrapy.extensions.logstats.LogStats',
+ 'scrapy.extensions.throttle.AutoThrottle']
+2024-09-13 18:38:11 [scrapy.crawler] INFO: Overridden settings:
 {'AUTOTHROTTLE_ENABLED': True,
  'BOT_NAME': 'workscrapper',
  'CONCURRENT_REQUESTS': 20,
@@ -196,7 +197,7 @@ Running Scrapy spiders at Fri Sep 13 15:15:04 CEST 2024
  'TWISTED_REACTOR': 'twisted.internet.asyncioreactor.AsyncioSelectorReactor',
  'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
                '(KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36'}
-2024-09-13 15:15:06 [scrapy.crawler] INFO: Overridden settings:
+2024-09-13 18:38:11 [scrapy.crawler] INFO: Overridden settings:
 {'AUTOTHROTTLE_ENABLED': True,
  'BOT_NAME': 'workscrapper',
  'CONCURRENT_REQUESTS': 20,
@@ -212,13 +213,7 @@ Running Scrapy spiders at Fri Sep 13 15:15:04 CEST 2024
  'TWISTED_REACTOR': 'twisted.internet.asyncioreactor.AsyncioSelectorReactor',
  'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
                '(KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36'}
-2024-09-13 15:15:06 [scrapy.middleware] INFO: Enabled extensions:
-['scrapy.extensions.corestats.CoreStats',
- 'scrapy.extensions.telnet.TelnetConsole',
- 'scrapy.extensions.memusage.MemoryUsage',
- 'scrapy.extensions.logstats.LogStats',
- 'scrapy.extensions.throttle.AutoThrottle']
-2024-09-13 15:15:06 [scrapy.crawler] INFO: Overridden settings:
+2024-09-13 18:38:11 [scrapy.crawler] INFO: Overridden settings:
 {'AUTOTHROTTLE_ENABLED': True,
  'BOT_NAME': 'workscrapper',
  'CONCURRENT_REQUESTS': 20,
@@ -234,7 +229,7 @@ Running Scrapy spiders at Fri Sep 13 15:15:04 CEST 2024
  'TWISTED_REACTOR': 'twisted.internet.asyncioreactor.AsyncioSelectorReactor',
  'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
                '(KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36'}
-2024-09-13 15:15:06 [scrapy.middleware] INFO: Enabled downloader middlewares:
+2024-09-13 18:38:12 [scrapy.middleware] INFO: Enabled downloader middlewares:
 ['scrapy.downloadermiddlewares.offsite.OffsiteMiddleware',
  'scrapy.downloadermiddlewares.robotstxt.RobotsTxtMiddleware',
  'scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware',
@@ -248,7 +243,7 @@ Running Scrapy spiders at Fri Sep 13 15:15:04 CEST 2024
  'scrapy.downloadermiddlewares.cookies.CookiesMiddleware',
  'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware',
  'scrapy.downloadermiddlewares.stats.DownloaderStats']
-2024-09-13 15:15:06 [scrapy.middleware] INFO: Enabled downloader middlewares:
+2024-09-13 18:38:12 [scrapy.middleware] INFO: Enabled downloader middlewares:
 ['scrapy.downloadermiddlewares.offsite.OffsiteMiddleware',
  'scrapy.downloadermiddlewares.robotstxt.RobotsTxtMiddleware',
  'scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware',
@@ -262,7 +257,7 @@ Running Scrapy spiders at Fri Sep 13 15:15:04 CEST 2024
  'scrapy.downloadermiddlewares.cookies.CookiesMiddleware',
  'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware',
  'scrapy.downloadermiddlewares.stats.DownloaderStats']
-2024-09-13 15:15:06 [scrapy.middleware] INFO: Enabled downloader middlewares:
+2024-09-13 18:38:12 [scrapy.middleware] INFO: Enabled downloader middlewares:
 ['scrapy.downloadermiddlewares.offsite.OffsiteMiddleware',
  'scrapy.downloadermiddlewares.robotstxt.RobotsTxtMiddleware',
  'scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware',
@@ -276,431 +271,33 @@ Running Scrapy spiders at Fri Sep 13 15:15:04 CEST 2024
  'scrapy.downloadermiddlewares.cookies.CookiesMiddleware',
  'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware',
  'scrapy.downloadermiddlewares.stats.DownloaderStats']
-2024-09-13 15:15:06 [scrapy.middleware] INFO: Enabled spider middlewares:
+2024-09-13 18:38:12 [scrapy.middleware] INFO: Enabled spider middlewares:
 ['scrapy.spidermiddlewares.httperror.HttpErrorMiddleware',
  'scrapy.spidermiddlewares.referer.RefererMiddleware',
  'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware',
  'scrapy.spidermiddlewares.depth.DepthMiddleware']
-2024-09-13 15:15:06 [scrapy.middleware] INFO: Enabled spider middlewares:
+2024-09-13 18:38:12 [scrapy.middleware] INFO: Enabled spider middlewares:
 ['scrapy.spidermiddlewares.httperror.HttpErrorMiddleware',
  'scrapy.spidermiddlewares.referer.RefererMiddleware',
  'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware',
  'scrapy.spidermiddlewares.depth.DepthMiddleware']
-2024-09-13 15:15:06 [scrapy.middleware] INFO: Enabled spider middlewares:
+2024-09-13 18:38:12 [scrapy.middleware] INFO: Enabled spider middlewares:
 ['scrapy.spidermiddlewares.httperror.HttpErrorMiddleware',
  'scrapy.spidermiddlewares.referer.RefererMiddleware',
  'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware',
  'scrapy.spidermiddlewares.depth.DepthMiddleware']
-2024-09-13 15:15:06 [scrapy.middleware] INFO: Enabled item pipelines:
+2024-09-13 18:38:12 [scrapy.middleware] INFO: Enabled item pipelines:
 ['workscrapper.pipelines.PostgreSQLPipeline']
-2024-09-13 15:15:06 [scrapy.middleware] INFO: Enabled item pipelines:
+2024-09-13 18:38:12 [scrapy.middleware] INFO: Enabled item pipelines:
 ['workscrapper.pipelines.PostgreSQLPipeline']
-2024-09-13 15:15:06 [scrapy.middleware] INFO: Enabled item pipelines:
+2024-09-13 18:38:12 [scrapy.middleware] INFO: Enabled item pipelines:
 ['workscrapper.pipelines.PostgreSQLPipeline']
-2024-09-13 15:15:06 [scrapy.core.engine] INFO: Spider opened
-2024-09-13 15:15:06 [scrapy.core.engine] INFO: Spider opened
-2024-09-13 15:15:06 [scrapy.core.engine] INFO: Spider opened
-2024-09-13 15:15:06 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
-2024-09-13 15:15:06 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
-2024-09-13 15:15:06 [scrapy.extensions.telnet] INFO: Telnet console listening on 127.0.0.1:6023
-2024-09-13 15:15:06 [scrapy.extensions.telnet] INFO: Telnet console listening on 127.0.0.1:6024
-2024-09-13 15:15:06 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
-2024-09-13 15:15:06 [scrapy.extensions.telnet] INFO: Telnet console listening on 127.0.0.1:6025
-2024-09-13 15:16:06 [scrapy.extensions.logstats] INFO: Crawled 70 pages (at 70 pages/min), scraped 48 items (at 48 items/min)
-2024-09-13 15:16:06 [scrapy.extensions.logstats] INFO: Crawled 82 pages (at 82 pages/min), scraped 60 items (at 60 items/min)
-2024-09-13 15:16:06 [scrapy.extensions.logstats] INFO: Crawled 96 pages (at 96 pages/min), scraped 72 items (at 72 items/min)
-2024-09-13 15:17:06 [scrapy.extensions.logstats] INFO: Crawled 183 pages (at 101 pages/min), scraped 161 items (at 101 items/min)
-2024-09-13 15:17:06 [scrapy.extensions.logstats] INFO: Crawled 163 pages (at 93 pages/min), scraped 141 items (at 93 items/min)
-2024-09-13 15:17:06 [scrapy.extensions.logstats] INFO: Crawled 193 pages (at 97 pages/min), scraped 170 items (at 98 items/min)
-2024-09-13 15:18:06 [scrapy.extensions.logstats] INFO: Crawled 282 pages (at 99 pages/min), scraped 259 items (at 98 items/min)
-2024-09-13 15:18:06 [scrapy.extensions.logstats] INFO: Crawled 256 pages (at 93 pages/min), scraped 234 items (at 93 items/min)
-2024-09-13 15:18:06 [scrapy.extensions.logstats] INFO: Crawled 289 pages (at 96 pages/min), scraped 266 items (at 96 items/min)
-2024-09-13 15:19:06 [scrapy.extensions.logstats] INFO: Crawled 379 pages (at 97 pages/min), scraped 357 items (at 98 items/min)
-2024-09-13 15:19:06 [scrapy.extensions.logstats] INFO: Crawled 334 pages (at 78 pages/min), scraped 312 items (at 78 items/min)
-2024-09-13 15:19:06 [scrapy.extensions.logstats] INFO: Crawled 385 pages (at 96 pages/min), scraped 361 items (at 95 items/min)
-2024-09-13 15:20:06 [scrapy.extensions.logstats] INFO: Crawled 424 pages (at 90 pages/min), scraped 402 items (at 90 items/min)
-2024-09-13 15:20:06 [scrapy.extensions.logstats] INFO: Crawled 481 pages (at 102 pages/min), scraped 459 items (at 102 items/min)
-2024-09-13 15:20:06 [scrapy.extensions.logstats] INFO: Crawled 482 pages (at 97 pages/min), scraped 458 items (at 97 items/min)
-2024-09-13 15:21:06 [scrapy.extensions.logstats] INFO: Crawled 581 pages (at 100 pages/min), scraped 559 items (at 100 items/min)
-2024-09-13 15:21:06 [scrapy.extensions.logstats] INFO: Crawled 522 pages (at 98 pages/min), scraped 500 items (at 98 items/min)
-2024-09-13 15:21:06 [scrapy.extensions.logstats] INFO: Crawled 581 pages (at 99 pages/min), scraped 558 items (at 100 items/min)
-2024-09-13 15:22:06 [scrapy.extensions.logstats] INFO: Crawled 679 pages (at 98 pages/min), scraped 657 items (at 98 items/min)
-2024-09-13 15:22:06 [scrapy.extensions.logstats] INFO: Crawled 613 pages (at 91 pages/min), scraped 591 items (at 91 items/min)
-2024-09-13 15:22:06 [scrapy.extensions.logstats] INFO: Crawled 677 pages (at 96 pages/min), scraped 654 items (at 96 items/min)
-2024-09-13 15:23:06 [scrapy.extensions.logstats] INFO: Crawled 774 pages (at 95 pages/min), scraped 751 items (at 94 items/min)
-2024-09-13 15:23:06 [scrapy.extensions.logstats] INFO: Crawled 701 pages (at 88 pages/min), scraped 679 items (at 88 items/min)
-2024-09-13 15:23:06 [scrapy.extensions.logstats] INFO: Crawled 775 pages (at 98 pages/min), scraped 752 items (at 98 items/min)
-2024-09-13 15:24:06 [scrapy.extensions.logstats] INFO: Crawled 793 pages (at 92 pages/min), scraped 771 items (at 92 items/min)
-2024-09-13 15:24:06 [scrapy.extensions.logstats] INFO: Crawled 871 pages (at 97 pages/min), scraped 767 items (at 16 items/min)
-2024-09-13 15:24:06 [scrapy.extensions.logstats] INFO: Crawled 872 pages (at 97 pages/min), scraped 849 items (at 97 items/min)
-2024-09-13 15:25:06 [scrapy.extensions.logstats] INFO: Crawled 882 pages (at 89 pages/min), scraped 859 items (at 88 items/min)
-2024-09-13 15:25:06 [scrapy.extensions.logstats] INFO: Crawled 968 pages (at 97 pages/min), scraped 767 items (at 0 items/min)
-2024-09-13 15:25:06 [scrapy.core.engine] INFO: Closing spider (finished)
-2024-09-13 15:25:06 [scrapy.statscollectors] INFO: Dumping Scrapy stats:
-{'downloader/request_bytes': 392240,
- 'downloader/request_count': 969,
- 'downloader/request_method_count/GET': 969,
- 'downloader/response_bytes': 25677762,
- 'downloader/response_count': 969,
- 'downloader/response_status_count/200': 967,
- 'downloader/response_status_count/301': 1,
- 'downloader/response_status_count/403': 1,
- 'elapsed_time_seconds': 600.07008,
- 'finish_reason': 'finished',
- 'finish_time': datetime.datetime(2024, 9, 13, 13, 25, 6, 838994, tzinfo=datetime.timezone.utc),
- 'httpcompression/response_bytes': 119585898,
- 'httpcompression/response_count': 968,
- 'item_scraped_count': 767,
- 'log_count/INFO': 20,
- 'memusage/max': 101646336,
- 'memusage/startup': 79069184,
- 'request_depth_max': 1,
- 'response_received_count': 968,
- 'robotstxt/request_count': 1,
- 'robotstxt/response_count': 1,
- 'robotstxt/response_status_count/403': 1,
- 'scheduler/dequeued': 967,
- 'scheduler/dequeued/memory': 967,
- 'scheduler/enqueued': 967,
- 'scheduler/enqueued/memory': 967,
- 'start_time': datetime.datetime(2024, 9, 13, 13, 15, 6, 768914, tzinfo=datetime.timezone.utc)}
-2024-09-13 15:25:06 [scrapy.core.engine] INFO: Spider closed (finished)
-2024-09-13 15:25:06 [scrapy.extensions.logstats] INFO: Crawled 972 pages (at 100 pages/min), scraped 949 items (at 100 items/min)
-2024-09-13 15:26:06 [scrapy.extensions.logstats] INFO: Crawled 974 pages (at 92 pages/min), scraped 952 items (at 93 items/min)
-2024-09-13 15:26:06 [scrapy.extensions.logstats] INFO: Crawled 1075 pages (at 103 pages/min), scraped 1048 items (at 99 items/min)
-2024-09-13 15:27:06 [scrapy.extensions.logstats] INFO: Crawled 1050 pages (at 76 pages/min), scraped 1028 items (at 76 items/min)
-2024-09-13 15:27:06 [scrapy.extensions.logstats] INFO: Crawled 1175 pages (at 100 pages/min), scraped 1146 items (at 98 items/min)
-2024-09-13 15:28:06 [scrapy.extensions.logstats] INFO: Crawled 1139 pages (at 89 pages/min), scraped 1096 items (at 68 items/min)
-2024-09-13 15:28:06 [scrapy.extensions.logstats] INFO: Crawled 1273 pages (at 98 pages/min), scraped 1242 items (at 96 items/min)
-2024-09-13 15:29:06 [scrapy.extensions.logstats] INFO: Crawled 1224 pages (at 85 pages/min), scraped 1181 items (at 85 items/min)
-2024-09-13 15:29:06 [scrapy.extensions.logstats] INFO: Crawled 1372 pages (at 99 pages/min), scraped 1339 items (at 97 items/min)
-2024-09-13 15:30:06 [scrapy.extensions.logstats] INFO: Crawled 1319 pages (at 95 pages/min), scraped 1276 items (at 95 items/min)
-2024-09-13 15:30:06 [scrapy.extensions.logstats] INFO: Crawled 1469 pages (at 97 pages/min), scraped 1434 items (at 95 items/min)
-2024-09-13 15:31:06 [scrapy.extensions.logstats] INFO: Crawled 1409 pages (at 90 pages/min), scraped 1366 items (at 90 items/min)
-2024-09-13 15:31:06 [scrapy.extensions.logstats] INFO: Crawled 1567 pages (at 98 pages/min), scraped 1530 items (at 96 items/min)
-2024-09-13 15:32:06 [scrapy.extensions.logstats] INFO: Crawled 1493 pages (at 84 pages/min), scraped 1450 items (at 84 items/min)
-2024-09-13 15:32:06 [scrapy.extensions.logstats] INFO: Crawled 1668 pages (at 101 pages/min), scraped 1629 items (at 99 items/min)
-2024-09-13 15:33:06 [scrapy.extensions.logstats] INFO: Crawled 1580 pages (at 87 pages/min), scraped 1536 items (at 86 items/min)
-2024-09-13 15:33:06 [scrapy.extensions.logstats] INFO: Crawled 1768 pages (at 100 pages/min), scraped 1727 items (at 98 items/min)
-2024-09-13 15:34:06 [scrapy.extensions.logstats] INFO: Crawled 1678 pages (at 98 pages/min), scraped 1635 items (at 99 items/min)
-2024-09-13 15:34:06 [scrapy.extensions.logstats] INFO: Crawled 1866 pages (at 98 pages/min), scraped 1823 items (at 96 items/min)
-2024-09-13 15:35:06 [scrapy.extensions.logstats] INFO: Crawled 1769 pages (at 91 pages/min), scraped 1726 items (at 91 items/min)
-2024-09-13 15:35:06 [scrapy.extensions.logstats] INFO: Crawled 1967 pages (at 101 pages/min), scraped 1921 items (at 98 items/min)
-2024-09-13 15:36:06 [scrapy.extensions.logstats] INFO: Crawled 1865 pages (at 96 pages/min), scraped 1822 items (at 96 items/min)
-2024-09-13 15:36:06 [scrapy.extensions.logstats] INFO: Crawled 2069 pages (at 102 pages/min), scraped 2019 items (at 98 items/min)
-2024-09-13 15:37:06 [scrapy.extensions.logstats] INFO: Crawled 1960 pages (at 95 pages/min), scraped 1917 items (at 95 items/min)
-2024-09-13 15:37:06 [scrapy.extensions.logstats] INFO: Crawled 2165 pages (at 96 pages/min), scraped 2114 items (at 95 items/min)
-2024-09-13 15:38:06 [scrapy.extensions.logstats] INFO: Crawled 2051 pages (at 91 pages/min), scraped 2008 items (at 91 items/min)
-2024-09-13 15:38:06 [scrapy.extensions.logstats] INFO: Crawled 2266 pages (at 101 pages/min), scraped 2214 items (at 100 items/min)
-2024-09-13 15:39:06 [scrapy.extensions.logstats] INFO: Crawled 2144 pages (at 93 pages/min), scraped 2096 items (at 88 items/min)
-2024-09-13 15:39:06 [scrapy.extensions.logstats] INFO: Crawled 2369 pages (at 103 pages/min), scraped 2314 items (at 100 items/min)
-2024-09-13 15:40:06 [scrapy.extensions.logstats] INFO: Crawled 2241 pages (at 97 pages/min), scraped 2177 items (at 81 items/min)
-2024-09-13 15:40:06 [scrapy.extensions.logstats] INFO: Crawled 2472 pages (at 103 pages/min), scraped 2414 items (at 100 items/min)
-2024-09-13 15:41:06 [scrapy.extensions.logstats] INFO: Crawled 2332 pages (at 91 pages/min), scraped 2268 items (at 91 items/min)
-2024-09-13 15:41:06 [scrapy.extensions.logstats] INFO: Crawled 2574 pages (at 102 pages/min), scraped 2513 items (at 99 items/min)
-2024-09-13 15:42:06 [scrapy.extensions.logstats] INFO: Crawled 2428 pages (at 96 pages/min), scraped 2363 items (at 95 items/min)
-2024-09-13 15:42:06 [scrapy.extensions.logstats] INFO: Crawled 2671 pages (at 97 pages/min), scraped 2609 items (at 96 items/min)
-2024-09-13 15:43:06 [scrapy.extensions.logstats] INFO: Crawled 2527 pages (at 99 pages/min), scraped 2463 items (at 100 items/min)
-2024-09-13 15:43:06 [scrapy.extensions.logstats] INFO: Crawled 2770 pages (at 99 pages/min), scraped 2706 items (at 97 items/min)
-2024-09-13 15:44:06 [scrapy.extensions.logstats] INFO: Crawled 2617 pages (at 90 pages/min), scraped 2553 items (at 90 items/min)
-2024-09-13 15:44:06 [scrapy.extensions.logstats] INFO: Crawled 2871 pages (at 101 pages/min), scraped 2804 items (at 98 items/min)
-2024-09-13 15:45:06 [scrapy.extensions.logstats] INFO: Crawled 2712 pages (at 95 pages/min), scraped 2648 items (at 95 items/min)
-2024-09-13 15:45:06 [scrapy.extensions.logstats] INFO: Crawled 2970 pages (at 99 pages/min), scraped 2902 items (at 98 items/min)
-2024-09-13 15:46:06 [scrapy.extensions.logstats] INFO: Crawled 2794 pages (at 82 pages/min), scraped 2729 items (at 81 items/min)
-2024-09-13 15:46:06 [scrapy.extensions.logstats] INFO: Crawled 3072 pages (at 102 pages/min), scraped 3001 items (at 99 items/min)
-2024-09-13 15:47:06 [scrapy.extensions.logstats] INFO: Crawled 2888 pages (at 94 pages/min), scraped 2824 items (at 95 items/min)
-2024-09-13 15:47:06 [scrapy.extensions.logstats] INFO: Crawled 3173 pages (at 101 pages/min), scraped 3099 items (at 98 items/min)
-2024-09-13 15:48:06 [scrapy.extensions.logstats] INFO: Crawled 2982 pages (at 94 pages/min), scraped 2918 items (at 94 items/min)
-2024-09-13 15:48:06 [scrapy.extensions.logstats] INFO: Crawled 3273 pages (at 100 pages/min), scraped 3198 items (at 99 items/min)
-2024-09-13 15:49:06 [scrapy.extensions.logstats] INFO: Crawled 3080 pages (at 98 pages/min), scraped 3016 items (at 98 items/min)
-2024-09-13 15:49:06 [scrapy.extensions.logstats] INFO: Crawled 3373 pages (at 100 pages/min), scraped 3296 items (at 98 items/min)
-2024-09-13 16:05:00 [scrapy.extensions.logstats] INFO: Crawled 3420 pages (at 47 pages/min), scraped 3343 items (at 47 items/min)
-2024-09-13 16:05:01 [scrapy.extensions.logstats] INFO: Crawled 3127 pages (at 47 pages/min), scraped 3063 items (at 47 items/min)
-2024-09-13 16:10:55 [scrapy.extensions.logstats] INFO: Crawled 3426 pages (at 6 pages/min), scraped 3348 items (at 5 items/min)
-2024-09-13 16:10:55 [scrapy.extensions.logstats] INFO: Crawled 3133 pages (at 6 pages/min), scraped 3068 items (at 5 items/min)
-2024-09-13 16:27:31 [scrapy.extensions.logstats] INFO: Crawled 3149 pages (at 16 pages/min), scraped 3085 items (at 17 items/min)
-2024-09-13 16:27:31 [scrapy.extensions.logstats] INFO: Crawled 3443 pages (at 17 pages/min), scraped 3363 items (at 15 items/min)
-2024-09-13 16:31:13 [scrapy.extensions.logstats] INFO: Crawled 3152 pages (at 3 pages/min), scraped 3088 items (at 3 items/min)
-2024-09-13 16:31:13 [scrapy.extensions.logstats] INFO: Crawled 3450 pages (at 7 pages/min), scraped 3370 items (at 7 items/min)
-2024-09-13 16:32:06 [scrapy.extensions.logstats] INFO: Crawled 3230 pages (at 78 pages/min), scraped 3145 items (at 57 items/min)
-2024-09-13 16:32:06 [scrapy.extensions.logstats] INFO: Crawled 3537 pages (at 87 pages/min), scraped 3457 items (at 87 items/min)
-2024-09-13 16:33:06 [scrapy.extensions.logstats] INFO: Crawled 3322 pages (at 92 pages/min), scraped 3236 items (at 91 items/min)
-2024-09-13 16:33:06 [scrapy.extensions.logstats] INFO: Crawled 3636 pages (at 99 pages/min), scraped 3554 items (at 97 items/min)
-2024-09-13 16:34:06 [scrapy.extensions.logstats] INFO: Crawled 3411 pages (at 89 pages/min), scraped 3326 items (at 90 items/min)
-2024-09-13 16:34:06 [scrapy.extensions.logstats] INFO: Crawled 3736 pages (at 100 pages/min), scraped 3651 items (at 97 items/min)
-2024-09-13 16:35:06 [scrapy.extensions.logstats] INFO: Crawled 3501 pages (at 90 pages/min), scraped 3415 items (at 89 items/min)
-2024-09-13 16:35:06 [scrapy.extensions.logstats] INFO: Crawled 3855 pages (at 119 pages/min), scraped 3706 items (at 55 items/min)
-2024-09-13 16:35:38 [scrapy.core.engine] INFO: Closing spider (finished)
-2024-09-13 16:35:38 [scrapy.statscollectors] INFO: Dumping Scrapy stats:
-{'downloader/exception_count': 1,
- 'downloader/exception_type_count/twisted.internet.error.TimeoutError': 1,
- 'downloader/request_bytes': 2869533,
- 'downloader/request_count': 3910,
- 'downloader/request_method_count/GET': 3910,
- 'downloader/response_bytes': 106405452,
- 'downloader/response_count': 3909,
- 'downloader/response_status_count/200': 3907,
- 'downloader/response_status_count/301': 1,
- 'downloader/response_status_count/404': 1,
- 'dupefilter/filtered': 62,
- 'elapsed_time_seconds': 4832.043049,
- 'finish_reason': 'finished',
- 'finish_time': datetime.datetime(2024, 9, 13, 14, 35, 38, 889644, tzinfo=datetime.timezone.utc),
- 'httpcompression/response_bytes': 537114025,
- 'httpcompression/response_count': 3908,
- 'item_scraped_count': 3706,
- 'log_count/INFO': 52,
- 'memusage/max': 144605184,
- 'memusage/startup': 78610432,
- 'request_depth_max': 1,
- 'response_received_count': 3908,
- 'retry/count': 1,
- 'retry/reason_count/twisted.internet.error.TimeoutError': 1,
- 'robotstxt/request_count': 2,
- 'robotstxt/response_count': 2,
- 'robotstxt/response_status_count/200': 1,
- 'robotstxt/response_status_count/404': 1,
- 'scheduler/dequeued': 3908,
- 'scheduler/dequeued/memory': 3908,
- 'scheduler/enqueued': 3908,
- 'scheduler/enqueued/memory': 3908,
- 'start_time': datetime.datetime(2024, 9, 13, 13, 15, 6, 846595, tzinfo=datetime.timezone.utc)}
-2024-09-13 16:35:38 [scrapy.core.engine] INFO: Spider closed (finished)
-2024-09-13 16:36:06 [scrapy.extensions.logstats] INFO: Crawled 3597 pages (at 96 pages/min), scraped 3480 items (at 65 items/min)
-2024-09-13 16:36:56 [scrapy.core.engine] INFO: Closing spider (finished)
-2024-09-13 16:36:56 [scrapy.statscollectors] INFO: Dumping Scrapy stats:
-{'downloader/exception_count': 2,
- 'downloader/exception_type_count/twisted.internet.error.TimeoutError': 1,
- 'downloader/exception_type_count/twisted.web._newclient.ResponseNeverReceived': 1,
- 'downloader/request_bytes': 2055072,
- 'downloader/request_count': 3683,
- 'downloader/request_method_count/GET': 3683,
- 'downloader/response_bytes': 127964476,
- 'downloader/response_count': 3681,
- 'downloader/response_status_count/200': 3681,
- 'dupefilter/filtered': 28,
- 'elapsed_time_seconds': 4909.457699,
- 'finish_reason': 'finished',
- 'finish_time': datetime.datetime(2024, 9, 13, 14, 36, 56, 226613, tzinfo=datetime.timezone.utc),
- 'httpcompression/response_bytes': 507930262,
- 'httpcompression/response_count': 3681,
- 'item_scraped_count': 3480,
- 'log_count/INFO': 53,
- 'memusage/max': 147144704,
- 'memusage/startup': 79036416,
- 'request_depth_max': 1,
- 'response_received_count': 3681,
- 'retry/count': 2,
- 'retry/reason_count/twisted.internet.error.TimeoutError': 1,
- 'retry/reason_count/twisted.web._newclient.ResponseNeverReceived': 1,
- 'robotstxt/request_count': 1,
- 'robotstxt/response_count': 1,
- 'robotstxt/response_status_count/200': 1,
- 'scheduler/dequeued': 3682,
- 'scheduler/dequeued/memory': 3682,
- 'scheduler/enqueued': 3682,
- 'scheduler/enqueued/memory': 3682,
- 'start_time': datetime.datetime(2024, 9, 13, 13, 15, 6, 768914, tzinfo=datetime.timezone.utc)}
-2024-09-13 16:36:56 [scrapy.core.engine] INFO: Spider closed (finished)
-Scrapy spiders completed at Fri Sep 13 16:36:56 CEST 2024
-Scrapy spiders completed at Fri Sep 13 16:36:56 CEST 2024
-Changed directory back to /Users/ivanivsnov/Polish-IT-Jobs-Aggregator at Fri Sep 13 16:36:56 CEST 2024
-Changed directory back to /Users/ivanivsnov/Polish-IT-Jobs-Aggregator at Fri Sep 13 16:36:56 CEST 2024
-
-Processing column: 'job_title'
-
-Detecting language:   0%|          | 0/19 [00:00<?, ?it/s]Detecting language:  11%|█         | 2/19 [00:00<00:05,  3.08it/s]Detecting language:  47%|████▋     | 9/19 [00:00<00:00, 15.12it/s]Detecting language:  89%|████████▉ | 17/19 [00:00<00:00, 27.97it/s]Detecting language: 100%|██████████| 19/19 [00:00<00:00, 21.83it/s]
-Translating and cleaning:   0%|          | 0/19 [00:00<?, ?it/s]Translating and cleaning:  95%|█████████▍| 18/19 [00:07<00:00,  2.56it/s]Translating and cleaning: 100%|██████████| 19/19 [00:07<00:00,  2.70it/s]
-
-Finished processing column: 'job_title'
-
-
-Processing column: 'responsibilities'
-
-Detecting language:   0%|          | 0/19 [00:00<?, ?it/s]Detecting language: 100%|██████████| 19/19 [00:00<00:00, 183.87it/s]
-Translating and cleaning:   0%|          | 0/19 [00:00<?, ?it/s]Translating and cleaning:  26%|██▋       | 5/19 [00:03<00:09,  1.45it/s]Translating and cleaning:  47%|████▋     | 9/19 [00:07<00:08,  1.22it/s]Translating and cleaning:  53%|█████▎    | 10/19 [00:13<00:15,  1.68s/it]Translating and cleaning:  58%|█████▊    | 11/19 [00:17<00:17,  2.22s/it]Translating and cleaning:  68%|██████▊   | 13/19 [00:23<00:14,  2.41s/it]Translating and cleaning:  84%|████████▍ | 16/19 [00:25<00:05,  1.67s/it]Translating and cleaning:  95%|█████████▍| 18/19 [00:33<00:02,  2.31s/it]Translating and cleaning: 100%|██████████| 19/19 [00:33<00:00,  1.75s/it]
-
-Finished processing column: 'responsibilities'
-
-
-Processing column: 'requirements'
-
-Detecting language:   0%|          | 0/19 [00:00<?, ?it/s]Detecting language: 100%|██████████| 19/19 [00:00<00:00, 190.39it/s]
-Translating and cleaning:   0%|          | 0/19 [00:00<?, ?it/s]Translating and cleaning:  26%|██▋       | 5/19 [00:03<00:09,  1.55it/s]Translating and cleaning:  47%|████▋     | 9/19 [00:05<00:06,  1.52it/s]Translating and cleaning:  53%|█████▎    | 10/19 [00:12<00:13,  1.55s/it]Translating and cleaning:  58%|█████▊    | 11/19 [00:15<00:14,  1.81s/it]Translating and cleaning:  68%|██████▊   | 13/19 [00:18<00:10,  1.83s/it]Translating and cleaning:  84%|████████▍ | 16/19 [00:23<00:05,  1.78s/it]Translating and cleaning:  95%|█████████▍| 18/19 [00:26<00:01,  1.68s/it]Translating and cleaning: 100%|██████████| 19/19 [00:26<00:00,  1.41s/it]
-
-Finished processing column: 'requirements'
-
-
-Processing column: 'benefits'
-
-Detecting language:   0%|          | 0/19 [00:00<?, ?it/s]Detecting language: 100%|██████████| 19/19 [00:00<00:00, 180.49it/s]Detecting language: 100%|██████████| 19/19 [00:00<00:00, 164.60it/s]
-Translating and cleaning:   0%|          | 0/19 [00:00<?, ?it/s]Translating and cleaning:  47%|████▋     | 9/19 [00:01<00:01,  6.33it/s]Translating and cleaning:  53%|█████▎    | 10/19 [00:02<00:02,  3.76it/s]Translating and cleaning:  58%|█████▊    | 11/19 [00:03<00:03,  2.50it/s]Translating and cleaning:  68%|██████▊   | 13/19 [00:04<00:02,  2.15it/s]Translating and cleaning:  84%|████████▍ | 16/19 [00:06<00:01,  2.09it/s]Translating and cleaning:  95%|█████████▍| 18/19 [00:08<00:00,  1.41it/s]Translating and cleaning: 100%|██████████| 19/19 [00:08<00:00,  2.17it/s]
-
-Finished processing column: 'benefits'
-
-
-Processing column: 'offering'
-
-Detecting language:   0%|          | 0/19 [00:00<?, ?it/s]Detecting language: 100%|██████████| 19/19 [00:00<00:00, 226.90it/s]
-Translating and cleaning:   0%|          | 0/19 [00:00<?, ?it/s]Translating and cleaning:  26%|██▋       | 5/19 [00:03<00:09,  1.55it/s]Translating and cleaning:  47%|████▋     | 9/19 [00:05<00:05,  1.83it/s]Translating and cleaning:  53%|█████▎    | 10/19 [00:07<00:07,  1.26it/s]Translating and cleaning:  58%|█████▊    | 11/19 [00:09<00:08,  1.12s/it]Translating and cleaning:  84%|████████▍ | 16/19 [00:14<00:03,  1.02s/it]Translating and cleaning:  95%|█████████▍| 18/19 [00:18<00:01,  1.26s/it]Translating and cleaning: 100%|██████████| 19/19 [00:18<00:00,  1.03it/s]
-/Users/ivanivsnov/Polish-IT-Jobs-Aggregator/preprocess.py:385: FutureWarning: Downcasting behavior in `replace` is deprecated and will be removed in a future version. To retain the old behavior, explicitly call `result.infer_objects(copy=False)`. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
-  df.replace({"TRUE": 1, "FALSE": 0, True: 1, False: 0}, inplace=True)
-
-Finished processing column: 'offering'
-
-
-----------------------------------------
-Benefits Description
-----------------------------------------
-       work_life_balance  financial_rewards_and_benefits  health_and_wellbeing  personal_and_professional_development  workplace_environment_and_culture  mobility_and_transport  unique_benefits  community_and_social_initiatives
-count          13.000000                       13.000000             13.000000                              13.000000                          13.000000                    13.0             13.0                         13.000000
-mean            0.307692                        0.307692              0.461538                               0.384615                           0.153846                     0.0              0.0                          0.076923
-std             0.480384                        0.480384              0.518875                               0.506370                           0.375534                     0.0              0.0                          0.277350
-min             0.000000                        0.000000              0.000000                               0.000000                           0.000000                     0.0              0.0                          0.000000
-25%             0.000000                        0.000000              0.000000                               0.000000                           0.000000                     0.0              0.0                          0.000000
-50%             0.000000                        0.000000              0.000000                               0.000000                           0.000000                     0.0              0.0                          0.000000
-75%             1.000000                        1.000000              1.000000                               1.000000                           0.000000                     0.0              0.0                          0.000000
-max             1.000000                        1.000000              1.000000                               1.000000                           1.000000                     0.0              0.0                          1.000000
-
-----------------------------------------
-Contracts Description
-----------------------------------------
-       b2b_contract  employment_contract  mandate_contract  substitution_agreement  work_contract  agency_agreement  temporary_staffing_agreement  specific_work_contract  internship_apprenticeship_contract  temporary_employment_contract
-count     13.000000            13.000000              13.0                    13.0           13.0              13.0                          13.0                    13.0                                13.0                           13.0
-mean       0.692308             0.538462               0.0                     0.0            0.0               0.0                           0.0                     0.0                                 0.0                            0.0
-std        0.480384             0.518875               0.0                     0.0            0.0               0.0                           0.0                     0.0                                 0.0                            0.0
-min        0.000000             0.000000               0.0                     0.0            0.0               0.0                           0.0                     0.0                                 0.0                            0.0
-25%        0.000000             0.000000               0.0                     0.0            0.0               0.0                           0.0                     0.0                                 0.0                            0.0
-50%        1.000000             1.000000               0.0                     0.0            0.0               0.0                           0.0                     0.0                                 0.0                            0.0
-75%        1.000000             1.000000               0.0                     0.0            0.0               0.0                           0.0                     0.0                                 0.0                            0.0
-max        1.000000             1.000000               0.0                     0.0            0.0               0.0                           0.0                     0.0                                 0.0                            0.0
-
-----------------------------------------
-Languages Description
-----------------------------------------
-       language_english  language_german  language_french  language_spanish  language_italian  language_dutch  language_russian  language_chinese_mandarin  language_japanese  language_portuguese  language_swedish  language_danish
-count         13.000000        13.000000             13.0              13.0              13.0            13.0              13.0                       13.0               13.0                 13.0              13.0             13.0
-mean           0.461538         0.076923              0.0               0.0               0.0             0.0               0.0                        0.0                0.0                  0.0               0.0              0.0
-std            0.518875         0.277350              0.0               0.0               0.0             0.0               0.0                        0.0                0.0                  0.0               0.0              0.0
-min            0.000000         0.000000              0.0               0.0               0.0             0.0               0.0                        0.0                0.0                  0.0               0.0              0.0
-25%            0.000000         0.000000              0.0               0.0               0.0             0.0               0.0                        0.0                0.0                  0.0               0.0              0.0
-50%            0.000000         0.000000              0.0               0.0               0.0             0.0               0.0                        0.0                0.0                  0.0               0.0              0.0
-75%            1.000000         0.000000              0.0               0.0               0.0             0.0               0.0                        0.0                0.0                  0.0               0.0              0.0
-max            1.000000         1.000000              0.0               0.0               0.0             0.0               0.0                        0.0                0.0                  0.0               0.0              0.0
-
-----------------------------------------
-Experience Level Description
-----------------------------------------
-       internship  junior     middle     senior       lead
-count        13.0    13.0  13.000000  13.000000  13.000000
-mean          0.0     0.0   0.307692   0.538462   0.076923
-std           0.0     0.0   0.480384   0.518875   0.277350
-min           0.0     0.0   0.000000   0.000000   0.000000
-25%           0.0     0.0   0.000000   0.000000   0.000000
-50%           0.0     0.0   0.000000   1.000000   0.000000
-75%           0.0     0.0   1.000000   1.000000   0.000000
-max           0.0     0.0   1.000000   1.000000   1.000000
-
-----------------------------------------
-Work Type Description
-----------------------------------------
-       full_time     hybrid     remote
-count  13.000000  13.000000  13.000000
-mean    0.153846   0.538462   0.461538
-std     0.375534   0.518875   0.518875
-min     0.000000   0.000000   0.000000
-25%     0.000000   0.000000   0.000000
-50%     0.000000   1.000000   0.000000
-75%     0.000000   1.000000   1.000000
-max     1.000000   1.000000   1.000000
-All upload_ids are unique.
-
-Dates Description
-                          expiration          date_posted
-count                             13                   13
-mean   2024-10-03 22:09:13.846153728  2024-09-12 00:00:00
-min              2024-09-27 00:00:00  2024-09-12 00:00:00
-25%              2024-09-28 00:00:00  2024-09-12 00:00:00
-50%              2024-10-05 00:00:00  2024-09-12 00:00:00
-75%              2024-10-08 00:00:00  2024-09-12 00:00:00
-max              2024-10-13 00:00:00  2024-09-12 00:00:00
-
-----------------------------------------
-Salary Description
-----------------------------------------
-       start_salary max_salary
-count            13         13
-unique            5          5
-top               0          0
-freq              9          9
-
-----------------------------------------
-Job Title Value Counts
-----------------------------------------
-job_title
-Senior Network Administrator                                1
-Project Assistant                                           1
-Data Engineer                                               1
-Consultant SAP PM&OPS                                       1
-Senior Dynamics 365 CRM Developer                           1
-Developer .NET                                              1
-Embedded Senior Software Engineer - Pixel Power Software    1
-Consultant F&O - Dynamics 365 Finance (D365 Finance)        1
-MS Dynamics 365 Developer with German                       1
-Developer / Programistka Full-stack                         1
-Senior AI Model Developer                                   1
-Senior IT Project Manager                                   1
-Senior .Net Services Developer                              1
-
-----------------------------------------
-Core Role Value Counts
-----------------------------------------
-core_role
-Network Administrator                    1
-Project Assistant                        1
-Data Engineer                            1
-Consultant Sap Pm&Ops                    1
-Dynamics 365 Crm Developer               1
-.NET Developer                           1
-Embedded Software Engineer               1
-Consultant F&O - Dynamics 365 Finance    1
-Ms Dynamics 365 Developer                1
-Full Stack Developer                     1
-Ai Model Developer                       1
-IT Project Manager                       1
-.Net Services Developer                  1
-
-----------------------------------------
-Employer Name Value Counts
-----------------------------------------
-employer_name
-Alten                             2
-Connectis_                        1
-Novaris                           1
-BE IN IT                          1
-"unison Systemy Informatyczne"    1
-Google                            1
-Square ONE Resources              1
-Devire                            1
-Uniqa                             1
-Link Group                        1
-Medicover                         1
-Luxoft                            1
-
-----------------------------------------
-Data inserted into table jobs
-Preprocessing completed at Fri Sep 13 16:38:47 CEST 2024
-Preprocessing completed at Fri Sep 13 16:38:47 CEST 2024
-Script moved back to root directory at Fri Sep 13 16:38:47 CEST 2024
-Script moved back to root directory at Fri Sep 13 16:38:47 CEST 2024
-
-----------------------------------------
-Seding email to makararena@gmail.com
-
-----------------------------------------
-Email with main logs sent at Fri Sep 13 16:38:50 CEST 2024
-Email with main logs sent at Fri Sep 13 16:38:50 CEST 2024
-Bot control script started at Fri Sep 13 16:38:50 CEST 2024
-PID file not found at Fri Sep 13 16:38:50 CEST 2024
-Starting bot and generating figures at Fri Sep 13 16:38:50 CEST 2024
-Bot started with PID 58055 at Fri Sep 13 16:39:28 CEST 2024
+2024-09-13 18:38:12 [scrapy.core.engine] INFO: Spider opened
+2024-09-13 18:38:12 [scrapy.core.engine] INFO: Spider opened
+2024-09-13 18:38:12 [scrapy.core.engine] INFO: Spider opened
+2024-09-13 18:38:12 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2024-09-13 18:38:12 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2024-09-13 18:38:12 [scrapy.extensions.telnet] INFO: Telnet console listening on 127.0.0.1:6023
+2024-09-13 18:38:12 [scrapy.extensions.telnet] INFO: Telnet console listening on 127.0.0.1:6030
+2024-09-13 18:38:12 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2024-09-13 18:38:12 [scrapy.extensions.telnet] INFO: Telnet console listening on 127.0.0.1:6031

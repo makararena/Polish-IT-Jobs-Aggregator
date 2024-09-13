@@ -347,6 +347,24 @@ def extract_job_role(title):
     else:
         return cleaned_title.title()
 
+def insert_data_to_db(df, table_name, db_config):
+    """Insert data from DataFrame into the specified table in PostgreSQL."""
+    with psycopg2.connect(**db_config) as conn:
+        cur = conn.cursor()
+
+        columns = df.columns
+        values = [tuple(x) for x in df.to_numpy()]
+        insert_query = sql.SQL("INSERT INTO {} ({}) VALUES %s").format(
+            sql.Identifier(table_name),
+            sql.SQL(', ').join(map(sql.Identifier, columns))
+        )                    
+        
+        psycopg2.extras.execute_values(
+            cur, insert_query, values, template=None, page_size=100
+        )
+        conn.commit()
+        print(f"Data inserted into table {table_name}")
+
 if __name__ == "__main__":
     load_dotenv()
     os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
@@ -567,23 +585,9 @@ if __name__ == "__main__":
 
     print(f"\n{'-' * 40}")
 
-    def insert_data_to_db(df, table_name, db_config):
-        """Insert data from DataFrame into the specified table in PostgreSQL."""
-        with psycopg2.connect(**db_config) as conn:
-            cur = conn.cursor()
-
-            columns = df.columns
-            values = [tuple(x) for x in df.to_numpy()]
-            insert_query = sql.SQL("INSERT INTO {} ({}) VALUES %s").format(
-                sql.Identifier(table_name),
-                sql.SQL(', ').join(map(sql.Identifier, columns))
-            )                    
-            
-            psycopg2.extras.execute_values(
-                cur, insert_query, values, template=None, page_size=100
-            )
-            conn.commit()
-            print(f"Data inserted into table {table_name}")
-
     insert_data_to_db(df, 'jobs', db_config)
+    
+    now = datetime.now().strftime("%Y%m%d_%H%M%S")
+    excel_file_path = f"./data/output_{now}.xlsx"
+    df.to_excel(excel_file_path, index=False)
         
