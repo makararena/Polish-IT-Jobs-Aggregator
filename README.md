@@ -308,7 +308,7 @@ The current version of the program has room for improvement. Some algorithms cou
          summary TEXT
      );
 
-  -- Drop the main table if it exists
+   -- Drop the main table if it exists
     DROP TABLE IF EXISTS jobs;
     DROP TABLE IF EXISTS jobs_upload;
     DROP TABLE IF EXISTS jobs_upload_backup;
