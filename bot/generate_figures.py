@@ -15,7 +15,7 @@ warnings.filterwarnings("ignore", message="pandas only supports SQLAlchemy conne
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from data.dictionaries import LANGUAGES, PLOT_COLUMNS, DARK_THEME, LIGHT_THEME
-from data.queries import INSERT_DAILY_REPORT_QUERY, ALL_JOBS_QUERY, YESTERDAY_JOBS_QUERY
+from data.queries import INSERT_DAILY_REPORT_QUERY, ALL_JOBS_QUERY, YESTERDAY_JOBS_QUERY 
 
 load_dotenv()
 
@@ -659,7 +659,7 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
         
         if content_daily:
             text_content = f"""
-            🌟 Date: {post_date}\n📅 Yesterday's Jobs: {yesterday_jobs_bot}\n📊 Total Jobs in Database: {fetch_data(query, engine).shape[0]}\nThese jobs can be effectively used for training ML models or performing data analysis.\n😃 Have a nice day!
+            🌟 Date: {post_date}\n📅 Yesterday's Jobs: {yesterday_jobs_bot}\n📊 Total Jobs in Database: {fetch_data(ALL_JOBS_QUERY, engine).shape[0]}\nThese jobs can be effectively used for training ML models or performing data analysis.\n😃 Have a nice day!
                 """
 
             text_file_path = os.path.join(folder_path, "summary.txt")

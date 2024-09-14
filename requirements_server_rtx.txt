@@ -37,6 +37,7 @@ fonttools==4.53.1
 frozenlist==1.4.1
 fsspec==2024.6.1
 fuzzywuzzy==0.18.0
+greenlet==3.1.0
 huggingface-hub==0.24.6
 hyperlink==21.0.0
 idna==3.7
@@ -121,6 +122,7 @@ smart-open==7.0.4
 spacy==3.7.5
 spacy-legacy==3.0.12
 spacy-loggers==1.0.5
+SQLAlchemy==2.0.34
 srsly==2.4.8
 stanza==1.8.2
 sympy==1.13.2

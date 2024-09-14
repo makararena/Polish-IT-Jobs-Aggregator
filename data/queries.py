@@ -85,8 +85,7 @@ ALL_JOBS_QUERY = """
 
 ALL_FROM_JOBS_UPLOAD_QUERY = """
     SELECT * 
-    FROM jobs_upload
-    LIMIT 10;
+    FROM jobs_upload;
 """
 
 UNIQUE_JOBS_QUERY = """

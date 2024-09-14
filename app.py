@@ -71,7 +71,6 @@ custom_colorscale = [
     [1, 'rgb(117, 107, 177)']     
 ]
 
-# App layout
 app.layout = html.Div(children=[
     html.H1(
         children='🇵🇱 IT Jobs Aggregator 🇵🇱',
@@ -315,7 +314,6 @@ app.layout = html.Div(children=[
         html.Div(dcc.Graph(id='salary-boxplot'), style={'width': '100%', 'margin-top': '20px'}),
         html.Div(dcc.Graph(id='employers_bar'), style={'width': '100%', 'margin-top': '20px'}),
 
-# Footer
 html.Div([
     html.Div("Find me on:", style={'font-family': 'Arial', 'font-size': '16px', 'text-align': 'center', 'margin-bottom': '10px', 'color': '#333', 'margin-top': '10px'}),
     html.Div([

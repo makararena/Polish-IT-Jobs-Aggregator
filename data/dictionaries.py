@@ -340,7 +340,8 @@ PROFESSION_TITLES = [
     "Unix Administrator", "Electrical & Electronic Engineer", "Level Designer", 
     "Security Expert", "Team Coordinator", "Open Source Engineer", "Data Visualization Specialist", 
     "Internal Manager", "ETL Developer", "Uplift Engineer", "Graphic Designer", 
-    "Infrastructure Analyst", "Tester Salesforce", "Xamarin / Maui Developer"
+    "Infrastructure Analyst", "Tester Salesforce", "Xamarin / Maui Developer", "Developer",
+    "Software Development Manager", "T-SQL Developer", "IT Support Engineer", "Test Engineer"
 ]
 
 TRANSLATION_DICT = {
@@ -359,7 +360,11 @@ TRANSLATION_DICT = {
     "informatyki": "IT",
     "analityczka": "Analyst",
     "technik serwisu" : "Service Technician",
-    "programistka" : "Developer",
+    "programistka" : "",
+    "Monitoringu" : "Monitoring",
+    "Kampanii" : "Campaign",
+
+
 }
 
 PROJECT_DESCRIPTION = (

@@ -1,6 +1,6 @@
 */5 * * * * ~/dev/Polish-IT-Jobs-Aggregator/main.sh ~/dev/Polish-IT-Jobs-Aggregator >> ~/dev/Polish-IT-Jobs-Aggregator/logs/main.log 2>&1
 
-53 18 * * * ~/dev/Polish-IT-Jobs-Aggregator/main.sh ~/dev/Polish-IT-Jobs-Aggregator >> ~/dev/Polish-IT-Jobs-Aggregator/logs/main.log 2>&1
+* 13 * * * ~/dev/Polish-IT-Jobs-Aggregator/main.sh ~/dev/Polish-IT-Jobs-Aggregator >> ~/dev/Polish-IT-Jobs-Aggregator/logs/main.log 2>&1
 
 # Debuging
 */1 * * * * ~/dev/Polish-IT-Jobs-Aggregator/main.sh ~/dev/Polish-IT-Jobs-Aggregator >> ~/dev/Polish-IT-Jobs-Aggregator/logs/main.log 2>> ~/dev/Polish-IT-Jobs-Aggregator/logs/error.log

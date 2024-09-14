@@ -43,8 +43,6 @@ echo "Log files cleared at $(date)" | tee -a "$MAIN_LOG_FILE"
 cd "$PROJECT_DIR" || { echo "Failed to change directory to $PROJECT_DIR at $(date)" | tee -a "$MAIN_LOG_FILE"; exit 1; }
 echo "Changed directory to $PROJECT_DIR at $(date)" | tee -a "$MAIN_LOG_FILE"
 
-pip install --upgrade pip
-
 # Create the virtual environment if it does not exist
 if [ ! -d "venv" ]; then
   python3 -m venv venv
@@ -57,42 +55,44 @@ fi
 source venv/bin/activate || { echo "Failed to activate virtual environment at $(date)" | tee -a "$MAIN_LOG_FILE"; exit 1; }
 echo "Virtual environment activated at $(date)" | tee -a "$MAIN_LOG_FILE"
 
-# # Log the start of dependency installation
-# echo "Starting to install dependencies at $(date)" | tee -a "$MAIN_LOG_FILE"
-# # Install the dependencies and display the output in real-time
-# pip install -r requirements.txt
-# # Log the completion of dependency installation
-# echo "Finished installing dependencies at $(date)" | tee -a "$MAIN_LOG_FILE"
+pip install --upgrade pip
 
-# Navigate to the Scrapy project directory
-if [ -d "workscrapper/workscrapper" ]; then
-  cd workscrapper/workscrapper || { echo "Failed to change directory to workscrapper/workscrapper at $(date)" | tee -a "$MAIN_LOG_FILE"; exit 1; }
-  echo "Changed directory to workscrapper/workscrapper at $(date)" | tee -a "$MAIN_LOG_FILE"
-else
-  echo "Directory workscrapper/workscrapper not found at $(date)" | tee -a "$MAIN_LOG_FILE"
-  exit 1
-fi
+# Log the start of dependency installation
+echo "Starting to install dependencies at $(date)" | tee -a "$MAIN_LOG_FILE"
+# Install the dependencies and display the output in real-time
+pip install -r requirements_server_rtx.txt
+# Log the completion of dependency installation
+echo "Finished installing dependencies at $(date)" | tee -a "$MAIN_LOG_FILE"
 
-echo $(pwd) >> "$MAIN_LOG_FILE" 2>&1
-# Run the Scrapy spiders in parallel and log output in real time
-echo "Running Scrapy spiders at $(date)" | tee -a "$MAIN_LOG_FILE"
-{
-  scrapy crawl pracuj_pl_spider >> "$MAIN_LOG_FILE" 2>&1 &
-  SPIDER1_PID=$!
+## Navigate to the Scrapy project directory
+# if [ -d "workscrapper/workscrapper" ]; then
+#   cd workscrapper/workscrapper || { echo "Failed to change directory to workscrapper/workscrapper at $(date)" | tee -a "$MAIN_LOG_FILE"; exit 1; }
+#   echo "Changed directory to workscrapper/workscrapper at $(date)" | tee -a "$MAIN_LOG_FILE"
+# else
+#   echo "Directory workscrapper/workscrapper not found at $(date)" | tee -a "$MAIN_LOG_FILE"
+#   exit 1
+# fi
+
+# echo $(pwd) >> "$MAIN_LOG_FILE" 2>&1
+# # Run the Scrapy spiders in parallel and log output in real time
+# echo "Running Scrapy spiders at $(date)" | tee -a "$MAIN_LOG_FILE"
+# {
+#   scrapy crawl pracuj_pl_spider >> "$MAIN_LOG_FILE" 2>&1 &
+#   SPIDER1_PID=$!
   
-  scrapy crawl theprotocol_spider >> "$MAIN_LOG_FILE" 2>&1 &
-  SPIDER2_PID=$!
+#   scrapy crawl theprotocol_spider >> "$MAIN_LOG_FILE" 2>&1 &
+#   SPIDER2_PID=$!
   
-  scrapy crawl buldogjob_spider >> "$MAIN_LOG_FILE" 2>&1 &
-  SPIDER3_PID=$!
+#   scrapy crawl buldogjob_spider >> "$MAIN_LOG_FILE" 2>&1 &
+#   SPIDER3_PID=$!
 
-  # Wait for all spiders to finish
-  wait $SPIDER1_PID
-  wait $SPIDER2_PID
-  wait $SPIDER3_PID
-} >> "$MAIN_LOG_FILE" 2>&1
+#   # Wait for all spiders to finish
+#   wait $SPIDER1_PID
+#   wait $SPIDER2_PID
+#   wait $SPIDER3_PID
+# } >> "$MAIN_LOG_FILE" 2>&1
 
-echo "Scrapy spiders completed at $(date)" | tee -a "$MAIN_LOG_FILE"
+# echo "Scrapy spiders completed at $(date)" | tee -a "$MAIN_LOG_FILE"
 
 # Navigate back to the parent project directory
 cd "$PROJECT_DIR" || { echo "Failed to change directory to $PROJECT_DIR at $(date)" | tee -a "$MAIN_LOG_FILE"; exit 1; }
