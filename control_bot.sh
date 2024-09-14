@@ -64,9 +64,10 @@ log_message "Bot control script started"
 # Stop any currently running bot
 stop_bot
 
+# Start the bot
 start_bot
 
 # Handle signals such as SIGINT (Ctrl+C) and SIGTERM to stop the bot and send logs
-trap 'stop_bot; send_bot_logs; exit' SIGINT SIGTERM EXIT
+trap 'send_bot_logs; exit' SIGINT SIGTERM
 
 wait

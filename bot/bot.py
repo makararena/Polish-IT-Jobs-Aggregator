@@ -20,7 +20,6 @@ from aiogram import Bot, Dispatcher, types, executor
 # Custom imports
 from add_filters import add_filters_to_df
 from generate_figures import generate_figures
-from send_mail import send_email
 
 # Load data from different files
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -141,20 +140,16 @@ def save_user_data_before_exit(chat_id, state, filters):
     """Save user data before exit."""
     state_json = json.dumps(state)
     filters_json = json.dumps(filters)
-    
-    insert_query = INSERT_USER_DATA_BEFORE_EXIT_QUERY
     try:
-        with engine.connect() as connection:
+        with engine.begin() as connection:
             connection.execute(
-                text(insert_query),
-                {
-                    'chat_id': chat_id,
-                    'state': state_json,
-                    'filters': filters_json
-                }
+                text(INSERT_USER_DATA_BEFORE_EXIT_QUERY),
+                {'chat_id': chat_id, 'state': state_json, 'filters': filters_json}
             )
+        print("Data inserted/updated successfully.")
     except Exception as e:
-        print(f"Error saving user data before exit: {e}")
+        print(f"Error saving user data: {e}")
+
 
 async def load_all_user_data():
     """Load all user data from the database into memory."""
@@ -254,8 +249,7 @@ async def send_start_message(chat_id, to_send_message=True):
     
 async def send_project_info(chat_id):
     """Send project description to the user."""
-    await bot.send_message(chat_id, PROJECT_DESCRIPTION, parse_mode='HTML')
-
+    await bot.send_message(chat_id, PROJECT_DESCRIPTION, parse_mode='Markdown')
 
 async def handle_review_submission(message: types.Message):
     """Handle user review submission."""
@@ -1091,21 +1085,25 @@ async def handle_message(message: types.Message):
             await check_column_and_suggest(message, 'employer_name', WAITING_FOR_COMPANY_INPUT)
 
     elif user_states.get(chat_id) == WAITING_FOR_CITY:
-        city = message.text
-        if city == "Other 🔄":
+        city = message.text.strip().lower()  # Normalize user input
+        if city == "other 🔄":
             await bot.send_message(chat_id, "Please type the city you want to filter by:")
             user_states[chat_id] = WAITING_FOR_CITY_INPUT
         else:
-            if city in df['city'].values:
+            normalized_cities = df['city'].str.split(';').explode().str.strip().str.lower()
+
+            if city in normalized_cities.values:
                 current_value = user_filters.setdefault(chat_id, {}).get('city', '')
                 if current_value:
-                    user_filters[chat_id]['city'] = f"{current_value};{city}"
+                    user_filters[chat_id]['city'] = f"{current_value};{city.capitalize()}"
                 else:
-                    user_filters[chat_id]['city'] = city
+                    user_filters[chat_id]['city'] = city.capitalize()
+                
                 await bot.send_message(chat_id, f"Added filter for city: {city.capitalize()}")
                 await post_filter_action_options(chat_id)
             else:
                 await bot.send_message(chat_id, "Invalid city. Please choose a valid city from the dataset or select 'Other 🔄' to input manually.")
+
 
     elif user_states.get(chat_id) == WAITING_FOR_CITY_INPUT:
         custom_city = message.text
@@ -1189,15 +1187,19 @@ async def handle_message(message: types.Message):
                 await bot.send_message(chat_id, "Invalid time format. Please provide the time in HH:MM format (24-hour format).")
                 return
 
+        def get_email_prompt(previous_email=None):
+            if previous_email:
+                return f"📧 Would you like to continue with your current email {previous_email} for receiving updates?"
+            else:
+                return "✉️ If you would like to receive updates via email, please enter your email in the format: youremail@gmail.com."
+
         if previous_email:
             buttons.append(types.KeyboardButton("Use Previous Email"))
 
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
         keyboard.add(*buttons)
 
-        email_prompt = (
-            f"Would you like to continue with your current email {previous_email} for receiving updates? "
-        )
+        email_prompt = get_email_prompt(previous_email)
         await bot.send_message(chat_id, email_prompt, reply_markup=keyboard)
 
         user_states[chat_id] = WAITING_FOR_EMAIL
@@ -1413,6 +1415,7 @@ def load_user_data():
                 chat_id, state, filters = row
                 user_states[chat_id] = safe_json_loads(state)
                 user_filters[chat_id] = safe_json_loads(filters)
+                print(f"Loaded data for user {chat_id} : {user_states[chat_id]} - {user_filters[chat_id]}")
                 
     except Exception as e:
         print(f"Error loading user data from PostgreSQL database: {e}")

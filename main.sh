@@ -60,18 +60,20 @@ pip install --upgrade pip
 # Log the start of dependency installation
 echo "Starting to install dependencies at $(date)" | tee -a "$MAIN_LOG_FILE"
 # Install the dependencies and display the output in real-time
-pip install -r requirements_server_rtx.txt
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+pip install -r requirements.txt
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # Log the completion of dependency installation
 echo "Finished installing dependencies at $(date)" | tee -a "$MAIN_LOG_FILE"
 
-## Navigate to the Scrapy project directory
-# if [ -d "workscrapper/workscrapper" ]; then
-#   cd workscrapper/workscrapper || { echo "Failed to change directory to workscrapper/workscrapper at $(date)" | tee -a "$MAIN_LOG_FILE"; exit 1; }
-#   echo "Changed directory to workscrapper/workscrapper at $(date)" | tee -a "$MAIN_LOG_FILE"
-# else
-#   echo "Directory workscrapper/workscrapper not found at $(date)" | tee -a "$MAIN_LOG_FILE"
-#   exit 1
-# fi
+# Navigate to the Scrapy project directory
+if [ -d "workscrapper/workscrapper" ]; then
+  cd workscrapper/workscrapper || { echo "Failed to change directory to workscrapper/workscrapper at $(date)" | tee -a "$MAIN_LOG_FILE"; exit 1; }
+  echo "Changed directory to workscrapper/workscrapper at $(date)" | tee -a "$MAIN_LOG_FILE"
+else
+  echo "Directory workscrapper/workscrapper not found at $(date)" | tee -a "$MAIN_LOG_FILE"
+  exit 1
+fi
 
 # echo $(pwd) >> "$MAIN_LOG_FILE" 2>&1
 # # Run the Scrapy spiders in parallel and log output in real time
@@ -92,7 +94,7 @@ echo "Finished installing dependencies at $(date)" | tee -a "$MAIN_LOG_FILE"
 #   wait $SPIDER3_PID
 # } >> "$MAIN_LOG_FILE" 2>&1
 
-# echo "Scrapy spiders completed at $(date)" | tee -a "$MAIN_LOG_FILE"
+echo "Scrapy spiders completed at $(date)" | tee -a "$MAIN_LOG_FILE"
 
 # Navigate back to the parent project directory
 cd "$PROJECT_DIR" || { echo "Failed to change directory to $PROJECT_DIR at $(date)" | tee -a "$MAIN_LOG_FILE"; exit 1; }
@@ -102,17 +104,9 @@ echo "Changed directory back to $PROJECT_DIR at $(date)" | tee -a "$MAIN_LOG_FIL
 python3 preprocess.py >> "$MAIN_LOG_FILE" 2>&1
 echo "Preprocessing completed at $(date)" | tee -a "$MAIN_LOG_FILE"
 
-# Move the script back to the root directory if needed
-if [ -f "argos-translate/translate.py" ]; then
-  mv argos-translate/translate.py .
-  echo "Script moved back to root directory at $(date)" | tee -a "$MAIN_LOG_FILE"
-else
-  echo "Script not found in repository to move at $(date)" | tee -a "$MAIN_LOG_FILE"
-fi
-
 # Send email with the main logs before starting the bot
 
-python3 send_mail.py --subject "Daily Logs and Status - $TODAYS_DATE" --body "Program logs attached." --to "$EMAIL" --attachment "$MAIN_LOG_FILE"
+python3 send_mail.py --subject "Bot Lauch - Daily Logs and Status - $TODAYS_DATE" --body "Program logs attached." --to "$EMAIL" --attachment "$MAIN_LOG_FILE"
 echo "Email with main logs sent at $(date)" | tee -a "$MAIN_LOG_FILE"
 
 # Start the bot script

@@ -22,7 +22,8 @@ __pycache__/
 *.ncb
 *.swp
 *.swo
-data/*.log
+*.log
+*.pid
 
 # System files (optional, if applicable)
 .DS_Store
