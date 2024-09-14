@@ -86,6 +86,8 @@ WAITING_RESET_DAILY_UPDATE = 'waiting_reset_daily_update'
 WAITING_FOR_ANOTHER_THEME = 'waiting_for_another_theme' 
 WAITING_FOR_EMAIL = 'waiting_for_email'
 
+WAITING_FOR_ACTION_AFTER_FILTER = 'waiting_for_action_after_filter'
+
 
 user_states = {}
 user_filters = {}
@@ -510,7 +512,7 @@ async def post_filter_action_options(chat_id):
         reply_markup=markup
     )
     
-    user_states[chat_id] = WAITING_FOR_FILTERS
+    user_states[chat_id] = WAITING_FOR_ACTION_AFTER_FILTER
 
 
 async def handle_company_selection(message: types.Message):
@@ -578,17 +580,24 @@ async def handle_download_filtered_data(message: types.Message):
     """Handle the download of filtered data."""
     chat_id = message.chat.id
     filters = user_filters.get(chat_id, {})
-    if not filters:
-            await bot.send_message(chat_id, "⚠️ Please note that you have not applied any filters, so you will receive all information for all time.")
     
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    csv_button = types.KeyboardButton("CSV")
-    excel_button = types.KeyboardButton("Excel")
-    exit_button = types.KeyboardButton("Back ⬅️")
-    markup.add(csv_button, excel_button, exit_button)
+    filtered_data, file_type = add_filters_to_df(df, filters, is_excel=False, is_csv=False)
+    
+    if filtered_data.empty:
+        await bot.send_message(chat_id, "Sorry, but we don't have data based on your filter. 🚫")
+        await post_filter_action_options(chat_id)
+    else :
+        if not filters:
+                await bot.send_message(chat_id, "⚠️ Please note that you have not applied any filters, so you will receive all information for all time.")
+        
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+        csv_button = types.KeyboardButton("CSV")
+        excel_button = types.KeyboardButton("Excel")
+        exit_button = types.KeyboardButton("Back ⬅️")
+        markup.add(csv_button, excel_button, exit_button)
 
-    await bot.send_message(chat_id, "In which format would you like to receive the filtered data?", reply_markup=markup)
-    user_states[chat_id] = WAITING_FOR_DATA_FORMAT
+        await bot.send_message(chat_id, "In which format would you like to receive the filtered data?", reply_markup=markup)
+        user_states[chat_id] = WAITING_FOR_DATA_FORMAT
 
 async def handle_data_format_selection(message: types.Message):
     """Handle the selection of data format (CSV or Excel) for downloading."""
@@ -774,9 +783,12 @@ async def handle_message(message: types.Message):
             await send_start_message(message.chat.id, to_send_message=False)
         elif current_state in [WAITING_FOR_EXPERIENCE, WAITING_FOR_CORE_ROLE, WAITING_FOR_WORK_TYPE, WAITING_FOR_COMPANY,
                                WAITING_FOR_CITY, WAITING_FOR_REGION, WAITING_FOR_LANGUAGE,
-                               WAITING_FOR_CITY_INPUT, WAITING_FOR_CORE_ROLE_INPUT, WAITING_FOR_COMPANY_INPUT]:
+                               WAITING_FOR_CITY_INPUT, WAITING_FOR_CORE_ROLE_INPUT, WAITING_FOR_COMPANY_INPUT,
+                               WAITING_FOR_ACTION_AFTER_FILTER]:
             await handle_filters(message) 
-        elif current_state in [WAITING_FOR_DATA_FORMAT, WAITING_FOR_NOTIFICATION_TIME, WAITING_FOR_DAILY_UPDATE_CONFIRMATION, WAITING_FOR_EMAIL]:
+        elif current_state in [WAITING_FOR_DATA_FORMAT, WAITING_FOR_NOTIFICATION_TIME,
+                               WAITING_FOR_DAILY_UPDATE_CONFIRMATION,
+                               WAITING_FOR_EMAIL]:
             await post_filter_action_options(message.chat.id)
 
     elif message.text == "Yesterday's Jobs":
@@ -1125,18 +1137,29 @@ async def handle_message(message: types.Message):
             await check_column_and_suggest(message, 'city', WAITING_FOR_CITY_INPUT)
 
     elif user_states.get(chat_id) == WAITING_FOR_REGION:
-        region = message.text
-        if region in df['region'].values:
+        region = message.text.strip().capitalize()  # Sanitize user input
+        # Flatten the list of regions by splitting semicolon-separated entries
+        regions = df['region'].unique()
+        all_regions = set()
+
+        for r in regions:
+            split_regions = [region.strip() for region in r.split(';')]
+            all_regions.update(split_regions)
+
+        # Check if the region is valid
+        if region in all_regions:
             current_value = user_filters.setdefault(chat_id, {}).get('region', '')
             if current_value:
                 user_filters[chat_id]['region'] = f"{current_value};{region}"
             else:
                 user_filters[chat_id]['region'] = region
-            await bot.send_message(chat_id, f"Added filter for region: {region.capitalize()}")
+            
+            await bot.send_message(chat_id, f"Added filter for region: {region}")
             await post_filter_action_options(chat_id)
         else:
-            await bot.send_message(chat_id, "Invalid region. Please choose a valid region from the dataset.")
-
+            regions_str = ', '.join(sorted(all_regions))  # Join all valid regions into a string
+            await bot.send_message(chat_id, f"Sorry, we don't have data for this region right now. Here are all the regions we currently have: {regions_str}")
+            
     elif user_states.get(chat_id) == WAITING_FOR_LANGUAGE:
         language = message.text
         if language in ["English 🇬🇧", "German 🇩🇪", "French 🇫🇷", "Spanish 🇪🇸", "Italian 🇮🇹", "Dutch 🇳🇱", \
