@@ -1,63 +1,56 @@
-import json
 import os
-import shutil
-import psycopg2
-import psycopg2.extras
-import pandas as pd
-from datetime import date, datetime, timedelta
 import sys
+import json
+import shutil
+import pandas as pd
+from dotenv import load_dotenv
+from datetime import date, datetime, timedelta
 import plotly.express as px
 import plotly.graph_objects as go
 from matplotlib import colors as mcolors
-from dotenv import load_dotenv
-load_dotenv()
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from data.dictionaries import languages, plot_columns, not_valid_technologies, keep_technologies
-
+from sqlalchemy import create_engine, text
 import warnings
+
 warnings.filterwarnings("ignore", message="pandas only supports SQLAlchemy connectable")
 
-db_config = {
-    "host": "localhost",
-    "database": "polish_it_jobs_aggregator",
-    "user": "postgres",
-    "password": os.getenv("DB_PASSWORD")
-}
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from data.dictionaries import LANGUAGES, PLOT_COLUMNS, DARK_THEME, LIGHT_THEME
+from data.queries import INSERT_DAILY_REPORT_QUERY, ALL_JOBS_QUERY, YESTERDAY_JOBS_QUERY
 
-def connect_db(db_config):
-    """Establish a database connection and return the connection object."""
-    try:
-        conn = psycopg2.connect(
-            host=db_config["host"],
-            database=db_config["database"],
-            user=db_config["user"],
-            password=db_config["password"]
-        )
-        return conn
-    except psycopg2.Error as e:
-        print(f"Error connecting to PostgreSQL database: {e}")
-        return None
+load_dotenv()
 
-def fetch_data(query, db_config):
-    """Establish a database connection and retrieve data."""
-    try:
-        with psycopg2.connect(**db_config) as conn:
-            return pd.read_sql_query(query, conn)
-    except psycopg2.Error as e:
-        print(f"Error connecting to PostgreSQL database: {e}")
-        return pd.DataFrame()
+db_config_str = os.getenv("DB_CONFIG")
 
-query = "SELECT * FROM jobs;"
-query_yesterday = "SELECT * FROM jobs WHERE date_posted = CURRENT_DATE - INTERVAL '1 day';"
+try:
+    db_config = json.loads(db_config_str)
+except json.JSONDecodeError as e:
+    print(f"Error parsing DB_CONFIG: {e}")
+    sys.exit(1)
+
+def create_engine_from_config(db_config):
+    """Create an SQLAlchemy engine from the DB config."""
+    conn_str = f"postgresql+psycopg2://{db_config['user']}:{db_config['password']}@{db_config['host']}/{db_config['database']}"
+    return create_engine(conn_str)
+
+def fetch_data(query, engine):
+    """Fetch data from the database using the SQLAlchemy engine."""
+    with engine.connect() as conn, conn.begin():
+        return pd.read_sql_query(query, engine)
+
+engine = create_engine_from_config(db_config)
+
+df = fetch_data(ALL_JOBS_QUERY, engine)
+df_yesterday = fetch_data(YESTERDAY_JOBS_QUERY, engine)
+
 
 def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True, cities_chart=True, city_pie_chart=True, 
                      languages_bar_chart=True, benefits_pie_chart=True, employment_type_pie_chart=True, 
                      experience_level_bar_chart=True, salary_box_plot=True, technologies_bar_chart=True, 
                      employer_bar_chart=True, positions_bar_chart=True, post_text=True, content_daily=True, light_theme=True) :
+   
     df_plot = df.copy()
     df_plot = df_plot[df_plot['date_posted'] != date(2024, 9, 2)]
-    df_plot.columns = plot_columns
+    df_plot.columns = PLOT_COLUMNS
     
     df_plot['StartSalary'] = pd.to_numeric(df_plot['StartSalary'], errors='coerce')
     df_plot['MaxSalary'] = pd.to_numeric(df_plot['MaxSalary'], errors='coerce')
@@ -86,37 +79,18 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
 
     geojson_names = [feature['properties']['name'] for feature in poland_geojson['features']]
 
-    custom_colorscale_white = [
-        [0, 'rgb(239, 237, 245)'],  
-        [0.5, 'rgb(188, 189, 220)'],  
-        [1, 'rgb(117, 107, 177)']     
-    ]
-    custom_colorscale_dark = [
-        [0, 'rgb(26, 26, 51)'],
-        [0.5, 'rgb(51, 51, 102)'],
-        [1, 'rgb(102, 102, 153)'] 
-    ]
-    
-    
-    custom_colorscale = custom_colorscale_dark
-    landcolor='rgb(10, 10, 10)'
-    oceancolor='rgb(0, 0, 50)'
-    lakecolor='rgb(0, 0, 70)'
-    countrycolor='rgb(255, 255, 255)'
-    coastlinecolor='rgb(255, 255, 255)'
-    template="plotly_dark"
-    style = "carto-darkmatter"
-    border_color="rgb(255, 255, 255)"
-    if light_theme:
-        custom_colorscale = custom_colorscale_white
-        template="plotly"
-        style = "carto-positron"
-        landcolor='rgb(242, 242, 242)'
-        oceancolor='rgb(217, 234, 247)'
-        lakecolor='rgb(200, 225, 255)'
-        countrycolor='rgb(200, 200, 200)'
-        coastlinecolor='rgb(150, 150, 150)'
-        
+    theme = LIGHT_THEME if light_theme else DARK_THEME
+
+    # Assign variables
+    custom_colorscale = theme["custom_colorscale"]
+    template = theme["template"]
+    style = theme["style"]
+    landcolor = theme["landcolor"]
+    oceancolor = theme["oceancolor"]
+    lakecolor = theme["lakecolor"]
+    countrycolor = theme["countrycolor"]
+    coastlinecolor = theme["coastlinecolor"]
+    border_color = theme["border_color"]
         
     folder_path = f"figures/{chat_id}"
     os.makedirs(folder_path, exist_ok=True)
@@ -365,7 +339,7 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
             fig_pie_cities.write_image(f'{folder_path}/city_pie_chart.png', width=1920, height=1080)
     
     if languages_bar_chart:
-        df_languages_filtered = df_plot[languages.keys()].sum().reset_index()
+        df_languages_filtered = df_plot[LANGUAGES.keys()].sum().reset_index()
         df_languages_filtered.columns = ['Language', 'Count']
         df_languages_filtered = df_languages_filtered.sort_values(by='Count', ascending=False)
         
@@ -685,7 +659,7 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
         
         if content_daily:
             text_content = f"""
-            🌟 Date: {post_date}\n📅 Yesterday's Jobs: {yesterday_jobs_bot}\n📊 Total Jobs in Database: {fetch_data(query, db_config).shape[0]}\nThese jobs can be effectively used for training ML models or performing data analysis.\n😃 Have a nice day!
+            🌟 Date: {post_date}\n📅 Yesterday's Jobs: {yesterday_jobs_bot}\n📊 Total Jobs in Database: {fetch_data(query, engine).shape[0]}\nThese jobs can be effectively used for training ML models or performing data analysis.\n😃 Have a nice day!
                 """
 
             text_file_path = os.path.join(folder_path, "summary.txt")
@@ -704,48 +678,34 @@ def read_image(file_path):
     except FileNotFoundError:
         return None
 
-def insert_figures_and_text(conn, generation_date_with_info, figures, summary_text):
-    cursor = conn.cursor()
-    insert_query = """INSERT INTO daily_report (
-                          generation_id, 
-                          benefits_pie_chart, city_bubbles_chart, city_pie_chart, 
-                          employer_bar_chart, employment_type_pie_chart, 
-                          experience_level_bar_chart, languages_bar_chart, 
-                          salary_box_plot, poland_map, positions_bar_chart, 
-                          technologies_bar_chart, summary)
-                      VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                      ON CONFLICT (generation_id) 
-                      DO UPDATE SET 
-                          benefits_pie_chart = EXCLUDED.benefits_pie_chart,
-                          city_bubbles_chart = EXCLUDED.city_bubbles_chart,
-                          city_pie_chart = EXCLUDED.city_pie_chart,
-                          employer_bar_chart = EXCLUDED.employer_bar_chart,
-                          employment_type_pie_chart = EXCLUDED.employment_type_pie_chart,
-                          experience_level_bar_chart = EXCLUDED.experience_level_bar_chart,
-                          languages_bar_chart = EXCLUDED.languages_bar_chart,
-                          salary_box_plot = EXCLUDED.salary_box_plot,
-                          poland_map = EXCLUDED.poland_map,
-                          positions_bar_chart = EXCLUDED.positions_bar_chart,
-                          technologies_bar_chart = EXCLUDED.technologies_bar_chart,
-                          summary = EXCLUDED.summary"""
-
-    cursor.execute(insert_query, (
-        generation_date_with_info, 
-        figures.get('benefits_pie_chart'), figures.get('city_bubbles_chart'), figures.get('city_pie_chart'), 
-        figures.get('employer_bar_chart'), figures.get('employment_type_pie_chart'), 
-        figures.get('experience_level_bar_chart'), figures.get('languages_bar_chart'), 
-        figures.get('salary_box_plot'), figures.get('poland_map'), figures.get('positions_bar_chart'), 
-        figures.get('technologies_bar_chart'), summary_text
-    ))
-    
-    conn.commit()
-    cursor.close()        
+def insert_figures_and_text(engine, generation_date_with_info, figures, summary_text):
+    insert_query = INSERT_DAILY_REPORT_QUERY
+    try:
+        with engine.connect() as connection:
+            connection.execute(
+                text(insert_query), 
+                {
+                    'generation_id': generation_date_with_info,
+                    'benefits_pie_chart': figures.get('benefits_pie_chart'),
+                    'city_bubbles_chart': figures.get('city_bubbles_chart'),
+                    'city_pie_chart': figures.get('city_pie_chart'),
+                    'employer_bar_chart': figures.get('employer_bar_chart'),
+                    'employment_type_pie_chart': figures.get('employment_type_pie_chart'),
+                    'experience_level_bar_chart': figures.get('experience_level_bar_chart'),
+                    'languages_bar_chart': figures.get('languages_bar_chart'),
+                    'salary_box_plot': figures.get('salary_box_plot'),
+                    'poland_map': figures.get('poland_map'),
+                    'positions_bar_chart': figures.get('positions_bar_chart'),
+                    'technologies_bar_chart': figures.get('technologies_bar_chart'),
+                    'summary': summary_text
+                }
+            )
+    except Exception as e:
+        print(f"Error inserting data into PostgreSQL database: {e}")      
     
     
-def process_theme(theme_dir, conn, generation_date, theme_type):
+def process_theme(theme_dir, engine, generation_date, theme_type):
     figures = {}
-    
-    # Check if the directory exists
     if os.path.exists(theme_dir):
         chart_files = ['benefits_pie_chart', 'city_bubbles_chart', 'city_pie_chart', 
                        'employer_bar_chart', 'employment_type_pie_chart', 'experience_level_bar_chart',
@@ -759,18 +719,19 @@ def process_theme(theme_dir, conn, generation_date, theme_type):
         with open(summary_file_path, 'r') as file:
             summary_text = file.read()
         generation_date_with_info = f"{generation_date}-{theme_type}"
-        insert_figures_and_text(conn, generation_date_with_info, figures, summary_text)
+        
+        insert_figures_and_text(engine, generation_date_with_info, figures, summary_text)
         
         return True
     return False
 
-def save_figures_and_text(base_dir, conn):
+def save_figures_and_text(base_dir, engine):
     generation_date = str(date.today() - timedelta(days=1))
     figures_dir_light = os.path.join(base_dir, generation_date + "-light")
     figures_dir_dark = os.path.join(base_dir, generation_date + "-dark")
 
-    light_processed = process_theme(figures_dir_light, conn, generation_date, "light")
-    dark_processed = process_theme(figures_dir_dark, conn, generation_date, "dark")
+    light_processed = process_theme(figures_dir_light, engine, generation_date, "light")
+    dark_processed = process_theme(figures_dir_dark, engine, generation_date, "dark")
     
     try:
         if light_processed:
@@ -783,27 +744,25 @@ def save_figures_and_text(base_dir, conn):
         print(f"Error deleting directories: {e}")
         
 if __name__ == "__main__":
-    conn = connect_db(db_config)
+    df_yesterday = fetch_data(YESTERDAY_JOBS_QUERY, engine)
     
-    df = fetch_data(query_yesterday, db_config)
-    
-    if not df.empty:
+    if not df_yesterday.empty:
         chat_id = str(date.today() - timedelta(days=1))
         
-        generate_figures(df, chat_id + "-light", histogram_day_month_chart=False, map_chart=True, cities_chart=True, 
+        generate_figures(df_yesterday, chat_id + "-light", 
+                         histogram_day_month_chart=False, map_chart=True, cities_chart=True, 
                          city_pie_chart=True, languages_bar_chart=True, benefits_pie_chart=True, 
                          employment_type_pie_chart=True, experience_level_bar_chart=True, salary_box_plot=True, 
                          technologies_bar_chart=True, employer_bar_chart=True, positions_bar_chart=True, 
                          post_text=True, content_daily=True, light_theme=True)
         
-        generate_figures(df, chat_id + "-dark", histogram_day_month_chart=False, map_chart=True, cities_chart=True, 
+        generate_figures(df_yesterday, chat_id + "-dark", 
+                         histogram_day_month_chart=False, map_chart=True, cities_chart=True, 
                          city_pie_chart=True, languages_bar_chart=True, benefits_pie_chart=True, 
                          employment_type_pie_chart=True, experience_level_bar_chart=True, salary_box_plot=True, 
                          technologies_bar_chart=True, employer_bar_chart=True, positions_bar_chart=True, 
                          post_text=True, content_daily=True, light_theme=False)
         
-        save_figures_and_text("figures", conn)
+        save_figures_and_text("figures", engine)
     else:
         print("Dataframe is empty -> no uploads for yesterday")
-    conn.close()
-        

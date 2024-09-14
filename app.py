@@ -6,28 +6,14 @@ import json
 import os
 import datetime
 from datetime import datetime, timedelta
-import psycopg2
+from sqlalchemy import create_engine
 import pandas as pd
 from dash.exceptions import PreventUpdate
 from dotenv import load_dotenv
 load_dotenv()
 
-from data.dictionaries import plot_columns, languages
-
-PROJECT_DESCRIPTION = (
-    "Welcome to the IT Jobs Dashboard! 🚀\n\n"
-    "This dashboard is your gateway to analyzing, using, and working with job postings for the timeframe you want. "
-    "You can explore key job details such as locations, roles, salary ranges, required skills, and much more. You can also easily download all the data with your own filters, "
-    "and generate the most important graphs based on your needs.\n\n"
-    "🏢 **How It Works**:\n\n"
-    "Every day, my web scrapers visit the most popular Polish IT websites to gather crucial data. This data is then "
-    "processed and stored in my DWH. From there, you can access the final data as an Excel/CSV file or visualize it through graphs.\n\n"
-    "This project is perfect for AI applications requiring large datasets, or for professionals looking to easily "
-    "filter IT jobs by role, experience, and location. You could even create your own bot to apply for these jobs automatically! 🤖\n\n"
-    "If you want to know more about this project, feel free to contact me privately. Please note, I cannot share the full "
-    "program code to protect the integrity of the websites involved.\n\n"
-    "By the way, I am looking for a job right now, and if you are an IT programmer in any company, could you please recommend me? 🥺🥺🥺"
-)
+from data.dictionaries import PLOT_COLUMNS, LANGUAGES, PROJECT_DESCRIPTION
+from data.queries import ALL_JOBS_QUERY
 
 geojson_path = './data/poland.voivodeships.json'
 with open(geojson_path, 'r') as file:
@@ -38,19 +24,25 @@ yesterday = datetime.now() - timedelta(days=1)
 last_update_date = yesterday.strftime("%B %d, %Y")
 
 def load_data_from_db():
-    connection = psycopg2.connect(
-        dbname='polish_it_jobs_aggregator',
-        user='postgres',
-        password=os.getenv("DB_PASSWORD"),
-        host='localhost'
-    )
-    query = "SELECT * FROM jobs"
-    df = pd.read_sql_query(query, connection)
-    connection.close()
+    db_config_str = os.getenv("DB_CONFIG")
+    try:
+        db_config = json.loads(db_config_str)
+    except json.JSONDecodeError as e:
+        print(f"Error parsing DB_CONFIG: {e}")
+        return pd.DataFrame()
+    conn_str = f"postgresql://{db_config['user']}:{db_config['password']}@{db_config['host']}/{db_config['database']}"
+    engine = create_engine(conn_str)
+    
+    query = ALL_JOBS_QUERY
+    try:
+        df = pd.read_sql_query(query, engine)
+    except Exception as e:
+        print(f"Error fetching data: {e}")
+        df = pd.DataFrame()
     return df
 
 df = load_data_from_db()
-df.columns = plot_columns
+df.columns = PLOT_COLUMNS
 
 df['StartSalary'] = pd.to_numeric(df['StartSalary'], errors='coerce')
 df['MaxSalary'] = pd.to_numeric(df['MaxSalary'], errors='coerce')
@@ -541,7 +533,7 @@ def update_figures(selected_experiences, selected_jobs, start_date, end_date):
     # ----------
     # Languages Bar Chart
     # ----------
-    df_languages_filtered = df_filtered[languages.keys()].sum().reset_index()
+    df_languages_filtered = df_filtered[LANGUAGES.keys()].sum().reset_index()
     df_languages_filtered.columns = ['Language', 'Count']
     figure_languages_bar_filtered = px.bar(df_languages_filtered, x='Language', y='Count', 
                                           title='Languages Distribution', 

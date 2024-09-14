@@ -1,127 +1,73 @@
-import sys
 import os
+import sys
 import re
-import numpy as np
+import json
+import time
 import datetime
 from datetime import datetime, timedelta
-import psycopg2
-import time
+import multiprocessing as mp
+import warnings
+
+import numpy as np
 import pandas as pd
 import openpyxl
-from concurrent.futures import ProcessPoolExecutor, as_completed
 from tqdm import tqdm
-import logging
-from psycopg2 import sql
-import psycopg2
-import psycopg2.extras
+from dotenv import load_dotenv
+load_dotenv()
+
+from sqlalchemy import create_engine
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+
 from data.dictionaries import (
-    contract_values, polish_to_english_months,
-    categories_benefits, job_level_dict,
-    languages, dict_to_rename, work_type_dict, columns_order, profession_titles,
-    translation_dict, not_valid_technologies, keep_technologies
+    CONTRACT_VALUES, POLISH_TO_ENGLISH_MONTH,
+    CATEGORIES_BENEFITS, JOB_LEVEL_DICT,
+    LANGUAGES, DICT_TO_RENAME, WORK_TYPE_DICT, COLUMNS_ORDER, PROFESSION_TITLES,
+    TRANSLATION_DICT, NOT_VALID_TECHNOLOGIES, KEEP_TECHNOLOGIES,
+    LANGUAGES_LIST, CONTRACTS_LIST, BENEFITS_LIST, CONTRACT_LIST_DF, EXPERIENCES_LIST
 )
-from dotenv import load_dotenv
-import multiprocessing as mp
 
-
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'argos-translate')))
+from data.queries import UNIQUE_JOBS_QUERY, ALL_FROM_JOBS_UPLOAD_QUERY
 
 from translate import detect_language, translate_title
 
-import warnings
 warnings.filterwarnings("ignore", message="pandas only supports SQLAlchemy connectable")
 
+db_config = json.loads(os.getenv("DB_CONFIG"))
+conn_str = f"postgresql://{db_config['user']}:{db_config['password']}@{db_config['host']}/{db_config['database']}"
+engine = create_engine(conn_str)
 
 
 def fetch_data(query, db_config):
-    """Establish a database connection and retrieve data."""
     try:
-        with psycopg2.connect(**db_config) as conn:
-            return pd.read_sql_query(query, conn)
-    except psycopg2.Error as e:
-        print(f"Error connecting to PostgreSQL database: {e}")
-        return pd.DataFrame()
+        df = pd.read_sql_query(query, engine)
+        return df
+    except Exception as e:
+        print(f"Error fetching data: {e}")
+        return pd.DataFrame() 
+
 def replace_underscores(text):
     """Replace special character '▁' with spaces, handling leading/trailing cases."""
     return re.sub(r'^[▁]+|[▁]+$', '', text).replace('▁', ' ')
-
-# def batch_process(df, column_name, batch_size, detect_language_func, translate_title_func):
-#     num_batches = len(df) // batch_size + 1
-#     results = []
-#     with ProcessPoolExecutor() as executor:
-#         futures = []
-#         for i in tqdm(range(num_batches), desc="Batch Processing"):
-#             batch = df.iloc[i*batch_size:(i+1)*batch_size]
-#             futures.append(executor.submit(process_batch, batch, column_name, detect_language_func, translate_title_func))
-        
-#         for future in tqdm(as_completed(futures), total=len(futures), desc="Combining Results"):
-#             try:
-#                 result = future.result()
-#                 results.append(result)
-#             except Exception as e:
-#                 print(f"Error in processing batch: {e}")
-
-#     print("Concatenating results.")
-#     return pd.concat(results)
-
-# def process_batch(batch, column_name, detect_language_func, translate_title_func):
-#     try:
-#         # Check and log the types of data
-#         def safe_detect_language(x):
-#             if isinstance(x, str):
-#                 return detect_language_func(x)
-#             else:
-#                 return 'unknown'
-        
-#         def safe_translate_title(x, detected_language):
-#             if isinstance(x, str) and detected_language == 'pl':
-#                 return translate_title_func(x)
-#             else:
-#                 return x
-        
-#         batch['detected_language'] = batch[column_name].apply(safe_detect_language)
-#         batch[column_name] = batch.apply(
-#             lambda row: safe_translate_title(row[column_name], row['detected_language']),
-#             axis=1
-#         ).apply(replace_underscores)
-
-#     except Exception as e:
-#         print(f"Error processing batch: {e}")
-#     return batch
-
-# def process_column(df, column_name, detect_language_func, translate_title_func, batch_size=100):
-#     """Detect and translate language in a specified column, then clean underscores."""
-#     try:
-#         print(f"\nProcessing column: '{column_name}'\n")
-#         # Split DataFrame into batches
-#         df = batch_process(df, column_name, batch_size, detect_language_func, translate_title_func)
-#         print(f"\nFinished processing column: '{column_name}'\n")
-#     except Exception as e:
-#         print(f"Error processing column '{column_name}': {e}")
-#     return df
 
 
 def process_column(df, column_name, detect_language_func, translate_title_func):
     """Detect and translate language in a specified column, then clean underscores."""
     try:
         print(f"\nProcessing column: '{column_name}'\n")
-        start_time = time.time()  # Start the timer
-        
-        # Detect language
+        start_time = time.time()  
+
         tqdm.pandas(desc="Detecting language")
         df['detected_language'] = df[column_name].progress_apply(detect_language_func)
         
-        # Translate and clean
         tqdm.pandas(desc="Translating and cleaning")
         df[column_name] = df.progress_apply(
             lambda row: translate_title_func(row[column_name]) if row['detected_language'] == 'pl' else row[column_name],
             axis=1
-        ).apply(replace_underscores)
-        
-        end_time = time.time()  # End the timer
+        ).apply(replace_underscores)     
+          
+        end_time = time.time()
         processing_time = end_time - start_time
         print(f"\nFinished processing column: '{column_name}' in {processing_time:.2f} seconds\n")
         
@@ -129,6 +75,7 @@ def process_column(df, column_name, detect_language_func, translate_title_func):
         print(f"Error processing column '{column_name}': {e}")
     
     return df
+
 
 def convert_to_date(date_str):
     """Convert Polish date strings, dd.mm.yyyy, or relative date descriptions to date objects."""
@@ -146,11 +93,12 @@ def convert_to_date(date_str):
         days = int(match.group(1))
         return ((datetime.now() + timedelta(days=days)).date()) - timedelta(days=1)
 
-    for pl_month, en_month in polish_to_english_months.items():
+    for pl_month, en_month in POLISH_TO_ENGLISH_MONTH.items():
         date_str = date_str.replace(pl_month, en_month)
 
     converted_date = pd.to_datetime(date_str, format='%d %B %Y', errors='coerce')
     return converted_date.date() if not pd.isna(converted_date) else pd.NaT
+
 
 def extract_location_info(location):
     cities_found = []
@@ -217,16 +165,19 @@ def extract_location_info(location):
     
     return pd.Series([city, region, lat, long, work_type], index=['city', 'region', 'lat', 'long', 'work_type'])
 
+
 def standardize_column(df, column_name, value_map):
     """Standardize categorical values in a specified column."""
     df['standardized'] = df[column_name].map(value_map).fillna(df[column_name])
     return df
+
 
 def create_category_columns(df, categories, column_name):
     """Create boolean category columns based on standardized values."""
     for category in categories:
         df[category] = df[column_name].apply(lambda x: category in str(x).split(', '))
     return df
+
 
 def extract_and_convert_salaries(salary_str):
     """Extract start and max salary, convert net to gross, and convert hourly to monthly."""
@@ -240,6 +191,13 @@ def extract_and_convert_salaries(salary_str):
         else:
             normalized_parts.append(part)
     return ' '.join(normalized_parts)
+
+
+def get_numeric_value(salary_str):
+    if not salary_str:
+        return 0
+    return int(re.sub(r'\D', '', salary_str))
+
 
 def extract_and_convert_salaries(salary_str):
     salary_str = salary_str.replace(',', ' ')
@@ -270,11 +228,6 @@ def extract_and_convert_salaries(salary_str):
         if pos != -1:
             salary_to_pos[salary_type] = pos
         
-    def get_numeric_value(salary_str):
-        if not salary_str:
-            return 0
-        return int(re.sub(r'\D', '', salary_str))
-    
     start_salary = get_numeric_value(first_part)
     max_salary = get_numeric_value(second_part)
     
@@ -296,11 +249,13 @@ def extract_and_convert_salaries(salary_str):
                 
     return pd.Series([start_salary, max_salary])
 
+
 def assign_benefit_categories(df):
     """Assign benefits to categories."""
-    for category, keywords in categories_benefits.items():
+    for category, keywords in CATEGORIES_BENEFITS.items():
         df[category] = df['benefits'].apply(lambda benefit: any(keyword.lower() in benefit.lower() for keyword in keywords))
     return df
+
 
 def update_categories(df, text_columns, categories_dict, column_name):
     """Update categories based on the presence of keywords in text columns."""
@@ -313,9 +268,11 @@ def update_categories(df, text_columns, categories_dict, column_name):
         )
     return df
 
+
 def map_job_level(job_level_description):
     """Map job level description to predefined job levels."""
-    return job_level_dict.get(job_level_description)
+    return JOB_LEVEL_DICT.get(job_level_description)
+
 
 def extract_job_role(title):
     """Extract and clean job role from the given title and match it against a predefined list using TF-IDF."""
@@ -323,7 +280,7 @@ def extract_job_role(title):
         return None
     
     title = title.lower()
-    remove_terms = ['junior', 'middle', 'senior', 'programmist', 'lead', 'team leader', 'team lead']
+    remove_terms = EXPERIENCES_LIST
     for term in remove_terms:
         title = title.replace(term, '')
     
@@ -335,7 +292,7 @@ def extract_job_role(title):
     words = title.split()
     cleaned_title = ' '.join([word.upper() if len(word) <= 3 else word.title() for word in words])
     
-    lowercase_titles = [t.lower() for t in profession_titles]
+    lowercase_titles = [t.lower() for t in PROFESSION_TITLES]
     
     vectorizer = TfidfVectorizer().fit_transform([cleaned_title] + lowercase_titles)
     cosine_sim = cosine_similarity(vectorizer[0:1], vectorizer[1:])
@@ -343,52 +300,33 @@ def extract_job_role(title):
     
     similarity_score = cosine_sim[0][closest_index]
     if similarity_score > 0.7:
-        return profession_titles[closest_index]
+        return PROFESSION_TITLES[closest_index]
     else:
         return cleaned_title.title()
 
-def insert_data_to_db(df, table_name, db_config):
-    """Insert data from DataFrame into the specified table in PostgreSQL."""
-    with psycopg2.connect(**db_config) as conn:
-        cur = conn.cursor()
 
-        columns = df.columns
-        values = [tuple(x) for x in df.to_numpy()]
-        insert_query = sql.SQL("INSERT INTO {} ({}) VALUES %s").format(
-            sql.Identifier(table_name),
-            sql.SQL(', ').join(map(sql.Identifier, columns))
-        )                    
-        
-        psycopg2.extras.execute_values(
-            cur, insert_query, values, template=None, page_size=100
-        )
-        conn.commit()
+def insert_data_to_db(df, table_name, db_config):
+    """Insert data from DataFrame into the specified table in PostgreSQL using SQLAlchemy."""
+    try:
+        # Insert DataFrame into the specified table
+        df.to_sql(table_name, engine, if_exists='replace', index=False, method='multi')
         print(f"Data inserted into table {table_name}")
+    except Exception as e:
+        print(f"Error inserting data into table {table_name}: {e}")
 
 if __name__ == "__main__":
     load_dotenv()
     os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
     mp.set_start_method('spawn', force=True)
     cities = pd.read_csv("./data/cities_and_regions.csv", sep = ",")
-
+    
     cities_pln = cities['city'].to_list()
     cities_eng = cities['city_ascii'].to_list()
     admin_name_pln = cities['admin_name'].to_list()
     admin_name_eng = cities['admin_name_english'].to_list()
 
-
-    db_config = {
-        "host": "localhost",
-        "database": "polish_it_jobs_aggregator",
-        "user": "postgres",
-        "password": os.getenv("DB_PASSWORD")}
-
-    query = "SELECT * FROM jobs_upload LIMIT 15;"
-    query_unique_jobs = "SELECT id, technologies_used FROM jobs;"
-
-    df = fetch_data(query, db_config)
-    df_unique_jobs = fetch_data(query_unique_jobs, db_config)
-
+    df = fetch_data(ALL_FROM_JOBS_UPLOAD_QUERY, db_config)
+    df_unique_jobs = fetch_data(UNIQUE_JOBS_QUERY, db_config)
 
     if df.empty:
         print("We don't have new jobs.")
@@ -406,7 +344,7 @@ if __name__ == "__main__":
     def replace_polish_words(text, translation_dict):
         if isinstance(text, list):
             text = ' '.join(text)
-        text = str(text)  # Ensure the text is a string
+        text = str(text)
         words = text.split()
         translated_words = [translation_dict.get(word.lower(), word) for word in words]
         return ' '.join(translated_words)
@@ -417,15 +355,14 @@ if __name__ == "__main__":
     for column in columns_to_process:
         df = process_column(df, column, detect_language, translate_title)
 
-    # Apply the translation function to replace Polish words with English equivalents
     for column in columns_to_process:
-        df[column] = df[column].apply(lambda x: replace_polish_words(str(x), translation_dict))
+        df[column] = df[column].apply(lambda x: replace_polish_words(str(x), TRANSLATION_DICT))
 
 
     df['core_role'] = df['job_title'].apply(extract_job_role)
 
     df['hybryd_full_remote'] = df['hybryd_full_remote'].fillna(df['work_type'])
-    df['hybryd_full_remote'] = df['hybryd_full_remote'].replace("N/A", np.nan)  # Replace "N/A" with NaN
+    df['hybryd_full_remote'] = df['hybryd_full_remote'].replace("N/A", np.nan)
     df['hybryd_full_remote'] = df['hybryd_full_remote'].fillna(df['work_type']) 
     df['hybryd_full_remote'] = df['hybryd_full_remote'].str.replace(" • ", ",", regex=False)
 
@@ -434,14 +371,10 @@ if __name__ == "__main__":
     
     df = assign_benefit_categories(df)
 
-    contract_categories = [
-        'B2B Contract', 'Contract of Employment', 'Contract of Mandate', 'Substitution Agreement',
-        'Contract of Work', 'Agency Agreement', 'Temporary Staffing Agreement',
-        'Contract for Specific Work', 'Internship / Apprenticeship Contract', 'Contract of Temporary Employment'
-    ]
-    df = standardize_column(df, 'contract_type', contract_values)
-    df = create_category_columns(df, contract_categories, 'standardized')
-    df = update_categories(df, ['job_title', 'technologies', 'responsibilities', 'requirements', 'offering'], languages, 'languages')
+
+    df = standardize_column(df, 'contract_type', CONTRACT_VALUES)
+    df = create_category_columns(df, CONTRACT_LIST_DF, 'standardized')
+    df = update_categories(df, ['job_title', 'technologies', 'responsibilities', 'requirements', 'offering'], LANGUAGES, 'languages')
     df['job_level'] = df['experience_level'].apply(map_job_level)
     job_levels = ['internship', 'junior', 'middle', 'senior', 'lead']
     df = create_category_columns(df, job_levels, 'job_level')
@@ -479,10 +412,9 @@ if __name__ == "__main__":
     df['employer_name'] = consolidate_names(df['employer_name'])
     df = df.drop(columns=['normalized_name'])
 
-    df.drop(columns=['standardized',
-                    'location', 'salary', 'job_level'], inplace=True)
+    df.drop(columns=['standardized', 'location', 'salary', 'job_level'], inplace=True)
     df.replace({"TRUE": 1, "FALSE": 0, True: 1, False: 0}, inplace=True)
-    df.rename(columns=dict_to_rename, inplace=True)
+    df.rename(columns=DICT_TO_RENAME, inplace=True)
 
     df["expiration"] = pd.to_datetime(df["expiration"])
 
@@ -522,8 +454,8 @@ if __name__ == "__main__":
             if ((is_technology_present(row["job_requirements"], tech) or 
                 is_technology_present(row["worker_responsibilities"], tech) or 
                 is_technology_present(row["job_title"], tech)) and \
-                ((len(tech) > 2) or (tech in keep_technologies)) and \
-                (tech not in not_valid_technologies)):
+                ((len(tech) > 2) or (tech in KEEP_TECHNOLOGIES)) and \
+                (tech not in NOT_VALID_TECHNOLOGIES)):
                 if tech not in new_technologies:
                     new_technologies.append(tech)
         
@@ -537,11 +469,11 @@ if __name__ == "__main__":
         if df[column].isna().any():
             print(f"There are NaT values in the {column} column.")
 
-    for category, keywords in work_type_dict.items():
+    for category, keywords in WORK_TYPE_DICT.items():
         df[category] = df['hybryd_full_remote'].apply(lambda x: int(any(keyword in str(x).lower() for keyword in keywords)))
 
     df.drop(columns=['hybryd_full_remote', 'contract_type', 'experience_level', 'detected_language'], inplace=True)
-    df = df[columns_order]
+    df = df[COLUMNS_ORDER]
     df['date_posted'] = df['date_posted']
 
     def print_section(header, data):
@@ -550,21 +482,11 @@ if __name__ == "__main__":
         print(f"{'-' * 40}")
         print(data)
 
-    print_section("Benefits Description", df[['work_life_balance', 'financial_rewards_and_benefits',
-                                            'health_and_wellbeing', 'personal_and_professional_development',
-                                            'workplace_environment_and_culture', 'mobility_and_transport',
-                                            'unique_benefits', 'community_and_social_initiatives']].describe().to_string())
+    print_section("Benefits Description", df[BENEFITS_LIST].describe().to_string())
 
-    print_section("Contracts Description", df[['b2b_contract', 'employment_contract', 'mandate_contract', 
-                                            'substitution_agreement', 'work_contract', 'agency_agreement', 
-                                            'temporary_staffing_agreement', 'specific_work_contract', 
-                                            'internship_apprenticeship_contract', 'temporary_employment_contract']].describe().to_string())
+    print_section("Contracts Description", df[CONTRACTS_LIST].describe().to_string())
 
-    print_section("Languages Description", df[['language_english', 'language_german', 'language_french', 
-                                            'language_spanish', 'language_italian', 'language_dutch', 
-                                            'language_russian', 'language_chinese_mandarin', 
-                                            'language_japanese', 'language_portuguese', 'language_swedish', 
-                                            'language_danish']].describe().to_string())
+    print_section("Languages Description", df[LANGUAGES_LIST].describe().to_string())
 
     print_section("Experience Level Description", df[['internship', 'junior', 'middle', 'senior', 'lead']].describe().to_string())
 

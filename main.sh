@@ -43,6 +43,8 @@ echo "Log files cleared at $(date)" | tee -a "$MAIN_LOG_FILE"
 cd "$PROJECT_DIR" || { echo "Failed to change directory to $PROJECT_DIR at $(date)" | tee -a "$MAIN_LOG_FILE"; exit 1; }
 echo "Changed directory to $PROJECT_DIR at $(date)" | tee -a "$MAIN_LOG_FILE"
 
+pip install --upgrade pip
+
 # Create the virtual environment if it does not exist
 if [ ! -d "venv" ]; then
   python3 -m venv venv
@@ -55,12 +57,12 @@ fi
 source venv/bin/activate || { echo "Failed to activate virtual environment at $(date)" | tee -a "$MAIN_LOG_FILE"; exit 1; }
 echo "Virtual environment activated at $(date)" | tee -a "$MAIN_LOG_FILE"
 
-# Log the start of dependency installation
-echo "Starting to install dependencies at $(date)" | tee -a "$MAIN_LOG_FILE"
-# Install the dependencies and display the output in real-time
-pip install -r requirements.txt
-# Log the completion of dependency installation
-echo "Finished installing dependencies at $(date)" | tee -a "$MAIN_LOG_FILE"
+# # Log the start of dependency installation
+# echo "Starting to install dependencies at $(date)" | tee -a "$MAIN_LOG_FILE"
+# # Install the dependencies and display the output in real-time
+# pip install -r requirements.txt
+# # Log the completion of dependency installation
+# echo "Finished installing dependencies at $(date)" | tee -a "$MAIN_LOG_FILE"
 
 # Navigate to the Scrapy project directory
 if [ -d "workscrapper/workscrapper" ]; then

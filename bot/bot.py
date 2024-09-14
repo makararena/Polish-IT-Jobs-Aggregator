@@ -1,153 +1,67 @@
-import pandas as pd
-import re
 import os
-import asyncio
-import json
+import re
 import sys
-import signal
+import json
+import asyncio
 import smtplib
+import signal
+import asyncpg
+import warnings
+import pandas as pd
+from datetime import datetime, timedelta
+from sqlalchemy import create_engine, text
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
+from fuzzywuzzy import process
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, types, executor
-import aiofiles 
-from datetime import datetime, timedelta
-import asyncpg
-import psycopg2
-import psycopg2.extras
-from fuzzywuzzy import process
+
+# Custom imports
 from add_filters import add_filters_to_df
 from generate_figures import generate_figures
-from dotenv import load_dotenv
-load_dotenv()
-
-import warnings
-warnings.filterwarnings("ignore", message="Using slow pure-python SequenceMatcher")
-warnings.filterwarnings("ignore", message="pandas only supports SQLAlchemy")
-warnings.simplefilter("ignore")
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from data.dictionaries import PROJECT_DESCRIPTION, WELCOME_MESSAGE, language_options, no_filters_message
 from send_mail import send_email
 
+# Load data from different files
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from data.dictionaries import (
+    PROJECT_DESCRIPTION, WELCOME_MESSAGE, lAGUAGE_OPTIONS
+)
+from data.queries import (
+    INSERT_USER_DATA_QUERY, DELETE_USER_DATA_QUERY, CHECK_IF_USER_EXIST_QUERY, 
+    INSERT_USER_DATA_BEFORE_EXIT_QUERY, LOAD_USER_DATA_QUERY, ALL_JOBS_QUERY, 
+    YESTERDAY_JOBS_QUERY, GET_FILTERS_QUERY, LOAD_ALL_PLOTS_QUERY, 
+    GET_CLOSEST_DATE_QUERY, INSERT_USER_REVIEW_QUERY
+)
 
+warnings.filterwarnings("ignore", message="Using slow pure-python SequenceMatcher")
+warnings.simplefilter("ignore")
+
+# Load environment variables
+load_dotenv()
+
+# Change current directory to script directory
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+# Telegram bot setup
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 
-db_config = {
-    "host": "localhost",
-    "database": "polish_it_jobs_aggregator",
-    "user": "postgres",
-    "password": os.getenv("DB_PASSWORD")
-}
-
-def fetch_data(query, db_config):
-    """Establish a database connection and retrieve data."""
+def fetch_data(query):
+    """Fetch data from the database using the SQLAlchemy engine."""
     try:
-        with psycopg2.connect(**db_config) as conn:
-            return pd.read_sql_query(query, conn)
-    except psycopg2.Error as e:
-        print(f"Error connecting to PostgreSQL database: {e}")
+        return pd.read_sql_query(query, engine)
+    except Exception as e:
+        print(f"Error fetching data from PostgreSQL database: {e}")
         return pd.DataFrame()
-    
-def insert_user_data(user_id, filters, db_config):
-    """Insert user data into the database."""
-    try:
-        with psycopg2.connect(**db_config) as conn:
-            with conn.cursor() as cursor:
-                query = """
-                INSERT INTO user_data (user_id, filters)
-                VALUES (%s, %s)
-                ON CONFLICT (user_id) 
-                DO UPDATE SET filters = EXCLUDED.filters;
-                """
-                cursor.execute(query, (user_id, filters))
-                conn.commit()
-    except psycopg2.Error as e:
-        print(f"Error inserting data into PostgreSQL database: {e}")
-        
-def delete_user_data(user_id, db_config):
-    """Delete user data from the database based on user_id."""
-    try:
-        with psycopg2.connect(**db_config) as conn:
-            with conn.cursor() as cursor:
-                query = """
-                DELETE FROM user_data 
-                WHERE user_id = %s;
-                """
-                cursor.execute(query, (user_id,))
-                conn.commit()
-                print(f"User data for user_id {user_id} has been deleted.")
-    except psycopg2.Error as e:
-        print(f"Error deleting data from PostgreSQL database: {e}")
-        
-def user_exists(user_id, db_config):
-    """Check if a user exists in the database based on user_id."""
-    try:
-        with psycopg2.connect(**db_config) as conn:
-            with conn.cursor() as cursor:
-                query = "SELECT 1 FROM user_data WHERE user_id = %s;"
-                cursor.execute(query, (user_id,))
-                exists = cursor.fetchone()
-                return exists is not None 
-    except psycopg2.Error as e:
-        print(f"Error checking user existence in PostgreSQL database: {e}")
-        return False
-    
-def save_user_data_before_exit(chat_id, state, filters):
-    conn = psycopg2.connect(**db_config)
-    cursor = conn.cursor()
-    
-    state_json = json.dumps(state)
-    filters_json = json.dumps(filters)
-    
-    insert_query = """
-    INSERT INTO user_data_before_exit (chat_id, state, filters)
-    VALUES (%s, %s, %s)
-    ON CONFLICT (chat_id) 
-    DO UPDATE SET state = EXCLUDED.state, filters = EXCLUDED.filters;
-    """
 
-    cursor.execute(insert_query, (chat_id, state_json, filters_json))
-    conn.commit()
-    cursor.close()
-    conn.close()
-    
-def load_user_data(chat_id):
-    conn = psycopg2.connect(**db_config)
-    cursor = conn.cursor()
-    select_query = """
-    SELECT state, filters FROM user_data_before_exit WHERE chat_id = %s;
-    """ 
-    cursor.execute(select_query, (chat_id,))
-    result = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    if result:
-        state = json.loads(result[0]) if result[0] else {}
-        filters = json.loads(result[1]) if result[1] else {}
-        return state, filters
-    else:
-        return {}, {}  
-    
-async def get_all_chat_ids():
-    """Fetch all chat IDs from the database."""
-    query = "SELECT user_id FROM user_data_before_exit"  
-    df = fetch_data(query, db_config)
-    return df['user_id'].tolist()
+# Database connection setup
+db_config = json.loads(os.getenv("DB_CONFIG"))
+conn_str = f"postgresql://{db_config['user']}:{db_config['password']}@{db_config['host']}/{db_config['database']}"
+engine = create_engine(conn_str)
 
-
-query = "SELECT * FROM jobs;"
-query_yesterday = "SELECT * FROM jobs WHERE date_posted = CURRENT_DATE - INTERVAL '1 day';"
-user_query = "SELECT user_id, filters FROM user_data;"
-
-df = fetch_data(query, db_config)
+df = fetch_data(ALL_JOBS_QUERY)
 
 FIGURES_PATH = './figures'
 
@@ -179,85 +93,144 @@ user_filters = {}
 user_subscriptions = {}
 
 
-async def check_and_post_files(chat_id, date_str, db_config):
-    """Check for available files in the database on the given date and send them to the user."""
-    conn = await asyncpg.connect(
-        host=db_config["host"],
-        database=db_config["database"],
-        user=db_config["user"],
-        password=db_config["password"]
-    )
+
+
+def insert_user_data(user_id, filters):
+    """Insert user data into the database."""
+    insert_query = INSERT_USER_DATA_QUERY
+    try:
+        with engine.connect() as connection:
+            connection.execute(
+                text(insert_query),
+                {
+                    'user_id': user_id,
+                    'filters': filters
+                }
+            )
+    except Exception as e:
+        print(f"Error inserting data into PostgreSQL database: {e}")
+        
+def delete_user_data(user_id):
+    """Delete user data from the database based on user_id."""
+    delete_query = DELETE_USER_DATA_QUERY
+    try:
+        with engine.connect() as connection:
+            connection.execute(
+                text(delete_query),
+                {'user_id': user_id}
+            )
+        print(f"User data for user_id {user_id} has been deleted.")
+    except Exception as e:
+        print(f"Error deleting data from PostgreSQL database: {e}")
+        
+def user_exists(user_id):
+    """Check if a user exists in the database based on user_id."""
+    select_query = CHECK_IF_USER_EXIST_QUERY
+    try:
+        with engine.connect() as connection:
+            result = connection.execute(
+                text(select_query),
+                {'user_id': user_id}
+            ).fetchone()
+        return result is not None
+    except Exception as e:
+        print(f"Error checking user existence in PostgreSQL database: {e}")
+        return False
+    
+def save_user_data_before_exit(chat_id, state, filters):
+    """Save user data before exit."""
+    state_json = json.dumps(state)
+    filters_json = json.dumps(filters)
+    
+    insert_query = INSERT_USER_DATA_BEFORE_EXIT_QUERY
+    try:
+        with engine.connect() as connection:
+            connection.execute(
+                text(insert_query),
+                {
+                    'chat_id': chat_id,
+                    'state': state_json,
+                    'filters': filters_json
+                }
+            )
+    except Exception as e:
+        print(f"Error saving user data before exit: {e}")
+
+async def load_all_user_data():
+    """Load all user data from the database into memory."""
+    conn_str = f"postgresql://{db_config['user']}:{db_config['password']}@{db_config['host']}/{db_config['database']}"
     
     try:
-        query = """
-        SELECT 
-            benefits_pie_chart, city_bubbles_chart, city_pie_chart, 
-            employer_bar_chart, employment_type_pie_chart, experience_level_bar_chart, 
-            languages_bar_chart, salary_box_plot, poland_map, positions_bar_chart, 
-            technologies_bar_chart, summary
-        FROM daily_report
-        WHERE generation_id = $1
-        """
+        conn = await asyncpg.connect(dsn=conn_str)
+        select_query = LOAD_USER_DATA_QUERY
+        rows = await conn.fetch(select_query)
+        for row in rows:
+            chat_id = row['chat_id']
+            state = row['state']
+            filters = row['filters']
+
+            user_states[chat_id] = json.loads(state) if state else {}
+            user_filters[chat_id] = json.loads(filters) if filters else {}
         
-        result = await conn.fetchrow(query, date_str)
-        
-        if result:
-            images = {
-                'benefits_pie_chart': result['benefits_pie_chart'],
-                'city_bubbles_chart': result['city_bubbles_chart'],
-                'city_pie_chart': result['city_pie_chart'],
-                'employer_bar_chart': result['employer_bar_chart'],
-                'employment_type_pie_chart': result['employment_type_pie_chart'],
-                'experience_level_bar_chart': result['experience_level_bar_chart'],
-                'languages_bar_chart': result['languages_bar_chart'],
-                'salary_box_plot': result['salary_box_plot'],
-                'poland_map': result['poland_map'],
-                'positions_bar_chart': result['positions_bar_chart'],
-                'technologies_bar_chart': result['technologies_bar_chart']
-            }
-            
-            summary_text = result['summary']
-            
-            for chart_name, image_data in images.items():
-                if image_data:
-                    try:
-                        await bot.send_photo(chat_id, image_data)
-                    except Exception as e:
-                        print(f"Error sending image {chart_name}: {e}")
-            
-            if summary_text:
-                try:
-                    await bot.send_message(chat_id, summary_text)
-                except Exception as e:
-                    print(f"Error sending summary text: {e}")
-        else:
-            # No data found, get the closest available date
-            closest_date_query = """
-            SELECT generation_id
-            FROM daily_report
-            WHERE generation_id != $1
-            """
-            
-            closest_date_result = await conn.fetchrow(closest_date_query, date_str)
-            print(closest_date_result)
-            
-            if closest_date_result:
-                closest_date = closest_date_result['generation_id']
-                await bot.send_message(
-                        chat_id, 
-                        f"❌ No data found for {date_str.replace('-dark', '').replace('-light', '')}. "
-                        f"The closest available date is 📅 {closest_date.replace('-dark', '').replace('-light', '')}.\n\n"
-                        "👉 If you want to get data for this date, please type: "
-                        f"`{closest_date.replace('-dark', '').replace('-light', '')}` or type another date after this one."
-                    )
-            else:
-                await bot.send_message(chat_id, f"No data found for {date_str.replace('-dark', '').replace('-light', '')}, and no other available dates.")
-      
-    except Exception as e:
-        print(f"Error querying the database: {e}")
-    finally:
         await conn.close()
 
+    except Exception as e:
+        print(f"Error loading user data from PostgreSQL database: {e}")
+        
+async def check_and_post_files(chat_id, date_str):
+    """Check for available files in the database on the given date and send them to the user."""
+    query = LOAD_ALL_PLOTS_QUERY
+    try:
+        with await asyncio.get_event_loop().run_in_executor(None, lambda: engine.connect()) as connection:
+            result = connection.execute(text(query), {'date_str': date_str}).fetchone()
+
+            if result:
+                images = {
+                    'benefits_pie_chart': result['benefits_pie_chart'],
+                    'city_bubbles_chart': result['city_bubbles_chart'],
+                    'city_pie_chart': result['city_pie_chart'],
+                    'employer_bar_chart': result['employer_bar_chart'],
+                    'employment_type_pie_chart': result['employment_type_pie_chart'],
+                    'experience_level_bar_chart': result['experience_level_bar_chart'],
+                    'languages_bar_chart': result['languages_bar_chart'],
+                    'salary_box_plot': result['salary_box_plot'],
+                    'poland_map': result['poland_map'],
+                    'positions_bar_chart': result['positions_bar_chart'],
+                    'technologies_bar_chart': result['technologies_bar_chart']
+                }
+                
+                summary_text = result['summary']
+                
+                for chart_name, image_data in images.items():
+                    if image_data:
+                        try:
+                            await bot.send_photo(chat_id, image_data)
+                        except Exception as e:
+                            print(f"Error sending image {chart_name}: {e}")
+                
+                if summary_text:
+                    try:
+                        await bot.send_message(chat_id, summary_text)
+                    except Exception as e:
+                        print(f"Error sending summary text: {e}")
+            else:
+                closest_date_query = GET_CLOSEST_DATE_QUERY
+                closest_date_result = connection.execute(text(closest_date_query), {'date_str': date_str}).fetchone()
+                
+                if closest_date_result:
+                    closest_date = closest_date_result['generation_id']
+                    await bot.send_message(
+                            chat_id, 
+                            f"❌ No data found for {date_str.replace('-dark', '').replace('-light', '')}. "
+                            f"The closest available date is 📅 {closest_date.replace('-dark', '').replace('-light', '')}.\n\n"
+                            "👉 If you want to get data for this date, please type: "
+                            f"`{closest_date.replace('-dark', '').replace('-light', '')}` or type another date after this one."
+                        )
+                else:
+                    await bot.send_message(chat_id, f"No data found for {date_str.replace('-dark', '').replace('-light', '')}, and no other available dates.")
+    except Exception as e:
+        print(f"Error querying the database: {e}")
+        
 async def send_start_message(chat_id, to_send_message=True):
     """Send a welcome message with options to the user."""
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -270,20 +243,19 @@ async def send_start_message(chat_id, to_send_message=True):
     reset_daily_update_button = types.KeyboardButton("Reset Daily Update ❌")
     change_graph_theme_button = types.KeyboardButton("Change Graph Theme 🎨")
     
-    # Add buttons to the markup
     markup.add(add_filters_button, view_yesterday_button, view_anotherdate_button)
     markup.add(about_project_button, leave_review_button, reset_daily_update_button)
-    markup.add(change_graph_theme_button)  # Add the new button on a separate row
+    markup.add(change_graph_theme_button)
     
     if to_send_message:
         await bot.send_message(chat_id, WELCOME_MESSAGE, reply_markup=markup)
     else:
         await bot.send_message(chat_id, "🎉 Welcome Back to the Main Menu! 🎉", reply_markup=markup)
-        
-
+    
 async def send_project_info(chat_id):
     """Send project description to the user."""
     await bot.send_message(chat_id, PROJECT_DESCRIPTION, parse_mode='HTML')
+
 
 async def handle_review_submission(message: types.Message):
     """Handle user review submission."""
@@ -318,7 +290,7 @@ async def handle_review_submission(message: types.Message):
         'user_name': user_name,
         'chat_type': chat_type
     }
-
+        
 async def check_column_and_suggest(message: types.Message, column_name: str, name: str):
     chat_id = message.chat.id
     input_value = message.text
@@ -385,18 +357,24 @@ async def handle_rating_submission(message: types.Message):
         user_name = review_data.get('user_name', '')
         chat_type = review_data.get('chat_type', '')
 
+        insert_query = INSERT_USER_REVIEW_QUERY
         try:
-            with psycopg2.connect(**db_config) as conn:
-                with conn.cursor() as cursor:
-                    insert_query = """
-                    INSERT INTO user_reviews (chat_id, username, user_name, review, rating, review_type, chat_type)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s);
-                    """
-                    cursor.execute(insert_query, (chat_id, username, user_name, review, rating_value, 'feedback', chat_type))
-                    conn.commit()
+            with engine.connect() as connection:
+                connection.execute(
+                    text(insert_query),
+                    {
+                        'chat_id': chat_id,
+                        'username': username,
+                        'user_name': user_name,
+                        'review': review,
+                        'rating': rating_value,
+                        'review_type': 'feedback',
+                        'chat_type': chat_type
+                    }
+                )
             await bot.send_message(chat_id, "Thank you for your rating!")
             await start_command(message)
-        except psycopg2.Error as e:
+        except Exception as e:
             print(f"Error saving review and rating to PostgreSQL database: {e}")
             await bot.send_message(chat_id, "An error occurred while saving your review and rating. Please try again later.")
 
@@ -405,6 +383,7 @@ async def handle_rating_submission(message: types.Message):
     else:
         await bot.send_message(chat_id, "Invalid rating. Please select one of the options.")
 
+       
 async def handle_filters(message: types.Message):
     """Send a message asking the user which filters they want to apply."""
     chat_id = message.chat.id
@@ -473,21 +452,20 @@ async def handle_work_type_selection(message: types.Message):
     markup.add(*buttons, exit_button)  
     await bot.send_message(chat_id, "Select the work type you want to filter by:", reply_markup=markup)
     user_states[chat_id] = WAITING_FOR_WORK_TYPE
-    
-    
+           
+       
 async def confirm_daily_update(message: types.Message):
     """Send current filters and ask for confirmation to apply for daily updates."""
     chat_id = message.chat.id
     filters = user_filters.get(chat_id, {})
     
     if filters:
-        # Build the filters message, skipping certain keys like graph_theme, notification_time, and email
         filters_info = ""
         for key, value in filters.items():
-            if key not in {"graph_theme", "notification_time", "email"} and value:  # Ensure the filter has a value
+            if key not in {"graph_theme", "notification_time", "email"} and value:
                 filters_info += f"{key.replace('_', ' ').capitalize()}: {value}\n"
 
-        if filters_info:  # Check if any filters were added to the message
+        if filters_info:
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
             confirm_button = types.KeyboardButton("Yes, apply for Daily Updates ✅")
             back_button = types.KeyboardButton("Back ⬅️")
@@ -502,7 +480,6 @@ async def confirm_daily_update(message: types.Message):
             
             user_states[chat_id] = WAITING_FOR_DAILY_UPDATE_CONFIRMATION
         else:
-            # No valid filters were found
             await bot.send_message(
                 chat_id,
                 "You don't have any valid filters set. Please set your filters first."
@@ -510,7 +487,6 @@ async def confirm_daily_update(message: types.Message):
             await handle_filters(message)
 
     else:
-        # No filters at all
         await bot.send_message(
             chat_id,
             "You don't have any filters set. Please set your filters first."
@@ -598,7 +574,7 @@ async def handle_language_selection(message: types.Message):
     """Send a message asking the user to select a language."""
     chat_id = message.chat.id
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    buttons = [types.KeyboardButton(language) for language in language_options]
+    buttons = [types.KeyboardButton(language) for language in lAGUAGE_OPTIONS]
     exit_button = types.KeyboardButton("Back ⬅️")
     markup.add(*buttons, exit_button)
     await bot.send_message(chat_id, "Select the language you want to filter by:", reply_markup=markup)
@@ -656,7 +632,6 @@ async def handle_data_format_selection(message: types.Message):
     else:
         await bot.send_message(chat_id, "Invalid format choice. Please choose 'CSV' or 'Excel'.")
 
-
 async def handle_check_graphs(message: types.Message):
     """Generate and send graphs based on the filtered data."""
     chat_id = message.chat.id
@@ -679,7 +654,6 @@ async def handle_check_graphs(message: types.Message):
         await bot.send_message(chat_id, "✨ Generating graphs now! Please hold on for a moment (approximately 10 seconds)")
         generate_figures(filtered_df, chat_id, content_daily=False, light_theme=(theme == 'light'))
         
-        # Send text files
         txt_files = [f for f in os.listdir(folder_path) if f.endswith('.txt')]
         for txt in txt_files:
             try:
@@ -688,7 +662,6 @@ async def handle_check_graphs(message: types.Message):
             except Exception as e:
                 print(f"Error sending text file {txt}: {e}")
     
-        # Send images
         images = [f for f in os.listdir(folder_path) if f.endswith('.png')]
         for image in images:
             try:
@@ -697,7 +670,6 @@ async def handle_check_graphs(message: types.Message):
             except Exception as e:
                 print(f"Error sending image {image}: {e}")
 
-        # Clean up files and folder
         try:
             for file in os.listdir(folder_path):
                 os.remove(os.path.join(folder_path, file))
@@ -706,10 +678,8 @@ async def handle_check_graphs(message: types.Message):
             print(f"Error deleting folder {folder_path}: {e}")
 
         if len(filters) == 1 and 'graph_theme' in filters:
-            # Call post_filter_action_options if only theme filter is applied
             await post_filter_action_options(chat_id)
         else:
-            # Provide options for the next action
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
             start_over_button = types.KeyboardButton("🔄 Clear Filters")
             do_something_else_button = types.KeyboardButton("🔍 Keep Filters")
@@ -720,6 +690,7 @@ async def handle_check_graphs(message: types.Message):
                 "What would you like to do next?",
                 reply_markup=markup
             )
+            
         
 async def handle_start_over(message: types.Message):
     """Handle the 'Start Over' button press."""
@@ -737,6 +708,7 @@ async def handle_do_something_else(message: types.Message):
 
     await post_filter_action_options(message.chat.id)
 
+
 async def handle_another_date_selection(message: types.Message):
     """Send a message asking the user to input another date."""
     chat_id = message.chat.id
@@ -745,10 +717,11 @@ async def handle_another_date_selection(message: types.Message):
     await bot.send_message(chat_id, "Please provide another date in YYYY-MM-DD format", reply_markup=markup)
     user_states[chat_id] = WAITING_FOR_ANOTHER_DATE
     
+    
 async def handle_reset_daily_update_confirmation(message: types.Message):
     chat_id = message.chat.id
     if message.text == "Yes, delete the daily filter ✅":
-        delete_user_data(chat_id, db_config)
+        delete_user_data(chat_id)
         filters = user_filters.get(chat_id, {})
         if "notification_time" in filters:
             del filters["notification_time"]
@@ -780,7 +753,7 @@ async def ask_to_change_theme(chat_id, current_theme, filters):
         f"Your current theme is {'Dark' if current_theme == 'dark' else 'Light'}. Would you like to change it?",
         reply_markup=markup
     )
-    user_states[chat_id] = WAITING_FOR_ANOTHER_THEME
+    user_states[chat_id] = WAITING_FOR_ANOTHER_THEME 
     
 async def change_graph_theme(chat_id, new_theme, filters):
     """Change the graph theme and save it to the user's filters."""
@@ -795,7 +768,6 @@ async def change_graph_theme(chat_id, new_theme, filters):
     filters['graph_theme'] = new_theme
     await send_start_message(chat_id, to_send_message=False)
     user_states[chat_id] = None
-
 
 async def handle_message(message: types.Message):
     """Handle incoming messages based on the user's current state."""
@@ -820,24 +792,21 @@ async def handle_message(message: types.Message):
         light_theme_filter = filters.get("graph_theme", "dark")
         file_suffix = f"{yesterday_date}-{light_theme_filter}"
         
-        await check_and_post_files(chat_id, file_suffix, db_config)
+        await check_and_post_files(chat_id, file_suffix)
 
     elif message.text == "Jobs by Date":
         await handle_another_date_selection(message)
         
     elif user_states.get(chat_id) in [WAITING_FOR_ANOTHER_DATE]:
             try:
-                # Validate the date format
                 date_str = message.text
                 datetime.strptime(date_str, '%Y-%m-%d')
                 
-                # Retrieve user's filters
                 filters = user_filters.get(chat_id, {})
                 light_theme_filter = filters.get("graph_theme", "dark")
                 file_suffix = f"{date_str}-{light_theme_filter}"
                 
-                # Call the function with the date and filters
-                await check_and_post_files(chat_id, file_suffix, db_config)
+                await check_and_post_files(chat_id, file_suffix)
             
             except ValueError:
                 await bot.send_message(chat_id, "Invalid date format. Please provide the date in YYYY-MM-DD format or press 'Back ⬅️' to return.")
@@ -873,7 +842,7 @@ async def handle_message(message: types.Message):
         
     elif message.text == "Reset Daily Update ❌":
         chat_id = message.chat.id
-        if user_exists(chat_id, db_config):
+        if user_exists(chat_id):
             filters = user_filters.get(chat_id, {})
             
             if filters:
@@ -905,7 +874,6 @@ async def handle_message(message: types.Message):
         await handle_reset_daily_update_confirmation(message)
     
     elif user_states.get(chat_id) == WAITING_FOR_DAILY_UPDATE_CONFIRMATION:
-        # Check if the user already has a notification time
         filters = user_filters.get(chat_id, {})
         previous_time = filters.get("notification_time")
 
@@ -1089,12 +1057,10 @@ async def handle_message(message: types.Message):
 
     elif user_states.get(chat_id) == WAITING_FOR_COMPANY:
         company = message.text
-        # Assuming df is your DataFrame that contains companies in a column called 'company'
         if company == "Other 🔄":
             await bot.send_message(chat_id, "Please type the company you want to filter by:")
             user_states[chat_id] = WAITING_FOR_COMPANY_INPUT
         else:
-            # Check if the company exists in the DataFrame
             if company in df['employer_name'].values:
                 current_value = user_filters.setdefault(chat_id, {}).get('company', '')
                 if current_value:
@@ -1126,12 +1092,10 @@ async def handle_message(message: types.Message):
 
     elif user_states.get(chat_id) == WAITING_FOR_CITY:
         city = message.text
-        # Assuming df is your DataFrame that contains cities in a column called 'city'
         if city == "Other 🔄":
             await bot.send_message(chat_id, "Please type the city you want to filter by:")
             user_states[chat_id] = WAITING_FOR_CITY_INPUT
         else:
-            # Check if the city exists in the DataFrame
             if city in df['city'].values:
                 current_value = user_filters.setdefault(chat_id, {}).get('city', '')
                 if current_value:
@@ -1192,17 +1156,16 @@ async def handle_message(message: types.Message):
     elif user_states.get(chat_id) == WAITING_FOR_NOTIFICATION_TIME:
         buttons = [
             types.KeyboardButton("Back ⬅️"),
-            types.KeyboardButton("Skip 🚫"),  # Option to skip adding email
+            types.KeyboardButton("Skip 🚫"), 
         ]
 
         filters = user_filters.get(chat_id, {})
         previous_time = filters.get("notification_time")
         previous_email = filters.get("email")
 
-        # Handle the case when the user selects "Use Previous Time"
         if message.text == "Use Previous Time":
             filters_json = json.dumps(filters)
-            insert_user_data(chat_id, filters_json, db_config)
+            insert_user_data(chat_id, filters_json)
 
             await bot.send_message(chat_id, 
                 f"⏰ Your daily update time has been set to {previous_time}!\n"
@@ -1210,13 +1173,12 @@ async def handle_message(message: types.Message):
             )
 
         else:
-            # Handle the case when the user enters a custom time
             try:
                 preferred_time = datetime.strptime(message.text, "%H:%M").time()
                 filters["notification_time"] = preferred_time.strftime("%H:%M")
                 filters_json = json.dumps(filters)
 
-                insert_user_data(chat_id, filters_json, db_config)
+                insert_user_data(chat_id, filters_json)
 
                 await bot.send_message(chat_id, 
                     f"⏰ Your daily update time has been set to {preferred_time.strftime('%H:%M')}!\n"
@@ -1225,16 +1187,14 @@ async def handle_message(message: types.Message):
                 )
             except ValueError:
                 await bot.send_message(chat_id, "Invalid time format. Please provide the time in HH:MM format (24-hour format).")
-                return  # Exit to avoid asking for email if time format is invalid
+                return
 
-        # Prepare the keyboard with email options
         if previous_email:
             buttons.append(types.KeyboardButton("Use Previous Email"))
 
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
         keyboard.add(*buttons)
 
-        # Ask if the user wants to continue with their current email or provide a new one
         email_prompt = (
             f"Would you like to continue with your current email {previous_email} for receiving updates? "
         )
@@ -1246,7 +1206,7 @@ async def handle_message(message: types.Message):
     elif user_states.get(chat_id) == WAITING_FOR_EMAIL:
         if message.text == "Skip 🚫":
             await bot.send_message(chat_id, "You have opted to skip adding an email.")
-            user_states[chat_id] = None  # Reset state
+            user_states[chat_id] = None
             await send_start_message(message.chat.id, to_send_message=False)
             
         def validate_email(email):
@@ -1257,38 +1217,34 @@ async def handle_message(message: types.Message):
 
         
         if message.text == "Use Previous Email" and previous_email:
-            # Use the previous email if it exists
             filters["email"] = previous_email
             filters_json = json.dumps(filters)
-            insert_user_data(chat_id, filters_json, db_config)
+            insert_user_data(chat_id, filters_json)
 
             await bot.send_message(chat_id, 
                 f"📧 Your email has been set to {previous_email}!\n"
                 "✅ You'll also receive your daily updates by email!"
             )
-            user_states[chat_id] = None  # Reset state after email confirmation
+            user_states[chat_id] = None 
             await send_start_message(message.chat.id, to_send_message=False)
 
         elif message.text == "Back ⬅️":
-            # Go back to the previous step
             await bot.send_message(chat_id, "Returning to the previous menu.")
             user_states[chat_id] = WAITING_FOR_NOTIFICATION_TIME
             await handle_filters(message)
 
         elif validate_email(message.text.strip()):
-            # If the user provides a new valid email
             user_email = message.text.strip()
             filters["email"] = user_email
             filters_json = json.dumps(filters)
-            insert_user_data(chat_id, filters_json, db_config)
+            insert_user_data(chat_id, filters_json)
 
             await bot.send_message(chat_id, "Great! You'll receive your updates by email as well.")
-            user_states[chat_id] = None  # Reset state after email confirmation
+            user_states[chat_id] = None 
             await send_start_message(message.chat.id, to_send_message=False)
 
         else:
             await bot.send_message(chat_id, "Invalid email address. Please provide a valid email address.")
-            
                 
     elif message.text == "Light Theme 🌞":
         chat_id = message.chat.id
@@ -1322,32 +1278,26 @@ async def send_email(subject, body, to_email, excel_data, csv_data):
     if password is None:
         raise ValueError("EMAIL_PASSWORD environment variable not set")
 
-    # Create the email message
     msg = MIMEMultipart()
     msg['From'] = from_email
     msg['To'] = to_email
     msg['Subject'] = subject
     
-    # Create the email body with a closing message
     closing_message = f"\n\nSome day you'll find your dream job!\n 🌟 Have a nice day! 😊 \n\n"
     body += closing_message
     msg.attach(MIMEText(body, 'plain'))
 
-    # Attach the Excel file
     attachment_excel = MIMEApplication(excel_data)
     attachment_excel.add_header('Content-Disposition', 'attachment; filename="data.xlsx"')
     msg.attach(attachment_excel)
 
-    # Attach the CSV file
     attachment_csv = MIMEApplication(csv_data)
     attachment_csv.add_header('Content-Disposition', 'attachment; filename="data.csv"')
     msg.attach(attachment_csv)
 
-    # Additional text about the attachments
     msg.attach(MIMEText("\nHere are both Excel and CSV data files attached.", 'plain'))
 
     try:
-        # Send the email
         with smtplib.SMTP('smtp.gmail.com', 587) as server:
             server.starttls()
             server.login(from_email, password)
@@ -1359,7 +1309,7 @@ async def send_email(subject, body, to_email, excel_data, csv_data):
 async def check_and_send_notifications():
     while True:
         now = datetime.now().strftime('%H:%M')
-        user_df = fetch_data(user_query, db_config)
+        user_df = fetch_data(GET_FILTERS_QUERY)
 
         for _, row in user_df.iterrows():
             chat_id = row['user_id']
@@ -1382,7 +1332,7 @@ async def check_and_send_notifications():
             user_email = filters_dict.get('email')
 
             if notification_time == now:
-                df_yesterday = fetch_data(query_yesterday, db_config)
+                df_yesterday = fetch_data(YESTERDAY_JOBS_QUERY)
                 message, excel_data, csv_data, _ = add_filters_to_df(df_yesterday, filters_dict, is_csv=False, is_excel=False, is_spark=True)
                 
                 if user_email:
@@ -1399,7 +1349,6 @@ async def check_and_send_notifications():
                         await bot.send_document(chat_id, ('data.csv', csv_data))
 
                         if user_email:
-                            # Send a single email with both attachments
                             await send_email(subject, body, user_email, excel_data, csv_data)
 
                     closing_message = f"\nYour dream job awaits! 🌟 Have a nice day! 😊"
@@ -1416,7 +1365,6 @@ async def on_startup(dp):
     await load_all_user_data() 
     print("Bot startup completed and notification check loop started.")
 
-
 @dp.message_handler()
 async def handle_all_messages(message: types.Message):
     """Handle all other messages."""
@@ -1429,6 +1377,7 @@ def signal_handler(sig, frame):
         save_user_data_before_exit(chat_id, user_states[chat_id], user_filters.get(chat_id, {}))
     print("Exiting...")
     sys.exit(0)
+    
     
 def safe_json_loads(data):
     """Safely parse JSON data; return an empty dict if parsing fails or data is not a string."""
@@ -1446,20 +1395,29 @@ def safe_json_loads(data):
     else:
         return {}
 
-async def load_all_user_data():
+
+def load_user_data():
     """Load all user data from the database into memory."""
+    conn_str = f"postgresql://{db_config['user']}:{db_config['password']}@{db_config['host']}/{db_config['database']}"
+    engine = create_engine(conn_str)
+    
+    user_states = {}
+    user_filters = {}
+
     try:
-        with psycopg2.connect(**db_config) as conn:
-            with conn.cursor() as cursor:
-                select_query = "SELECT chat_id, state, filters FROM user_data_before_exit;"
-                cursor.execute(select_query)
+        query = LOAD_USER_DATA_QUERY
+        with engine.connect() as conn:
+            result = conn.execute(text(query))
+            
+            for row in result.fetchall():
+                chat_id, state, filters = row
+                user_states[chat_id] = safe_json_loads(state)
+                user_filters[chat_id] = safe_json_loads(filters)
                 
-                for chat_id, state, filters in cursor.fetchall():
-                    user_states[chat_id] = safe_json_loads(state)
-                    user_filters[chat_id] = safe_json_loads(filters)
-                    
-    except psycopg2.Error as e:
+    except Exception as e:
         print(f"Error loading user data from PostgreSQL database: {e}")
+    
+    return user_states, user_filters
 
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)

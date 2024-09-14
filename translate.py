@@ -3,9 +3,8 @@ from langdetect.lang_detect_exception import LangDetectException
 import re
 from transformers import MarianMTModel, MarianTokenizer
 import torch
-import concurrent.futures
-torch.cuda.empty_cache()
 
+torch.cuda.empty_cache()
 DetectorFactory.seed = 0
 
 model_name = 'Helsinki-NLP/opus-mt-pl-en'

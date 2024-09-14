@@ -1,19 +1,22 @@
 import psycopg2
 import os
+import json
+from dotenv import load_dotenv
+load_dotenv()
 
 class PostgreSQLPipeline:
 
     def open_spider(self, spider):
-        # Connect to the PostgreSQL database
+        db_config = json.loads(os.getenv('DB_CONFIG'))
+        
         self.connection = psycopg2.connect(
-            dbname='polish_it_jobs_aggregator',
-            user='postgres',
-            password='makararena',
-            host='localhost'
+            dbname=db_config['database'],
+            user=db_config['user'],
+            password=db_config['password'],
+            host=db_config['host']
         )
         self.cursor = self.connection.cursor()
 
-        # Drop the table if it exists and create it
         if spider.name == "pracuj_pl_spider":
             try:
                 self.cursor.execute("""
@@ -79,6 +82,7 @@ class PostgreSQLPipeline:
             if self.connection:
                 self.connection.close()
 
+    # Add 'spider' argument here
     def process_item(self, item, spider):
         try:
             # Insert into the main table
@@ -133,6 +137,10 @@ class PostgreSQLPipeline:
                 item.get('upload_id')
             ))
 
+            self.connection.commit()
+
         except Exception as e:
             print(f"Error inserting item: {e}")
+            self.connection.rollback()
+
         return item
