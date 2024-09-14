@@ -155,167 +155,179 @@ The current version of the program has room for improvement. Some algorithms cou
    Open your PostgreSQL instance and run the following SQL commands to create the necessary tables:
 
    ```sql
-   -- This is the main table where all the preprocessed job data is stored
-   CREATE TABLE jobs (
-       id varchar NOT NULL,
-       job_title varchar NULL,
-       core_role varchar NULL,
-       employer_name varchar NULL,
-       city varchar NULL,
-       lat varchar NULL,
-       long varchar NULL,
-       region varchar NULL,
-       start_salary float8 NULL,
-       max_salary float8 NULL,
-       technologies_used text NULL,
-       worker_responsibilities text NULL,
-       job_requirements text NULL,
-       offering text NULL,
-       benefits text NULL,
-       work_life_balance int4 NULL,
-       financial_rewards_and_benefits int4 NULL,
-       health_and_wellbeing int4 NULL,
-       personal_and_professional_development int4 NULL,
-       workplace_environment_and_culture int4 NULL,
-       mobility_and_transport int4 NULL,
-       unique_benefits int4 NULL,
-       community_and_social_initiatives int4 NULL,
-       b2b_contract int4 NULL,
-       employment_contract int4 NULL,
-       mandate_contract int4 NULL,
-       substitution_agreement int4 NULL,
-       work_contract int4 NULL,
-       agency_agreement int4 NULL,
-       temporary_staffing_agreement int4 NULL,
-       specific_work_contract int4 NULL,
-       internship_apprenticeship_contract int4 NULL,
-       temporary_employment_contract int4 NULL,
-       language_english int4 NULL,
-       language_german int4 NULL,
-       language_french int4 NULL,
-       language_spanish int4 NULL,
-       language_italian int4 NULL,
-       language_dutch int4 NULL,
-       language_russian int4 NULL,
-       language_chinese_mandarin int4 NULL,
-       language_japanese int4 NULL,
-       language_portuguese int4 NULL,
-       language_swedish int4 NULL,
-       language_danish int4 NULL,
-       internship int4 NULL,
-       junior int4 NULL,
-       middle int4 NULL,
-       senior int4 NULL,
-       "lead" int4 NULL,
-       full_time int4 NULL,
-       hybrid int4 NULL,
-       remote int4 NULL,
-       upload_id text NULL,
-       expiration date NULL,
-       url text NULL,
-       date_posted date NULL,
-       CONSTRAINT jobs_pkey PRIMARY KEY (id)
-   );
+    -- Drop tables if they exist
+    DROP TABLE IF EXISTS jobs;
+    DROP TABLE IF EXISTS jobs_upload;
+    DROP TABLE IF EXISTS jobs_upload_backup;
+    DROP TABLE IF EXISTS user_data;
+    DROP TABLE IF EXISTS user_data_before_exit;
+    DROP TABLE IF EXISTS user_reviews;
+    DROP TABLE IF EXISTS daily_report;
 
-   -- This table stores daily job data for processing. It is reset after each batch
-   CREATE TABLE jobs_upload (
-       id serial4 NOT NULL,
-       job_title varchar NULL,
-       employer_name varchar NULL,
-       "location" varchar NULL,
-       hybryd_full_remote varchar NULL,
-       expiration varchar NULL,
-       contract_type varchar NULL,
-       experience_level varchar NULL,
-       salary varchar NULL,
-       technologies text NULL,
-       responsibilities text NULL,
-       requirements text NULL,
-       offering text NULL,
-       benefits text NULL,
-       url varchar NULL,
-       date_posted timestamp NULL,
-       upload_id varchar NULL,
-       CONSTRAINT jobs_upload_pkey PRIMARY KEY (id)
-   );
 
-   -- This is the backup table. It stores job data to revert to a previous state if needed
-   CREATE TABLE jobs_upload_backup (
-       id serial4 NOT NULL,
-       job_title varchar NULL,
-       employer_name varchar NULL,
-       "location" varchar NULL,
-       hybryd_full_remote varchar NULL,
-       expiration varchar NULL,
-       contract_type varchar NULL,
-       experience_level varchar NULL,
-       salary varchar NULL,
-       technologies text NULL,
-       responsibilities text NULL,
-       requirements text NULL,
-       offering text NULL,
-       benefits text NULL,
-       url varchar NULL,
-       date_posted timestamp NULL,
-       upload_id varchar NULL,
-       CONSTRAINT jobs_upload_backup_pkey PRIMARY KEY (id)
-   );
+    -- Main table where all preprocessed job data is stored
+    CREATE TABLE jobs (
+        id varchar NOT NULL PRIMARY KEY,
+        job_title varchar NULL,
+        core_role varchar NULL,
+        employer_name varchar NULL,
+        city varchar NULL,
+        lat varchar NULL,
+        long varchar NULL,
+        region varchar NULL,
+        start_salary float8 NULL,
+        max_salary float8 NULL,
+        technologies_used text NULL,
+        worker_responsibilities text NULL,
+        job_requirements text NULL,
+        offering text NULL,
+        benefits text NULL,
+        work_life_balance int4 NULL,
+        financial_rewards_and_benefits int4 NULL,
+        health_and_wellbeing int4 NULL,
+        personal_and_professional_development int4 NULL,
+        workplace_environment_and_culture int4 NULL,
+        mobility_and_transport int4 NULL,
+        unique_benefits int4 NULL,
+        community_and_social_initiatives int4 NULL,
+        b2b_contract int4 NULL,
+        employment_contract int4 NULL,
+        mandate_contract int4 NULL,
+        substitution_agreement int4 NULL,
+        work_contract int4 NULL,
+        agency_agreement int4 NULL,
+        temporary_staffing_agreement int4 NULL,
+        specific_work_contract int4 NULL,
+        internship_apprenticeship_contract int4 NULL,
+        temporary_employment_contract int4 NULL,
+        language_english int4 NULL,
+        language_german int4 NULL,
+        language_french int4 NULL,
+        language_spanish int4 NULL,
+        language_italian int4 NULL,
+        language_dutch int4 NULL,
+        language_russian int4 NULL,
+        language_chinese_mandarin int4 NULL,
+        language_japanese int4 NULL,
+        language_portuguese int4 NULL,
+        language_swedish int4 NULL,
+        language_danish int4 NULL,
+        internship int4 NULL,
+        junior int4 NULL,
+        middle int4 NULL,
+        senior int4 NULL,
+        "lead" int4 NULL,
+        full_time int4 NULL,
+        hybrid int4 NULL,
+        remote int4 NULL,
+        upload_id text NULL,
+        expiration date NULL,
+        url text NULL,
+        date_posted date NULL
+    );
 
-   -- This table stores user filters for sending daily updates
-   CREATE TABLE user_data (
-       user_id int8 NOT NULL,
-       filters jsonb NULL,
-       CONSTRAINT user_data_pkey PRIMARY KEY (user_id)
-   );
 
-   -- This table stores user data to preserve bot state before exit and restore it later
-   CREATE TABLE user_data_before_exit (
-       chat_id int8 NOT NULL,
-       state jsonb NULL,
-       filters jsonb NULL,
-       CONSTRAINT user_data_before_exit_pkey PRIMARY KEY (chat_id)
-   );
+    -- Daily job data for processing (reset after each batch)
+    CREATE TABLE jobs_upload (
+        id serial4 NOT NULL PRIMARY KEY,
+        job_title varchar NULL,
+        employer_name varchar NULL,
+        "location" varchar NULL,
+        hybryd_full_remote varchar NULL,
+        expiration varchar NULL,
+        contract_type varchar NULL,
+        experience_level varchar NULL,
+        salary varchar NULL,
+        technologies text NULL,
+        responsibilities text NULL,
+        requirements text NULL,
+        offering text NULL,
+        benefits text NULL,
+        url varchar NULL,
+        date_posted timestamp NULL,
+        upload_id varchar NULL
+    );
 
-   -- This table stores user reviews
-   CREATE TABLE user_reviews (
-       id serial4 NOT NULL,
-       chat_id int8 NOT NULL,
-       username varchar(50) NULL,
-       user_name varchar(100) NULL,
-       review text NULL,
-       rating int4 NULL,
-       review_type varchar(50) NULL,
-       chat_type varchar(50) NULL,
-       created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
-       CONSTRAINT user_reviews_pkey PRIMARY KEY (id),
-       CONSTRAINT user_reviews_rating_check CHECK (((rating >= 1) AND (rating <= 5)))
-   );
 
-   -- This table is for storing daily report figures
-     CREATE TABLE daily_report (
-         generation_id VARCHAR(50) PRIMARY KEY,
-         benefits_pie_chart BYTEA,
-         city_bubbles_chart BYTEA,
-         city_pie_chart BYTEA,
-         employer_bar_chart BYTEA,
-         employment_type_pie_chart BYTEA,
-         experience_level_bar_chart BYTEA,
-         languages_bar_chart BYTEA,
-         salary_box_plot BYTEA,
-         poland_map BYTEA,
-         positions_bar_chart BYTEA,
-         technologies_bar_chart BYTEA,
-         summary TEXT
-     );
+    -- Backup table to store job data for reverting to a previous state if needed
+    CREATE TABLE jobs_upload_backup (
+        id serial4 NOT NULL PRIMARY KEY,
+        job_title varchar NULL,
+        employer_name varchar NULL,
+        "location" varchar NULL,
+        hybryd_full_remote varchar NULL,
+        expiration varchar NULL,
+        contract_type varchar NULL,
+        experience_level varchar NULL,
+        salary varchar NULL,
+        technologies text NULL,
+        responsibilities text NULL,
+        requirements text NULL,
+        offering text NULL,
+        benefits text NULL,
+        url varchar NULL,
+        date_posted timestamp NULL,
+        upload_id varchar NULL
+    );
 
-    -- Drop the main table if it exists
-      DROP TABLE IF EXISTS jobs;
-      DROP TABLE IF EXISTS jobs_upload;
-      DROP TABLE IF EXISTS jobs_upload_backup;
-      DROP TABLE IF EXISTS user_data;
-      DROP TABLE IF EXISTS user_data_before_exit;
-      DROP TABLE IF EXISTS user_reviews;
-      DROP TABLE IF EXISTS daily_report;
+
+    -- User filters for sending daily updates
+    CREATE TABLE user_data (
+        user_id int8 NOT NULL PRIMARY KEY,
+        filters jsonb NULL
+    );
+
+
+    -- Preserve bot state before exit and restore it later
+    CREATE TABLE user_data_before_exit (
+        chat_id int8 NOT NULL PRIMARY KEY,
+        state jsonb NULL,
+        filters jsonb NULL
+    );
+
+
+    -- Stores user reviews
+    CREATE TABLE user_reviews (
+        id serial4 NOT NULL PRIMARY KEY,
+        chat_id int8 NOT NULL,
+        username varchar(50) NULL,
+        user_name varchar(100) NULL,
+        review text NULL,
+        rating int4 NULL,
+        review_type varchar(50) NULL,
+        chat_type varchar(50) NULL,
+        created_at timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+        CONSTRAINT user_reviews_rating_check CHECK (((rating >= 1) AND (rating <= 5)))
+    );
+
+
+    -- Daily report figures for job statistics
+    CREATE TABLE daily_report (
+        generation_id VARCHAR(50) PRIMARY KEY,
+        benefits_pie_chart BYTEA,
+        city_bubbles_chart BYTEA,
+        city_pie_chart BYTEA,
+        employer_bar_chart BYTEA,
+        employment_type_pie_chart BYTEA,
+        experience_level_bar_chart BYTEA,
+        languages_bar_chart BYTEA,
+        salary_box_plot BYTEA,
+        poland_map BYTEA,
+        positions_bar_chart BYTEA,
+        technologies_bar_chart BYTEA,
+        summary TEXT
+    );
+
+
+    -- Query examples
+    SELECT * FROM jobs_upload_backup;
+    SELECT * FROM user_data;
+    SELECT * FROM user_data_before_exit udbe;
+    SELECT * FROM daily_report dr;
+    SELECT * FROM jobs_upload;
+    SELECT * FROM jobs;
+    SELECT * FROM user_reviews ur;
+
     ```
 5. **Add execute permissions to scripts**
   - For macOS and Linux:

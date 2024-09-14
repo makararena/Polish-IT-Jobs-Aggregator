@@ -156,20 +156,17 @@ def extract_location_info(location):
                 lats_found.add(str(lat))
                 longs_found.add(str(long))
         
-        # Determine work type
         if '"100% time"' in location_lower:
             work_type = "Remote"
         elif any(perc in location_lower for perc in ["70", "50", "40", "30", "20"]):
             work_type = "Hybrid"
 
-    # Handle cases with no cities found
     if not cities_found and work_type != "Unknown":
         cities_found.add("Remote")
         regions_found.add("Remote")
         lats_found.add("None")
         longs_found.add("None")
     
-    # Convert sets to sorted strings for consistent output
     city = ";".join(sorted(cities_found)) if cities_found else None
     region = ";".join(sorted(regions_found)) if regions_found else None
     lat = ";".join(sorted(lats_found)) if lats_found else None
@@ -308,7 +305,6 @@ def extract_job_role(title):
 def insert_data_to_db(df, table_name, db_config):
     """Insert data from DataFrame into the specified table in PostgreSQL using SQLAlchemy."""
     try:
-        # Insert DataFrame into the specified table
         df.to_sql(table_name, engine, if_exists='append', index=False, method='multi')
         print(f"Data inserted into table {table_name}")
     except Exception as e:

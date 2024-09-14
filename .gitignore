@@ -28,6 +28,3 @@ __pycache__/
 # System files (optional, if applicable)
 .DS_Store
 Thumbs.db
-
-# Ignore the argos-translate directory and logs
-argos-translate
