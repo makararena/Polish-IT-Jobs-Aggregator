@@ -9,6 +9,9 @@ PID_FILE="$LOG_DIR/bot.pid"
 MAIN_LOG_FILE="$LOG_DIR/main.log"
 TODAYS_DATE=$(date +"%Y-%m-%d_%H-%M-%S")
 
+# Ensure the log directory exists
+mkdir -p "$LOG_DIR"
+
 # Function to log messages with timestamps
 log_message() {
   local message="$1"
@@ -17,10 +20,9 @@ log_message() {
 
 # Function to start the bot
 start_bot() {
-  log_message "Starting bot and generating figures" >> "$BOT_LOG_FILE"
+  log_message "Starting bot and generating figures"
   cd "$PROJECT_DIR/bot" || { log_message "Failed to change directory to bot"; exit 1; }
 
-  # Run generate_figures.py and bot.py
   {
     python3 generate_figures.py
     python3 bot.py >> "$BOT_LOG_FILE" 2>&1 &
@@ -51,12 +53,12 @@ stop_bot() {
 send_bot_logs() {
   log_message "Sending bot logs via email"
   cd "$PROJECT_DIR" || { log_message "Failed to change directory"; exit 1; }
-  python3 send_mail.py --subject "Bot Logs - $TODAYS_DATE" --body "Bot logs attached." --to "$EMAIL" --attachment "$BOT_LOG_FILE"
+  python3 send_mail.py --subject "Bot Logs - $TODAYS_DATE" \
+                       --body "Bot logs attached." \
+                       --to "$EMAIL" \
+                       --attachment "$BOT_LOG_FILE"
   log_message "Email with bot logs sent"
 }
-
-# Ensure the log directory exists
-mkdir -p "$LOG_DIR"
 
 # Log script start
 log_message "Bot control script started"
@@ -70,4 +72,5 @@ start_bot
 # Handle signals such as SIGINT (Ctrl+C) and SIGTERM to stop the bot and send logs
 trap 'send_bot_logs; exit' SIGINT SIGTERM
 
+# Wait for background processes
 wait

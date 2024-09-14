@@ -47,20 +47,22 @@ TOKEN = os.getenv("TELEGRAM_TOKEN")
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 
-def fetch_data(query):
+def fetch_data(query, engine):
     """Fetch data from the database using the SQLAlchemy engine."""
-    try:
+    with engine.connect() as conn, conn.begin():
         return pd.read_sql_query(query, engine)
-    except Exception as e:
-        print(f"Error fetching data from PostgreSQL database: {e}")
-        return pd.DataFrame()
+    
+
+def create_engine_from_config(db_config):
+    """Create an SQLAlchemy engine from the DB config."""
+    conn_str = f"postgresql+psycopg2://{db_config['user']}:{db_config['password']}@{db_config['host']}/{db_config['database']}"
+    return create_engine(conn_str)
 
 # Database connection setup
 db_config = json.loads(os.getenv("DB_CONFIG"))
-conn_str = f"postgresql://{db_config['user']}:{db_config['password']}@{db_config['host']}/{db_config['database']}"
-engine = create_engine(conn_str)
+engine = create_engine_from_config(db_config)
 
-df = fetch_data(ALL_JOBS_QUERY)
+df = fetch_data(ALL_JOBS_QUERY, engine)
 
 FIGURES_PATH = './figures'
 
@@ -85,16 +87,11 @@ WAITING_CURRENT_FILTERS = 'waiting_current_filters'
 WAITING_RESET_DAILY_UPDATE = 'waiting_reset_daily_update'
 WAITING_FOR_ANOTHER_THEME = 'waiting_for_another_theme' 
 WAITING_FOR_EMAIL = 'waiting_for_email'
-
 WAITING_FOR_ACTION_AFTER_FILTER = 'waiting_for_action_after_filter'
-
 
 user_states = {}
 user_filters = {}
 user_subscriptions = {}
-
-
-
 
 def insert_user_data(user_id, filters):
     """Insert user data into the database."""
@@ -1334,7 +1331,7 @@ async def send_email(subject, body, to_email, excel_data, csv_data):
 async def check_and_send_notifications():
     while True:
         now = datetime.now().strftime('%H:%M')
-        user_df = fetch_data(GET_FILTERS_QUERY)
+        user_df = fetch_data(GET_FILTERS_QUERY, engine)
 
         for _, row in user_df.iterrows():
             chat_id = row['user_id']
@@ -1357,7 +1354,7 @@ async def check_and_send_notifications():
             user_email = filters_dict.get('email')
 
             if notification_time == now:
-                df_yesterday = fetch_data(YESTERDAY_JOBS_QUERY)
+                df_yesterday = fetch_data(YESTERDAY_JOBS_QUERY, engine)
                 message, excel_data, csv_data, _ = add_filters_to_df(df_yesterday, filters_dict, is_csv=False, is_excel=False, is_spark=True)
                 
                 if user_email:
@@ -1389,6 +1386,15 @@ async def on_startup(dp):
     asyncio.create_task(check_and_send_notifications())
     await load_all_user_data() 
     print("Bot startup completed and notification check loop started.")
+
+@dp.message_handler(commands=['reset'])
+async def reset_command(message: types.Message):
+    """Handle the /reset command to clear user settings."""
+    chat_id = message.chat.id
+    user_states[chat_id] = {}
+    user_filters[chat_id] = {}
+    await message.answer("All the settings have been reset")
+    await send_start_message(chat_id, to_send_message=False)
 
 @dp.message_handler()
 async def handle_all_messages(message: types.Message):

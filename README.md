@@ -346,14 +346,14 @@ The current version of the program has room for improvement. Some algorithms cou
 
 7. **Run the script**
     ```bash
-    ./main.sh
+    ~/pathto/Polish-IT-Jobs-Aggregator/main.sh ~/pathto/Polish-IT-Jobs-Aggregator
     ```
 
 8. **Set up automated script execution**
   - For macOS and Linux:
     Run `crontab -e` and add the following line:
     ```
-    00 2 * * * ~/pathto/Polish-IT-Jobs-Aggregator/main.sh ~/pathto/Polish-IT-Jobs-Aggregator >> ~/pathto/Polish-IT-Jobs-Aggregator/logs/main.log 2>&1
+    00 2 * * * ~/pathto/Polish-IT-Jobs-Aggregator/main.sh ~/pathto/Polish-IT-Jobs-Aggregator 
     ```
 
 
