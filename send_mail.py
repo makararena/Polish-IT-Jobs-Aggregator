@@ -9,10 +9,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def send_email(subject, body, to_email, attachment_path=None):
+def send_mail(subject, body, to_email, attachment_path=None):
     print(f"\n{'-' * 40}")
-    print(f"Seding email to {to_email}")
+    print(f"Sending email to {to_email}")
     print(f"\n{'-' * 40}")
+    
     from_email = 'makararena.pl@gmail.com'
     password = os.getenv("EMAIL_PASSWORD")
 
@@ -53,7 +54,5 @@ if __name__ == "__main__":
     parser.add_argument('--body', required=True, help='Body of the email')
     parser.add_argument('--to', required=True, help='Recipient email address')
     parser.add_argument('--attachment', help='Path to the attachment file')
-
     args = parser.parse_args()
-
-    send_email(args.subject, args.body, args.to, args.attachment)
+    send_mail(args.subject, args.body, args.to, args.attachment)

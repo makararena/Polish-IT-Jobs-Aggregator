@@ -20,7 +20,6 @@ from aiogram import Bot, Dispatcher, types, executor
 # Custom imports
 from add_filters import add_filters_to_df
 from generate_figures import generate_figures
-from send_mail import send_email
 
 # Load data from different files
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -87,6 +86,8 @@ WAITING_RESET_DAILY_UPDATE = 'waiting_reset_daily_update'
 WAITING_FOR_ANOTHER_THEME = 'waiting_for_another_theme' 
 WAITING_FOR_EMAIL = 'waiting_for_email'
 
+WAITING_FOR_ACTION_AFTER_FILTER = 'waiting_for_action_after_filter'
+
 
 user_states = {}
 user_filters = {}
@@ -141,20 +142,16 @@ def save_user_data_before_exit(chat_id, state, filters):
     """Save user data before exit."""
     state_json = json.dumps(state)
     filters_json = json.dumps(filters)
-    
-    insert_query = INSERT_USER_DATA_BEFORE_EXIT_QUERY
     try:
-        with engine.connect() as connection:
+        with engine.begin() as connection:
             connection.execute(
-                text(insert_query),
-                {
-                    'chat_id': chat_id,
-                    'state': state_json,
-                    'filters': filters_json
-                }
+                text(INSERT_USER_DATA_BEFORE_EXIT_QUERY),
+                {'chat_id': chat_id, 'state': state_json, 'filters': filters_json}
             )
+        print("Data inserted/updated successfully.")
     except Exception as e:
-        print(f"Error saving user data before exit: {e}")
+        print(f"Error saving user data: {e}")
+
 
 async def load_all_user_data():
     """Load all user data from the database into memory."""
@@ -254,8 +251,7 @@ async def send_start_message(chat_id, to_send_message=True):
     
 async def send_project_info(chat_id):
     """Send project description to the user."""
-    await bot.send_message(chat_id, PROJECT_DESCRIPTION, parse_mode='HTML')
-
+    await bot.send_message(chat_id, PROJECT_DESCRIPTION, parse_mode='Markdown')
 
 async def handle_review_submission(message: types.Message):
     """Handle user review submission."""
@@ -516,7 +512,7 @@ async def post_filter_action_options(chat_id):
         reply_markup=markup
     )
     
-    user_states[chat_id] = WAITING_FOR_FILTERS
+    user_states[chat_id] = WAITING_FOR_ACTION_AFTER_FILTER
 
 
 async def handle_company_selection(message: types.Message):
@@ -584,17 +580,24 @@ async def handle_download_filtered_data(message: types.Message):
     """Handle the download of filtered data."""
     chat_id = message.chat.id
     filters = user_filters.get(chat_id, {})
-    if not filters:
-            await bot.send_message(chat_id, "⚠️ Please note that you have not applied any filters, so you will receive all information for all time.")
     
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    csv_button = types.KeyboardButton("CSV")
-    excel_button = types.KeyboardButton("Excel")
-    exit_button = types.KeyboardButton("Back ⬅️")
-    markup.add(csv_button, excel_button, exit_button)
+    filtered_data, file_type = add_filters_to_df(df, filters, is_excel=False, is_csv=False)
+    
+    if filtered_data.empty:
+        await bot.send_message(chat_id, "Sorry, but we don't have data based on your filter. 🚫")
+        await post_filter_action_options(chat_id)
+    else :
+        if not filters:
+                await bot.send_message(chat_id, "⚠️ Please note that you have not applied any filters, so you will receive all information for all time.")
+        
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+        csv_button = types.KeyboardButton("CSV")
+        excel_button = types.KeyboardButton("Excel")
+        exit_button = types.KeyboardButton("Back ⬅️")
+        markup.add(csv_button, excel_button, exit_button)
 
-    await bot.send_message(chat_id, "In which format would you like to receive the filtered data?", reply_markup=markup)
-    user_states[chat_id] = WAITING_FOR_DATA_FORMAT
+        await bot.send_message(chat_id, "In which format would you like to receive the filtered data?", reply_markup=markup)
+        user_states[chat_id] = WAITING_FOR_DATA_FORMAT
 
 async def handle_data_format_selection(message: types.Message):
     """Handle the selection of data format (CSV or Excel) for downloading."""
@@ -780,9 +783,12 @@ async def handle_message(message: types.Message):
             await send_start_message(message.chat.id, to_send_message=False)
         elif current_state in [WAITING_FOR_EXPERIENCE, WAITING_FOR_CORE_ROLE, WAITING_FOR_WORK_TYPE, WAITING_FOR_COMPANY,
                                WAITING_FOR_CITY, WAITING_FOR_REGION, WAITING_FOR_LANGUAGE,
-                               WAITING_FOR_CITY_INPUT, WAITING_FOR_CORE_ROLE_INPUT, WAITING_FOR_COMPANY_INPUT]:
+                               WAITING_FOR_CITY_INPUT, WAITING_FOR_CORE_ROLE_INPUT, WAITING_FOR_COMPANY_INPUT,
+                               WAITING_FOR_ACTION_AFTER_FILTER]:
             await handle_filters(message) 
-        elif current_state in [WAITING_FOR_DATA_FORMAT, WAITING_FOR_NOTIFICATION_TIME, WAITING_FOR_DAILY_UPDATE_CONFIRMATION, WAITING_FOR_EMAIL]:
+        elif current_state in [WAITING_FOR_DATA_FORMAT, WAITING_FOR_NOTIFICATION_TIME,
+                               WAITING_FOR_DAILY_UPDATE_CONFIRMATION,
+                               WAITING_FOR_EMAIL]:
             await post_filter_action_options(message.chat.id)
 
     elif message.text == "Yesterday's Jobs":
@@ -1091,21 +1097,25 @@ async def handle_message(message: types.Message):
             await check_column_and_suggest(message, 'employer_name', WAITING_FOR_COMPANY_INPUT)
 
     elif user_states.get(chat_id) == WAITING_FOR_CITY:
-        city = message.text
-        if city == "Other 🔄":
+        city = message.text.strip().lower()  # Normalize user input
+        if city == "other 🔄":
             await bot.send_message(chat_id, "Please type the city you want to filter by:")
             user_states[chat_id] = WAITING_FOR_CITY_INPUT
         else:
-            if city in df['city'].values:
+            normalized_cities = df['city'].str.split(';').explode().str.strip().str.lower()
+
+            if city in normalized_cities.values:
                 current_value = user_filters.setdefault(chat_id, {}).get('city', '')
                 if current_value:
-                    user_filters[chat_id]['city'] = f"{current_value};{city}"
+                    user_filters[chat_id]['city'] = f"{current_value};{city.capitalize()}"
                 else:
-                    user_filters[chat_id]['city'] = city
+                    user_filters[chat_id]['city'] = city.capitalize()
+                
                 await bot.send_message(chat_id, f"Added filter for city: {city.capitalize()}")
                 await post_filter_action_options(chat_id)
             else:
                 await bot.send_message(chat_id, "Invalid city. Please choose a valid city from the dataset or select 'Other 🔄' to input manually.")
+
 
     elif user_states.get(chat_id) == WAITING_FOR_CITY_INPUT:
         custom_city = message.text
@@ -1127,18 +1137,29 @@ async def handle_message(message: types.Message):
             await check_column_and_suggest(message, 'city', WAITING_FOR_CITY_INPUT)
 
     elif user_states.get(chat_id) == WAITING_FOR_REGION:
-        region = message.text
-        if region in df['region'].values:
+        region = message.text.strip().capitalize()  # Sanitize user input
+        # Flatten the list of regions by splitting semicolon-separated entries
+        regions = df['region'].unique()
+        all_regions = set()
+
+        for r in regions:
+            split_regions = [region.strip() for region in r.split(';')]
+            all_regions.update(split_regions)
+
+        # Check if the region is valid
+        if region in all_regions:
             current_value = user_filters.setdefault(chat_id, {}).get('region', '')
             if current_value:
                 user_filters[chat_id]['region'] = f"{current_value};{region}"
             else:
                 user_filters[chat_id]['region'] = region
-            await bot.send_message(chat_id, f"Added filter for region: {region.capitalize()}")
+            
+            await bot.send_message(chat_id, f"Added filter for region: {region}")
             await post_filter_action_options(chat_id)
         else:
-            await bot.send_message(chat_id, "Invalid region. Please choose a valid region from the dataset.")
-
+            regions_str = ', '.join(sorted(all_regions))  # Join all valid regions into a string
+            await bot.send_message(chat_id, f"Sorry, we don't have data for this region right now. Here are all the regions we currently have: {regions_str}")
+            
     elif user_states.get(chat_id) == WAITING_FOR_LANGUAGE:
         language = message.text
         if language in ["English 🇬🇧", "German 🇩🇪", "French 🇫🇷", "Spanish 🇪🇸", "Italian 🇮🇹", "Dutch 🇳🇱", \
@@ -1189,15 +1210,19 @@ async def handle_message(message: types.Message):
                 await bot.send_message(chat_id, "Invalid time format. Please provide the time in HH:MM format (24-hour format).")
                 return
 
+        def get_email_prompt(previous_email=None):
+            if previous_email:
+                return f"📧 Would you like to continue with your current email {previous_email} for receiving updates?"
+            else:
+                return "✉️ If you would like to receive updates via email, please enter your email in the format: youremail@gmail.com."
+
         if previous_email:
             buttons.append(types.KeyboardButton("Use Previous Email"))
 
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
         keyboard.add(*buttons)
 
-        email_prompt = (
-            f"Would you like to continue with your current email {previous_email} for receiving updates? "
-        )
+        email_prompt = get_email_prompt(previous_email)
         await bot.send_message(chat_id, email_prompt, reply_markup=keyboard)
 
         user_states[chat_id] = WAITING_FOR_EMAIL
@@ -1413,6 +1438,7 @@ def load_user_data():
                 chat_id, state, filters = row
                 user_states[chat_id] = safe_json_loads(state)
                 user_filters[chat_id] = safe_json_loads(filters)
+                print(f"Loaded data for user {chat_id} : {user_states[chat_id]} - {user_filters[chat_id]}")
                 
     except Exception as e:
         print(f"Error loading user data from PostgreSQL database: {e}")

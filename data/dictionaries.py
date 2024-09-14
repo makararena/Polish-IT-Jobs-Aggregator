@@ -433,19 +433,18 @@ KEEP_TECHNOLOGIES = {
 
 
 PROJECT_DESCRIPTION = (
-    "Welcome to the IT Jobs Dashboard! 🚀\n\n"
-    "This dashboard is your gateway to analyzing, using, and working with job postings for the timeframe you want. "
-    "You can explore key job details such as locations, roles, salary ranges, required skills, and much more. You can also easily download all the data with your own filters, "
-    "and generate the most important graphs based on your needs.\n\n"
-    "🏢 **How It Works**:\n\n"
-    "Every day, my web scrapers visit the most popular Polish IT websites to gather crucial data. This data is then "
-    "processed and stored in my DWH. From there, you can access the final data as an Excel/CSV file or visualize it through graphs.\n\n"
-    "This project is perfect for AI applications requiring large datasets, or for professionals looking to easily "
-    "filter IT jobs by role, experience, and location. You could even create your own bot to apply for these jobs automatically! 🤖\n\n"
-    "If you want to know more about this project, feel free to contact me privately. Please note, I cannot share the full "
-    "program code to protect the integrity of the websites involved.\n\n"
-    "By the way, I am looking for a job right now, and if you are an IT programmer in any company, could you please recommend me? 🥺🥺🥺"
+    "👋 *Welcome to the IT Jobs Dashboard!* 🚀\n\n"
+    "Analyze and explore IT job postings, filter by roles, locations, salary, and skills. You can also download data and generate graphs based on your needs.\n\n"
+    "🏢 *How It Works*:\n"
+    "My web scrapers gather data daily from popular Polish IT websites. The data is processed and stored in a Data Warehouse (DWH), ready for export or visualization.\n\n"
+    "🤖 *Who Is This For*:\n"
+    "Perfect for AI projects or professionals seeking to filter IT jobs. You can even create bots to apply for jobs automatically!\n\n"
+    "📩 *Learn More*:\n"
+    "Check out my GitHub for the full project: [GitHub Repo](https://github.com/makararena/Polish-IT-Jobs-Aggregator).\n\n"
+    "P.S. I'm also looking for job opportunities—feel free to recommend me! 🙏🙂"
 )
+
+
 
 DARK_THEME = {
     "custom_colorscale": [

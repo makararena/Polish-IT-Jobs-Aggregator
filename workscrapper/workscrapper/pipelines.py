@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class PostgreSQLPipeline:
-
     def open_spider(self, spider):
         db_config = json.loads(os.getenv('DB_CONFIG'))
         

@@ -46,6 +46,11 @@ def fetch_data(query, db_config):
     except Exception as e:
         print(f"Error fetching data: {e}")
         return pd.DataFrame() 
+    
+def check_empty_df(df):
+    if df.empty:
+        print("We don't have new jobs.")
+        sys.exit()
 
 def replace_underscores(text):
     """Replace special character '▁' with spaces, handling leading/trailing cases."""
@@ -101,10 +106,10 @@ def convert_to_date(date_str):
 
 
 def extract_location_info(location):
-    cities_found = []
-    regions_found = []
-    lats_found = []
-    longs_found = []
+    cities_found = set()  
+    regions_found = set()
+    lats_found = set()
+    longs_found = set()  
     work_type = "Full Time"
     
     locations = location.split(',')
@@ -116,11 +121,13 @@ def extract_location_info(location):
         lat = None
         long = None
         
+        # Check in cities_pln
         for c in cities_pln:
             if c.lower() in location_lower:
                 city = c
                 break
         
+        # Check in cities_eng
         if not city:
             for c in cities_eng:
                 if c.lower() in location_lower:
@@ -129,12 +136,15 @@ def extract_location_info(location):
                         city = city[0]
                     break
         
+        # Normalize city name
         if city:
             if city == "Warsaw":
                 city = "Warszawa"
             
-            cities_found.append(city)
+            # Add city to set
+            cities_found.add(city)
             
+            # Find details about the city
             matching_row = cities[cities['city'] == city]
             
             if not matching_row.empty:
@@ -142,26 +152,28 @@ def extract_location_info(location):
                 lat = matching_row['lat'].values[0]
                 long = matching_row['lng'].values[0]
                 
-                regions_found.append(region)
-                lats_found.append(str(lat))
-                longs_found.append(str(long))
-            
+                regions_found.add(region)
+                lats_found.add(str(lat))
+                longs_found.add(str(long))
         
+        # Determine work type
         if '"100% time"' in location_lower:
             work_type = "Remote"
         elif any(perc in location_lower for perc in ["70", "50", "40", "30", "20"]):
             work_type = "Hybrid"
 
+    # Handle cases with no cities found
     if not cities_found and work_type != "Unknown":
-        cities_found = ["Remote"]
-        regions_found = ["Remote"]
-        lats_found = ["None"]
-        longs_found = ["None"]
+        cities_found.add("Remote")
+        regions_found.add("Remote")
+        lats_found.add("None")
+        longs_found.add("None")
     
-    city = ";".join(cities_found) if cities_found else None
-    region = ";".join(regions_found) if regions_found else None
-    lat = ";".join(lats_found) if lats_found else None
-    long = ";".join(longs_found) if longs_found else None
+    # Convert sets to sorted strings for consistent output
+    city = ";".join(sorted(cities_found)) if cities_found else None
+    region = ";".join(sorted(regions_found)) if regions_found else None
+    lat = ";".join(sorted(lats_found)) if lats_found else None
+    long = ";".join(sorted(longs_found)) if longs_found else None
     
     return pd.Series([city, region, lat, long, work_type], index=['city', 'region', 'lat', 'long', 'work_type'])
 
@@ -178,21 +190,6 @@ def create_category_columns(df, categories, column_name):
         df[category] = df[column_name].apply(lambda x: category in str(x).split(', '))
     return df
 
-
-def extract_and_convert_salaries(salary_str):
-    """Extract start and max salary, convert net to gross, and convert hourly to monthly."""
-    salary_str = salary_str.replace(',', ' ')
-    salary_str = re.sub(r'(\d)\s+(\d)', r'\1\2', salary_str)
-    parts = salary_str.split()
-    normalized_parts = []
-    for i, part in enumerate(parts):
-        if i > 0 and part.isdigit() and parts[i-1].isdigit():
-            normalized_parts[-1] += part 
-        else:
-            normalized_parts.append(part)
-    return ' '.join(normalized_parts)
-
-
 def get_numeric_value(salary_str):
     if not salary_str:
         return 0
@@ -200,6 +197,9 @@ def get_numeric_value(salary_str):
 
 
 def extract_and_convert_salaries(salary_str):
+    if salary_str is None:
+        return pd.Series([None, None])
+    
     salary_str = salary_str.replace(',', ' ')
     salary_str = re.sub(r'(\d)\s+(\d)', r'\1\2', salary_str)
     parts = salary_str.split()
@@ -214,7 +214,7 @@ def extract_and_convert_salaries(salary_str):
     salary_str = ' '.join(normalized_parts)
     dash_pos = salary_str.find('–')
     if dash_pos == -1:
-        return pd.Series(['0', '0'])
+        return pd.Series([None, None])
 
     first_part = salary_str[:dash_pos].strip()
     second_part = salary_str[dash_pos + 1:].split()[0].strip()
@@ -246,9 +246,9 @@ def extract_and_convert_salaries(salary_str):
             start_salary *= 160
         if max_salary and max_salary < 1000:
             max_salary *= 160
-                
+            
+    print(f"Processed salary_str: {salary_str}, Start salary: {start_salary}, Max salary: {max_salary}")
     return pd.Series([start_salary, max_salary])
-
 
 def assign_benefit_categories(df):
     """Assign benefits to categories."""
@@ -309,10 +309,11 @@ def insert_data_to_db(df, table_name, db_config):
     """Insert data from DataFrame into the specified table in PostgreSQL using SQLAlchemy."""
     try:
         # Insert DataFrame into the specified table
-        df.to_sql(table_name, engine, if_exists='replace', index=False, method='multi')
+        df.to_sql(table_name, engine, if_exists='append', index=False, method='multi')
         print(f"Data inserted into table {table_name}")
     except Exception as e:
         print(f"Error inserting data into table {table_name}: {e}")
+
 
 if __name__ == "__main__":
     load_dotenv()
@@ -328,18 +329,23 @@ if __name__ == "__main__":
     df = fetch_data(ALL_FROM_JOBS_UPLOAD_QUERY, db_config)
     df_unique_jobs = fetch_data(UNIQUE_JOBS_QUERY, db_config)
 
-    if df.empty:
-        print("We don't have new jobs.")
-        sys.exit() 
     
     df[['city', 'region', 'lat', 'long', 'work_type']] = df['location'].apply(extract_location_info)
     df['expiration'] = df['expiration'].apply(convert_to_date)
+    df["expiration"] = pd.to_datetime(df["expiration"]) 
+    df = df.dropna(subset=['expiration'])
 
     df['id'] = df['job_title'] + "_" + df['employer_name'] + "_" + df['city'] + "_" + df['expiration'].astype(str)
     df = df.drop_duplicates(subset='id')
-
+        
+    print("Current upload datafrrame size: ", df.shape)
+       
+    check_empty_df(df)
     unique_ids = set(df_unique_jobs['id'])
     df = df[~df['id'].isin(unique_ids)]
+    check_empty_df(df)
+    
+    print("Dataframe size after removing duplicates: ", df.shape)
         
     def replace_polish_words(text, translation_dict):
         if isinstance(text, list):
@@ -416,8 +422,6 @@ if __name__ == "__main__":
     df.replace({"TRUE": 1, "FALSE": 0, True: 1, False: 0}, inplace=True)
     df.rename(columns=DICT_TO_RENAME, inplace=True)
 
-    df["expiration"] = pd.to_datetime(df["expiration"])
-
     df.drop(columns="work_type", inplace=True)
 
     df['technologies_used'] = df['technologies_used'].str.upper()
@@ -462,8 +466,6 @@ if __name__ == "__main__":
         updated_technologies.append(';'.join(new_technologies) if new_technologies else 'N/A')
 
     df['technologies_used'] = updated_technologies
-
-    df = df.dropna(subset=['expiration'])
 
     for column in df.columns:
         if df[column].isna().any():
