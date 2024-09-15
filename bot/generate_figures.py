@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import shutil
+from loguru import logger
 import pandas as pd
 from datetime import date, datetime, timedelta
 import plotly.express as px
@@ -9,8 +10,6 @@ import plotly.graph_objects as go
 from matplotlib import colors as mcolors
 from sqlalchemy import create_engine, text
 import warnings
-
-from loguru import logger
 
 warnings.filterwarnings("ignore", message="pandas only supports SQLAlchemy connectable")
 
@@ -663,13 +662,11 @@ def read_image(file_path):
 
 def insert_figures_and_text(engine, generation_date_with_info, figures, summary_text):
     # Log the figures and summary_text to verify their contents   
-    logger.info(f"Engine details: {engine}")
-
     try:
         with engine.connect() as connection:
             # Start a transaction
             with connection.begin():
-                logger.info("Inserting data into PostgreSQL database.")
+                logger.info("Inserting graph data into PostgreSQL database.")
                 result = connection.execute(
                     INSERT_DAILY_REPORT_QUERY, 
                     {

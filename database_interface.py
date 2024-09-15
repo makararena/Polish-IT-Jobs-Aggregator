@@ -10,12 +10,10 @@ from sqlalchemy.ext.asyncio import create_async_engine
 load_dotenv()
 
 db_config_str = os.getenv("DB_CONFIG")
-print(f"DB_CONFIG from .env: {db_config_str}")
 
 # Check if JSON parsing works correctly
 try:
     db_config = json.loads(db_config_str)
-    print(f"Parsed DB_CONFIG: {db_config}")
 except json.JSONDecodeError as e:
     print(f"Failed to parse DB_CONFIG: {e}")
 

@@ -51,7 +51,7 @@ dp = Dispatcher(bot)
 
 import logging
 logging.basicConfig()
-logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy.engine').setLevel(logging.ERROR)
 
 # Database connection setup
 
@@ -317,7 +317,6 @@ async def handle_rating_submission(message: types.Message):
         username = review_data.get('username', '')
         user_name = review_data.get('user_name', '')
         chat_type = review_data.get('chat_type', '')
-        print("New rewiev : ",review_data, review, username, user_name, chat_type)
         try:
             async with async_engine.connect() as conn:
                 async with conn.begin():
@@ -746,16 +745,7 @@ async def change_graph_theme(chat_id, new_theme, filters):
 
 async def handle_message(message: types.Message):
     """Handle incoming messages based on the user's current state."""
-    chat_id = message.chat.id
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-
-    logger.info("-" * 40)
-    logger.info(message.text)
-    logger.info(user_states.get(chat_id))
-    logger.info("-" * 40)
-
-    
+    chat_id = message.chat.id    
     if message.text == "Back ⬅️":
         current_state = user_states.get(chat_id) 
         user_states.pop(chat_id, None)  
@@ -852,7 +842,6 @@ async def handle_message(message: types.Message):
         if chat_id  in user_filters:
             filters = user_filters.get(chat_id, {})
             if filters and "notification_time" in filters:
-                print(filters)
                 filters_info = ""
                 for key, value in filters.items():
                     if key != "graph_theme" and key != "notification_time" and key != "email":
