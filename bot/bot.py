@@ -6,10 +6,6 @@ import asyncio
 import smtplib
 import signal
 import warnings
-import asyncpg
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.future import select
-from sqlalchemy import text
 import pandas as pd
 from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
@@ -50,6 +46,12 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
+
+
+
+import logging
+logging.basicConfig()
+logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 # Database connection setup
 
@@ -1357,6 +1359,8 @@ async def check_and_send_notifications():
     while True:
         now = datetime.now().strftime('%H:%M')
         user_df = fetch_data(GET_FILTERS_QUERY, engine)
+        print("*"*40)
+        print(user_df)
 
         for _, row in user_df.iterrows():
             chat_id = row['user_id']

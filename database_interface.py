@@ -1,46 +1,53 @@
-from dotenv import load_dotenv
-import pandas as pd
 import os
-import json
 import sys
+import json
+import pandas as pd
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine
 
-
-# Load environment variables from .env file
+# Load environment variables
 load_dotenv()
 
-# Retrieve the DB_CONFIG environment variable
 db_config_str = os.getenv("DB_CONFIG")
+print(f"DB_CONFIG from .env: {db_config_str}")
+
+# Check if JSON parsing works correctly
+try:
+    db_config = json.loads(db_config_str)
+    print(f"Parsed DB_CONFIG: {db_config}")
+except json.JSONDecodeError as e:
+    print(f"Failed to parse DB_CONFIG: {e}")
 
 def create_engine_from_config():
     """Create an SQLAlchemy engine from the DB config."""
+    # Load environment variables from .env file
     try:
         # Parse the JSON configuration string
         db_config = json.loads(db_config_str)
+        print(db_config)
         
-        # Ensure all required keys are present
-        required_keys = ['host', 'port', 'user', 'password', 'database']
+        # Ensure all required keys are present except 'port' which can have a default
+        required_keys = ['host', 'user', 'password', 'database']  # Removed 'port'
         for key in required_keys:
             if key not in db_config:
-                raise ValueError(f"Missing required configuration key: {key}")
-
-        # Create connection string
+                raise ValueError(f"Missing required configuration key: {key}")\
+            
+        # Create connection string (use default port if not provided)
         conn_str = f"postgresql+psycopg2://{db_config['user']}:{db_config['password']}@{db_config['host']}:{db_config.get('port', 5432)}/{db_config['database']}"
         
         # Create and return SQLAlchemy engine
         return create_engine(conn_str)
     
-    except (json.JSONDecodeError, ValueError) as e:
-        print(f"Error parsing DB_CONFIG: {e}")
-        sys.exit(1)
-        
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Error parsing DB_CONFIG: Invalid JSON format: {e}")
+    except ValueError as e:
+        raise ValueError(f"Error in DB_CONFIG: {e}")
+
 def create_async_engine_from_config():
     """Create an SQLAlchemy async engine from the DB config."""
     try:
-        # Parse the JSON configuration string
         db_config = json.loads(db_config_str)
-        
         # Ensure all required keys are present
         required_keys = ['host', 'port', 'user', 'password', 'database']
         for key in required_keys:
@@ -53,9 +60,10 @@ def create_async_engine_from_config():
         # Create and return SQLAlchemy async engine
         return create_async_engine(conn_str, echo=True)
     
-    except (json.JSONDecodeError, ValueError) as e:
-        print(f"Error parsing DB_CONFIG: {e}")
-        sys.exit(1)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Error parsing DB_CONFIG: Invalid JSON format: {e}")
+    except ValueError as e:
+        raise ValueError(f"Error in DB_CONFIG: {e}")
 
 def fetch_data(query, engine):
     """Fetch data from the database using the SQLAlchemy engine."""
