@@ -7,6 +7,7 @@ import smtplib
 import signal
 import warnings
 import pandas as pd
+from copy import deepcopy
 from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
@@ -26,8 +27,7 @@ from data.constants_and_mappings import (
 )
 from database_interface import fetch_data, create_engine_from_config, create_async_engine_from_config
 
-from data.database_queries import (
-    INSERT_USER_DATA_QUERY, DELETE_USER_DATA_QUERY, CHECK_IF_USER_EXIST_QUERY, 
+from data.database_queries import ( 
     INSERT_USER_DATA_BEFORE_EXIT_QUERY, LOAD_USER_DATA_QUERY, ALL_JOBS_QUERY, 
     YESTERDAY_JOBS_QUERY, LOAD_ALL_PLOTS_QUERY, 
     GET_CLOSEST_DATE_QUERY, INSERT_USER_REVIEW_QUERY
@@ -51,7 +51,7 @@ dp = Dispatcher(bot)
 
 import logging
 logging.basicConfig()
-logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
 
 # Database connection setup
 
@@ -89,56 +89,18 @@ WAITING_CLEAR_OR_KEEP_FILTER = 'waiting_clear_or_keep_filter'
 user_states = {}
 user_filters = {}
 user_subscriptions = {}
-
-def insert_user_data(user_id, filters):
-    """Insert user data into the database."""
-    try:
-        filters_json = json.dumps(filters)  # Convert Python dict to JSON string
-        with engine.connect() as connection:
-            connection.execute(
-                INSERT_USER_DATA_QUERY,
-                {
-                    'user_id': user_id,
-                    'filters': filters_json  # Store the JSON string
-                }
-            )
-    except Exception as e:
-        print(f"Error inserting data into PostgreSQL database: {e}")
         
-def delete_user_data(user_id):
-    """Delete user data from the database based on user_id."""
-    try:
-        with engine.connect() as connection:
-            connection.execute(
-                DELETE_USER_DATA_QUERY,
-                {'user_id': user_id}
-            )
-        print(f"User data for user_id {user_id} has been deleted.")
-    except Exception as e:
-        print(f"Error deleting data from PostgreSQL database: {e}")
-        
-def user_exists(user_id):
-    """Check if a user exists in the database based on user_id."""
-    try:
-        with engine.connect() as connection:
-            result = connection.execute(
-                CHECK_IF_USER_EXIST_QUERY,
-                {'user_id': user_id}
-            ).fetchone()
-        return result is not None
-    except Exception as e:
-        print(f"Error checking user existence in PostgreSQL database: {e}")
-        return False
-    
 def save_user_data_before_exit(chat_id, state, filters):
     """Save user data before exit."""
     state_json = state
-    filters_json = json.dumps(filters)
+    filters_copy = deepcopy(filters)
+    filters_for_notification = json.dumps(filters_copy.pop('filters_for_notification', None))
+    filters_json = json.dumps(filters_copy)
     try:
         with engine.begin() as connection:
             connection.execute(
                 INSERT_USER_DATA_BEFORE_EXIT_QUERY,
-                {'chat_id': chat_id, 'state': state_json, 'filters': filters_json}
+                {'chat_id': chat_id, 'state': state_json, 'filters': filters_json, 'filters_for_notification' : filters_for_notification}
             )
         print("Data inserted/updated successfully.")
     except Exception as e:
@@ -147,15 +109,17 @@ def save_user_data_before_exit(chat_id, state, filters):
 async def load_all_user_data():
     """Load all user data from the database into memory."""
     async with async_engine.connect() as conn:
-        async with conn.begin():  # Start a transaction block
+        async with conn.begin():
             try:
                 result = await conn.execute(LOAD_USER_DATA_QUERY)
                 rows = result.mappings().all()
-                
                 for row in rows:
                     chat_id = row['chat_id']
                     state = row['state']
                     filters = row['filters']
+                    filters_for_notification = row['filters_for_notification']
+                    if filters_for_notification:
+                        filters['filters_for_notification'] = filters_for_notification
                     
                     user_states[chat_id] = state
                     user_filters[chat_id] = filters
@@ -205,7 +169,6 @@ async def check_and_post_files(chat_id, date_str):
                 else:
                     closest_date_result = await conn.execute(GET_CLOSEST_DATE_QUERY, {'date_str': date_str})
                     closest_date_row = closest_date_result.mappings().fetchone()
-                    print(closest_date_row)
                     if closest_date_row:
                         closest_date = closest_date_row['generation_id']
                         await bot.send_message(
@@ -261,6 +224,13 @@ async def handle_review_submission(message: types.Message):
     username = message.from_user.username
     user_name = message.from_user.full_name
     chat_type = message.chat.type
+    
+    user_filters[chat_id] = {
+        'review': review,
+        'username': username,
+        'user_name': user_name,
+        'chat_type': chat_type
+    }
 
     print(f"Received review from {chat_id}: {review} by {username} ({user_name}), Chat type: {chat_type}")
 
@@ -281,12 +251,6 @@ async def handle_review_submission(message: types.Message):
     )
 
     user_states[chat_id] = WAITING_FOR_RATING
-    user_filters[chat_id] = {
-        'review': review,
-        'username': username,
-        'user_name': user_name,
-        'chat_type': chat_type
-    }
         
 async def check_column_and_suggest(message: types.Message, column_name: str, name: str):
     chat_id = message.chat.id
@@ -353,7 +317,7 @@ async def handle_rating_submission(message: types.Message):
         username = review_data.get('username', '')
         user_name = review_data.get('user_name', '')
         chat_type = review_data.get('chat_type', '')
-
+        print("New rewiev : ",review_data, review, username, user_name, chat_type)
         try:
             async with async_engine.connect() as conn:
                 async with conn.begin():
@@ -370,13 +334,22 @@ async def handle_rating_submission(message: types.Message):
                         }
                     )
 
-            await bot.send_message(chat_id, "Thank you for your rating!")
+            await bot.send_message(chat_id, "Thank you for your rating! 🙏")
+            
+            if chat_id in user_filters:
+                del user_filters[chat_id]['review']
+                del user_filters[chat_id]['username']
+                del user_filters[chat_id]['user_name']
+                del user_filters[chat_id]['chat_type']     
+                
+            user_states[chat_id] = None
             await start_command(message)
         except Exception as e:
             logging.error(f"Error saving review and rating to PostgreSQL database: {e}")
             await bot.send_message(chat_id, "An error occurred while saving your review and rating. Please try again later.")
             user_states[chat_id] = None
             user_filters[chat_id] = {}
+            await send_start_message(chat_id, to_send_message=False)
     else:
         await bot.send_message(chat_id, "Invalid rating. Please select one of the options.")
        
@@ -456,7 +429,7 @@ async def confirm_daily_update(message: types.Message):
     if filters:
         filters_info = ""
         for key, value in filters.items():
-            if key not in {"graph_theme", "notification_time", "email"} and value:
+            if key not in {"graph_theme", "notification_time", "email", "filters_for_notification"} and value:
                 filters_info += f"{key.replace('_', ' ').capitalize()}: {value}\n"
 
         if filters_info:
@@ -618,7 +591,7 @@ async def handle_data_format_selection(message: types.Message):
             await post_filter_action_options(chat_id)
         else:
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-            start_over_button = types.KeyboardButton("🔄 Clear Filters")
+            start_over_button = types.KeyboardButton("Clear Filters 🗑️")
             do_something_else_button = types.KeyboardButton("🔍 Keep Filters")
             markup.add(start_over_button, do_something_else_button)
 
@@ -681,7 +654,7 @@ async def handle_check_graphs(message: types.Message):
             await post_filter_action_options(chat_id)
         else:
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-            start_over_button = types.KeyboardButton("🔄 Clear Filters")
+            start_over_button = types.KeyboardButton("Clear Filters 🗑️")
             do_something_else_button = types.KeyboardButton("🔍 Keep Filters")
             markup.add(start_over_button, do_something_else_button)
 
@@ -721,10 +694,11 @@ async def handle_another_date_selection(message: types.Message):
 async def handle_reset_daily_update_confirmation(message: types.Message):
     chat_id = message.chat.id
     if message.text == "Yes, delete the daily filter ✅":
-        delete_user_data(chat_id)
         filters = user_filters.get(chat_id, {})
-        if "notification_time" in filters:
-            del filters["notification_time"]
+        filters.pop("notification_time", None)
+        filters.pop("email", None)
+        
+        user_filters[chat_id] = filters  
         await bot.send_message(chat_id, "🔄 The daily update has been reset successfully! All filters have been cleared.")
         await send_start_message(chat_id, to_send_message=False)
         user_states[chat_id] = None
@@ -734,6 +708,7 @@ async def handle_reset_daily_update_confirmation(message: types.Message):
         user_states[chat_id] = None
     else:
         await bot.send_message(chat_id, "Please choose a valid option.")
+
         
 async def ask_to_change_theme(chat_id, current_theme, filters):
     """Ask the user if they want to change the graph theme."""
@@ -828,12 +803,10 @@ async def handle_message(message: types.Message):
     elif message.text == "Current Filters 🔍":
         chat_id = message.chat.id
         filters = user_filters.get(chat_id, {})
-
         if filters:
             unique_filters = []
-            
             for key, value in filters.items():
-                if key not in ["graph_theme", "notification_time", "email"]:
+                if key not in ["graph_theme", "notification_time", "email", "filters_for_notification"]:
                     values = value.split(';')
                     unique_values = set(values)
                     formatted_values = ' ;'.join(unique_values)
@@ -847,15 +820,13 @@ async def handle_message(message: types.Message):
                 await bot.send_message(chat_id, "You have not applied any unique filters yet.")
         else:
             await bot.send_message(chat_id, "You have not applied any filters yet.")
-            
-        if user_states.get(chat_id) == WAITING_FOR_ACTION_AFTER_FILTER:
-            await post_filter_action_options(message.chat.id)
-        else:
-            await handle_filters(message) 
+        await post_filter_action_options(message.chat.id)
+
 
 
     if user_states.get(chat_id) == WAITING_FOR_RATING:
         await handle_rating_submission(message)
+        
     elif user_states.get(chat_id) == WAITING_FOR_REVIEW:
         await handle_review_submission(message)
     elif message.text == "Feedback ✍️":
@@ -878,14 +849,15 @@ async def handle_message(message: types.Message):
         
     elif message.text == "Reset Daily Update ❌":
         chat_id = message.chat.id
-        if user_exists(chat_id):
+        if chat_id  in user_filters:
             filters = user_filters.get(chat_id, {})
-            
-            if filters:
+            if filters and "notification_time" in filters:
+                print(filters)
                 filters_info = ""
                 for key, value in filters.items():
                     if key != "graph_theme" and key != "notification_time" and key != "email":
                         filters_info += f"{key.replace('_', ' ').capitalize()}: {value}\n"
+                        
 
                 confirmation_msg = (
                     f"Your current filters are:\n{filters_info}\n"
@@ -931,47 +903,29 @@ async def handle_message(message: types.Message):
             await bot.send_message(chat_id, "Returning to the previous menu.")
             user_states[chat_id] = None
             await handle_filters(message)
-            
-
+              
     elif message.text == "Clear Filters 🗑️":
-        chat_id = message.chat.id
         current_filters = user_filters.get(chat_id, {})
         
         theme = current_filters.get('graph_theme', 'dark')
         notification_time = current_filters.get('notification_time', None)
         email = current_filters.get('email', None)
+        filters_for_notification = current_filters.pop('filters_for_notification', None)
         
         user_filters[chat_id] = {
             'graph_theme': theme,
             'notification_time': notification_time,
-            'email': email
+            'email': email,
+            'filters_for_notification':filters_for_notification
         }
-        
-        await bot.send_message(chat_id, "All filters have been cleared.")
-        await handle_filters(message)
-            
-
-
-
-        
-    elif message.text == "🔄 Clear Filters":
-        current_filters = user_filters.get(chat_id, {})
-        
-        theme = current_filters.get('graph_theme', 'dark')
-        notification_time = current_filters.get('notification_time', None)
-        email = current_filters.get('email', None)
-        
-        user_filters[chat_id] = {
-            'graph_theme': theme,
-            'notification_time': notification_time,
-            'email': email
-        }
-        await handle_start_over(message)
+        if user_states.get(chat_id) == WAITING_FOR_FILTERS:
+            await bot.send_message(chat_id, "All filters have been cleared.")
+            await handle_filters(message)
+        else :
+            await handle_start_over(message)       
 
     elif message.text == "🔍 Keep Filters":
         await handle_do_something_else(message)
-        
-        
         
     elif user_states.get(chat_id) == WAITING_FOR_ACTION_AFTER_FILTER:
         chat_id = message.chat.id
@@ -1199,31 +1153,28 @@ async def handle_message(message: types.Message):
         ]
 
         filters = user_filters.get(chat_id, {})
-        previous_time = filters.get("notification_time")
-        previous_email = filters.get("email")
+        previous_time = filters.get("notification_time", None)
+        previous_email = filters.get("email", None)
 
         if message.text == "Use Previous Time":
-            filters_json = json.dumps(filters)
-            insert_user_data(chat_id, filters_json)
-
+            filters["filters_for_notification"] = deepcopy(filters)
             await bot.send_message(chat_id, 
                 f"⏰ Your daily update time has been set to {previous_time}!\n"
                 "🔕 It might also be a good idea to mute this bot so you don't wake up too early! 😅"
             )
+            user_states[chat_id] = WAITING_FOR_EMAIL
 
         else:
             try:
                 preferred_time = datetime.strptime(message.text, "%H:%M").time()
                 filters["notification_time"] = preferred_time.strftime("%H:%M")
-                filters_json = json.dumps(filters)
-
-                insert_user_data(chat_id, filters_json)
-
+                filters["filters_for_notification"] = deepcopy(filters)
                 await bot.send_message(chat_id, 
                     f"⏰ Your daily update time has been set to {preferred_time.strftime('%H:%M')}!\n"
                     "✅ Daily updates have been successfully applied!\n"
                     "🔕 It might also be a good idea to mute this bot so you don't wake up too early! 😅"
                 )
+                user_states[chat_id] = WAITING_FOR_EMAIL
             except ValueError:
                 await bot.send_message(chat_id, "Invalid time format. Please provide the time in HH:MM format (24-hour format).")
                 return
@@ -1246,27 +1197,23 @@ async def handle_message(message: types.Message):
         user_states[chat_id] = WAITING_FOR_EMAIL
             
     elif user_states.get(chat_id) == WAITING_FOR_EMAIL:
-        if message.text == "Skip 🚫":
-            await bot.send_message(chat_id, "You have opted to skip adding an email.")
-            user_states[chat_id] = None
-            previous_email = filters.get("email")  # Use get() instead of direct access to avoid KeyError
-            if previous_email:
-                filters["email"] = None
-            await send_start_message(message.chat.id, to_send_message=False)
-
-            
+        filters = user_filters.get(chat_id, {})
+        previous_email = filters.get("email") 
+        
         def validate_email(email):
             email_regex = re.compile(r"[^@]+@[^@]+\.[^@]+")
-            return email_regex.match(email) is not None
-        filters = user_filters.get(chat_id, {})
-        previous_email = filters.get("email")
-
-        
-        if message.text == "Use Previous Email" and previous_email:
+            return email_regex.match(email) is not None \
+                        
+        if message.text == "Skip 🚫":
+            user_states[chat_id] = None
+            if previous_email:
+                filters["email"] = None
+            await bot.send_message(chat_id, "⚠️ You haven't chosen to receive updates via email, but keep in mind that you can turn this option on anytime you want! 💡✉️")
+            await send_start_message(chat_id, to_send_message=False)
+            
+        elif message.text == "Use Previous Email" and previous_email:
             filters["email"] = previous_email
-            filters_json = json.dumps(filters)
-            insert_user_data(chat_id, filters_json)
-
+            filters["filters_for_notification"] = deepcopy(filters)
             await bot.send_message(chat_id, 
                 f"📧 Your email has been set to {previous_email}!\n"
                 "✅ You'll also receive your daily updates by email!"
@@ -1282,8 +1229,7 @@ async def handle_message(message: types.Message):
         elif validate_email(message.text.strip()):
             user_email = message.text.strip()
             filters["email"] = user_email
-            filters_json = json.dumps(filters)
-            insert_user_data(chat_id, filters_json)
+            filters["filters_for_notification"] = deepcopy(filters)
 
             await bot.send_message(chat_id, "Great! You'll receive your updates by email as well.")
             user_states[chat_id] = None 
@@ -1358,7 +1304,7 @@ async def check_and_send_notifications():
         user_df = fetch_data(LOAD_USER_DATA_QUERY, engine)
         for _, row in user_df.iterrows():
             chat_id = row['chat_id']
-            filters = row['filters']
+            filters = row['filters_for_notification']
             
             if pd.isna(filters):
                 print(f"Filters are missing for chat_id {chat_id}. Skipping.")
@@ -1378,9 +1324,7 @@ async def check_and_send_notifications():
 
             notification_time = filters_dict.get('notification_time')
             user_email = filters_dict.get('email')
-
-            print(f"Checking notification time for chat_id {chat_id}: {notification_time} (now: {now})")
-            
+                        
             if notification_time == now:
                 df_yesterday = fetch_data(YESTERDAY_JOBS_QUERY, engine)
                 message, excel_data, csv_data, _ = add_filters_to_df(df_yesterday, filters_dict, is_csv=False, is_excel=False, is_spark=True)

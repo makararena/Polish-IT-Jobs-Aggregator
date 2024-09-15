@@ -273,8 +273,9 @@ The current version of the program has room for improvement. Some algorithms cou
     -- Preserve bot state before exit and restore it later
     CREATE TABLE user_data_before_exit (
         chat_id int8 NOT NULL PRIMARY KEY,
-        state jsonb NULL,
-        filters jsonb NULL
+        state VARCHAR NULL,
+        filters JSON null,
+        filters_for_notification JSON null
     );
 
 
@@ -295,7 +296,7 @@ The current version of the program has room for improvement. Some algorithms cou
 
     -- Daily report figures for job statistics
     CREATE TABLE daily_report (
-        generation_id VARCHAR(50) PRIMARY KEY,
+        generation_id TEXT PRIMARY KEY,
         benefits_pie_chart BYTEA,
         city_bubbles_chart BYTEA,
         city_pie_chart BYTEA,
@@ -309,6 +310,7 @@ The current version of the program has room for improvement. Some algorithms cou
         technologies_bar_chart BYTEA,
         summary TEXT
     );
+
 
 
     -- Query examples
@@ -330,9 +332,20 @@ The current version of the program has room for improvement. Some algorithms cou
 6. **Create .env file**
   - Create a file named `.env` in the root directory of the project with the following content:
     ```plaintext
-    TELEGRAM_TOKEN=your_telegram_bot_token
-    DB_PASSWORD=your_database_password
-    EMAIL_PASSWORD=your_email_password
+    # Telegram bot token provided by BotFather
+    TELEGRAM_TOKEN='your_telegram_bot_token'
+
+    # Your email password (used for notifications)
+    EMAIL_PASSWORD='your_email_password'
+
+    # PostgreSQL database configuration
+    DB_CONFIG={
+        "host": "localhost",
+        "port": 5432,
+        "database": "polish_it_jobs_aggregator",
+        "user": "postgres",
+        "password": "your_database_password"
+    }
     ```
 
 7. **Run the script**

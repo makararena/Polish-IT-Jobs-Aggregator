@@ -47,35 +47,19 @@ INSERT_DAILY_REPORT_QUERY = text("""
         summary = EXCLUDED.summary
 """)
 
-# Queries for user data
-INSERT_USER_DATA_QUERY = text("""
-    INSERT INTO user_data (user_id, filters)
-    VALUES (:user_id, :filters)
-    ON CONFLICT (user_id) 
-    DO UPDATE SET filters = EXCLUDED.filters;
-""")
-
-DELETE_USER_DATA_QUERY = text("""
-    DELETE FROM user_data 
-    WHERE user_id = :user_id;
-""")
-
-CHECK_IF_USER_EXIST_QUERY = text("""
-    SELECT 1 
-    FROM user_data 
-    WHERE user_id = :user_id;
-""")
-
 # Queries for user data before exit
 INSERT_USER_DATA_BEFORE_EXIT_QUERY = text("""
-    INSERT INTO user_data_before_exit (chat_id, state, filters)
-    VALUES (:chat_id, :state, :filters)
+    INSERT INTO user_data_before_exit (chat_id, state, filters, filters_for_notification)
+    VALUES (:chat_id, :state, :filters, :filters_for_notification)
     ON CONFLICT (chat_id) 
-    DO UPDATE SET state = EXCLUDED.state, filters = EXCLUDED.filters;
-""")    
+    DO UPDATE SET 
+        state = EXCLUDED.state, 
+        filters = EXCLUDED.filters,
+        filters_for_notification = EXCLUDED.filters_for_notification;
+""")
 
 LOAD_USER_DATA_QUERY = text("""
-    SELECT chat_id, state, filters 
+    SELECT chat_id, state, filters, filters_for_notification
     FROM user_data_before_exit;
 """)
 

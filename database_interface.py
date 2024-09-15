@@ -24,9 +24,7 @@ def create_engine_from_config():
     # Load environment variables from .env file
     try:
         # Parse the JSON configuration string
-        db_config = json.loads(db_config_str)
-        print(db_config)
-        
+        db_config = json.loads(db_config_str)        
         # Ensure all required keys are present except 'port' which can have a default
         required_keys = ['host', 'user', 'password', 'database']  # Removed 'port'
         for key in required_keys:

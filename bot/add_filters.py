@@ -22,14 +22,16 @@ def add_filters_to_df(df, filters, is_excel=False, is_csv=False, is_spark=False)
 
     if 'core_role' in filters:
         core_roles = filters['core_role'].split(';')
-        core_roles = [role.strip() for role in core_roles]  
-        filtered_df = filtered_df[filtered_df['core_role'].str.contains('|'.join(core_roles), case=False, na=False)]
+        core_roles = [role.strip() for role in core_roles]
+        filtered_df = filtered_df[filtered_df['core_role'].apply(
+            lambda x: any(role in x for role in core_roles))]
 
     if 'company' in filters:
         companies = filters['company'].split(';')
-        companies = [company.strip() for company in companies] 
-        filtered_df = filtered_df[filtered_df['employer_name'].str.contains('|'.join(companies), case=False, na=False)]
-
+        companies = [company.strip() for company in companies]
+        filtered_df = filtered_df[filtered_df['company'].apply(
+            lambda x: any(role in x for role in core_roles))]
+        
     if 'city' in filters:
         cities = filters['city'].split(';')
         cities = [city.strip() for city in cities]
@@ -37,7 +39,7 @@ def add_filters_to_df(df, filters, is_excel=False, is_csv=False, is_spark=False)
 
     if 'region' in filters:
         regions = filters['region'].split(';')
-        regions = [region.strip() for region in regions] 
+        regions = [region.strip() for region in regions]
         filtered_df = filtered_df[filtered_df['region'].str.contains('|'.join(regions), case=False, na=False)]
 
     if 'language' in filters:
@@ -48,13 +50,13 @@ def add_filters_to_df(df, filters, is_excel=False, is_csv=False, is_spark=False)
 
     if 'work_type' in filters:
         work_types = filters['work_type'].split(';')
-        work_types = [work_type.strip() for work_type in work_types] 
+        work_types = [work_type.strip() for work_type in work_types]
         filtered_df = filtered_df[
             ((pd.Series('Full-time').isin(work_types)) & (filtered_df['full_time'] == 1)) |
             ((pd.Series('Hybrid').isin(work_types)) & (filtered_df['hybrid'] == 1)) |
             ((pd.Series('Remote').isin(work_types)) & (filtered_df['remote'] == 1))
         ]
-        
+
     if 'expiration_date' in filters:
         expiration_date = filters['expiration_date']
         yesterday = (datetime.today() - timedelta(days=1)).date()
@@ -68,7 +70,7 @@ def add_filters_to_df(df, filters, is_excel=False, is_csv=False, is_spark=False)
         filtered_df.to_csv(output, index=False)
         output.seek(0)
         return output.getvalue(), 'csv'
-    
+
     elif is_excel:
         filtered_df.drop(columns=['id', 'core_role', 'lat', 'long', 'upload_id'], inplace=True)
         output = io.BytesIO()
@@ -76,7 +78,7 @@ def add_filters_to_df(df, filters, is_excel=False, is_csv=False, is_spark=False)
             filtered_df.to_excel(writer, index=False, sheet_name='Filtered Data')
         output.seek(0)
         return output.getvalue(), 'excel'
-    
+
     elif is_spark:
         filtered_df.drop(columns=['id', 'core_role', 'lat', 'long', 'upload_id'], inplace=True)
         if filtered_df.shape[0] < 15:
@@ -90,13 +92,13 @@ def add_filters_to_df(df, filters, is_excel=False, is_csv=False, is_spark=False)
             with pd.ExcelWriter(output_excel, engine='openpyxl') as writer:
                 filtered_df.to_excel(writer, index=False, sheet_name='Filtered Data')
             output_excel.seek(0)
-            
+
             output_csv = io.StringIO()
             filtered_df.to_csv(output_csv, index=False)
             output_csv.seek(0)
 
             return result_message, output_excel.getvalue(), output_csv.getvalue(), 'text-excel'
-        else: 
+        else:
             num_jobs = filtered_df.shape[0]
             result_message = f"Hi, for yesterday we had {num_jobs} jobs based on your criteria: here you go:"
 
@@ -104,12 +106,12 @@ def add_filters_to_df(df, filters, is_excel=False, is_csv=False, is_spark=False)
             with pd.ExcelWriter(output_excel, engine='openpyxl') as writer:
                 filtered_df.to_excel(writer, index=False, sheet_name='Filtered Data')
             output_excel.seek(0)
-            
+
             output_csv = io.StringIO()
             filtered_df.to_csv(output_csv, index=False)
             output_csv.seek(0)
-            
+
             return result_message, output_excel.getvalue(), output_csv.getvalue(), 'text-excel'
-            
+
     else:
         return filtered_df, "pandas"
