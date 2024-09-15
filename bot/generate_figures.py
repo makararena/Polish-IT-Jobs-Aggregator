@@ -3,7 +3,6 @@ import sys
 import json
 import shutil
 import pandas as pd
-from dotenv import load_dotenv
 from datetime import date, datetime, timedelta
 import plotly.express as px
 import plotly.graph_objects as go
@@ -14,30 +13,12 @@ import warnings
 warnings.filterwarnings("ignore", message="pandas only supports SQLAlchemy connectable")
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from data.dictionaries import LANGUAGES, PLOT_COLUMNS, DARK_THEME, LIGHT_THEME
-from data.queries import INSERT_DAILY_REPORT_QUERY, ALL_JOBS_QUERY, YESTERDAY_JOBS_QUERY 
+from data.constants_and_mappings import LANGUAGES, PLOT_COLUMNS, DARK_THEME, LIGHT_THEME
+from data.database_queries import INSERT_DAILY_REPORT_QUERY, ALL_JOBS_QUERY, YESTERDAY_JOBS_QUERY 
+from database_interface import create_engine_from_config, fetch_data
 
-load_dotenv()
+engine = create_engine_from_config()
 
-db_config_str = os.getenv("DB_CONFIG")
-
-try:
-    db_config = json.loads(db_config_str)
-except json.JSONDecodeError as e:
-    print(f"Error parsing DB_CONFIG: {e}")
-    sys.exit(1)
-
-def create_engine_from_config(db_config):
-    """Create an SQLAlchemy engine from the DB config."""
-    conn_str = f"postgresql+psycopg2://{db_config['user']}:{db_config['password']}@{db_config['host']}/{db_config['database']}"
-    return create_engine(conn_str)
-
-def fetch_data(query, engine):
-    """Fetch data from the database using the SQLAlchemy engine."""
-    with engine.connect() as conn, conn.begin():
-        return pd.read_sql_query(query, engine)
-
-engine = create_engine_from_config(db_config)
 
 df = fetch_data(ALL_JOBS_QUERY, engine)
 df_yesterday = fetch_data(YESTERDAY_JOBS_QUERY, engine)
@@ -679,11 +660,10 @@ def read_image(file_path):
         return None
 
 def insert_figures_and_text(engine, generation_date_with_info, figures, summary_text):
-    insert_query = INSERT_DAILY_REPORT_QUERY
     try:
         with engine.connect() as connection:
             connection.execute(
-                text(insert_query), 
+                INSERT_DAILY_REPORT_QUERY, 
                 {
                     'generation_id': generation_date_with_info,
                     'benefits_pie_chart': figures.get('benefits_pie_chart'),

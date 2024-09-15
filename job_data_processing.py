@@ -20,7 +20,7 @@ from sqlalchemy import create_engine
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from data.dictionaries import (
+from data.constants_and_mappings import (
     CONTRACT_VALUES, POLISH_TO_ENGLISH_MONTH,
     CATEGORIES_BENEFITS, JOB_LEVEL_DICT,
     LANGUAGES, DICT_TO_RENAME, WORK_TYPE_DICT, COLUMNS_ORDER, PROFESSION_TITLES,
@@ -28,9 +28,9 @@ from data.dictionaries import (
     LANGUAGES_LIST, CONTRACTS_LIST, BENEFITS_LIST, CONTRACT_LIST_DF, EXPERIENCES_LIST
 )
 
-from data.queries import UNIQUE_JOBS_QUERY, ALL_FROM_JOBS_UPLOAD_QUERY
+from data.database_queries import UNIQUE_JOBS_QUERY, ALL_FROM_JOBS_UPLOAD_QUERY
 
-from translate import detect_language, translate_title
+from lang_detect_translate import detect_language, translate_title
 
 warnings.filterwarnings("ignore", message="pandas only supports SQLAlchemy connectable")
 

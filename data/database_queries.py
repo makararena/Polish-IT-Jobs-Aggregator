@@ -1,5 +1,7 @@
+from sqlalchemy import text
+
 # Queries for daily reports
-INSERT_DAILY_REPORT_QUERY = """
+INSERT_DAILY_REPORT_QUERY = text("""
     INSERT INTO daily_report (
         generation_id, 
         benefits_pie_chart, 
@@ -43,69 +45,69 @@ INSERT_DAILY_REPORT_QUERY = """
         positions_bar_chart = EXCLUDED.positions_bar_chart,
         technologies_bar_chart = EXCLUDED.technologies_bar_chart,
         summary = EXCLUDED.summary;
-"""
+""")
 
 # Queries for user data
-INSERT_USER_DATA_QUERY = """
+INSERT_USER_DATA_QUERY = text("""
     INSERT INTO user_data (user_id, filters)
     VALUES (:user_id, :filters)
     ON CONFLICT (user_id) 
     DO UPDATE SET filters = EXCLUDED.filters;
-"""
+""")
 
-DELETE_USER_DATA_QUERY = """
+DELETE_USER_DATA_QUERY = text("""
     DELETE FROM user_data 
     WHERE user_id = :user_id;
-"""
+""")
 
-CHECK_IF_USER_EXIST_QUERY = """
+CHECK_IF_USER_EXIST_QUERY = text("""
     SELECT 1 
     FROM user_data 
     WHERE user_id = :user_id;
-"""
+""")
 
 # Queries for user data before exit
-INSERT_USER_DATA_BEFORE_EXIT_QUERY = """
+INSERT_USER_DATA_BEFORE_EXIT_QUERY = text("""
     INSERT INTO user_data_before_exit (chat_id, state, filters)
     VALUES (:chat_id, :state, :filters)
     ON CONFLICT (chat_id) 
     DO UPDATE SET state = EXCLUDED.state, filters = EXCLUDED.filters;
-"""
+""")    
 
-LOAD_USER_DATA_QUERY = """
+LOAD_USER_DATA_QUERY = text("""
     SELECT chat_id, state, filters 
     FROM user_data_before_exit;
-"""
+""")
 
 # Queries for jobs
-ALL_JOBS_QUERY = """
+ALL_JOBS_QUERY = text("""
     SELECT * 
     FROM jobs;
-"""
+""")
 
-ALL_FROM_JOBS_UPLOAD_QUERY = """
+ALL_FROM_JOBS_UPLOAD_QUERY = text("""
     SELECT * 
     FROM jobs_upload;
-"""
+""")
 
-UNIQUE_JOBS_QUERY = """
+UNIQUE_JOBS_QUERY = text("""
     SELECT id, technologies_used 
     FROM jobs;
-"""
+""")
 
-YESTERDAY_JOBS_QUERY = """
+YESTERDAY_JOBS_QUERY = text("""
     SELECT * 
     FROM jobs 
     WHERE date_posted = CURRENT_DATE - INTERVAL '1 day';
-"""
+""")
 
-GET_FILTERS_QUERY = """
+GET_FILTERS_QUERY = text("""
     SELECT user_id, filters 
     FROM user_data;
-"""
+""")
 
 # Queries for plots and reports
-LOAD_ALL_PLOTS_QUERY = """
+LOAD_ALL_PLOTS_QUERY = text("""
     SELECT 
         benefits_pie_chart, 
         city_bubbles_chart, 
@@ -121,18 +123,18 @@ LOAD_ALL_PLOTS_QUERY = """
         summary
     FROM daily_report
     WHERE generation_id = :date_str;
-"""
+""")
 
-GET_CLOSEST_DATE_QUERY = """
+GET_CLOSEST_DATE_QUERY = text("""
     SELECT generation_id
     FROM daily_report
     WHERE generation_id != :date_str
     ORDER BY generation_id DESC
     LIMIT 1;
-"""
+""")
 
 # Queries for user reviews
-INSERT_USER_REVIEW_QUERY = """
+INSERT_USER_REVIEW_QUERY = text("""
     INSERT INTO user_reviews (chat_id, username, user_name, review, rating, review_type, chat_type)
     VALUES (:chat_id, :username, :user_name, :review, :rating, :review_type, :chat_type);
-"""
+""")

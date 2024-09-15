@@ -55,40 +55,40 @@ pip install -r requirements.txt
 echo "Dependencies installed at $(date)" | tee -a "$MAIN_LOG_FILE"
 
 # Run Scrapy spiders
-# SPIDERS_DIR="workscrapper/workscrapper"
-# if [ -d "$SPIDERS_DIR" ]; then
-#   cd "$SPIDERS_DIR" || { echo "Failed to change directory to $SPIDERS_DIR at $(date)" | tee -a "$MAIN_LOG_FILE"; exit 1; }
-#   echo "Running Scrapy spiders at $(date)" | tee -a "$MAIN_LOG_FILE"
-#   {
-#     scrapy crawl pracuj_pl_spider >> "$MAIN_LOG_FILE" 2>&1 &
-#     SPIDER1_PID=$!
+SPIDERS_DIR="workscrapper/workscrapper"
+if [ -d "$SPIDERS_DIR" ]; then
+  cd "$SPIDERS_DIR" || { echo "Failed to change directory to $SPIDERS_DIR at $(date)" | tee -a "$MAIN_LOG_FILE"; exit 1; }
+  echo "Running Scrapy spiders at $(date)" | tee -a "$MAIN_LOG_FILE"
+  {
+    scrapy crawl pracuj_pl_spider >> "$MAIN_LOG_FILE" 2>&1 &
+    SPIDER1_PID=$!
 
-#     scrapy crawl theprotocol_spider >> "$MAIN_LOG_FILE" 2>&1 &
-#     SPIDER2_PID=$!
+    scrapy crawl theprotocol_spider >> "$MAIN_LOG_FILE" 2>&1 &
+    SPIDER2_PID=$!
 
-#     scrapy crawl buldogjob_spider >> "$MAIN_LOG_FILE" 2>&1 &
-#     SPIDER3_PID=$!
+    scrapy crawl buldogjob_spider >> "$MAIN_LOG_FILE" 2>&1 &
+    SPIDER3_PID=$!
 
-#     # Wait for all spiders to complete
-#     wait $SPIDER1_PID $SPIDER2_PID $SPIDER3_PID
-#   } >> "$MAIN_LOG_FILE" 2>&1
-#   echo "Scrapy spiders completed at $(date)" | tee -a "$MAIN_LOG_FILE"
-# else
-#   echo "Directory $SPIDERS_DIR not found at $(date)" | tee -a "$MAIN_LOG_FILE"
-#   exit 1
-# fi
+    # Wait for all spiders to complete
+    wait $SPIDER1_PID $SPIDER2_PID $SPIDER3_PID
+  } >> "$MAIN_LOG_FILE" 2>&1
+  echo "Scrapy spiders completed at $(date)" | tee -a "$MAIN_LOG_FILE"
+else
+  echo "Directory $SPIDERS_DIR not found at $(date)" | tee -a "$MAIN_LOG_FILE"
+  exit 1
+fi
 
 # Navigate back to project root
 cd "$PROJECT_DIR" || { echo "Failed to change directory back to $PROJECT_DIR at $(date)" | tee -a "$MAIN_LOG_FILE"; exit 1; }
 
 # Run preprocessing script
 echo "Starting preprocessing at $(date)" | tee -a "$MAIN_LOG_FILE"
-python3 preprocess.py >> "$MAIN_LOG_FILE" 2>&1
+python3 job_data_processing.py >> "$MAIN_LOG_FILE" 2>&1
 echo "Preprocessing completed at $(date)" | tee -a "$MAIN_LOG_FILE"
 
 # Send email with logs
 echo "Sending email with logs at $(date)" | tee -a "$MAIN_LOG_FILE"
-python3 send_mail.py --subject "Bot Launch - Daily Logs and Status - $TODAYS_DATE" \
+python3 email_sender.py --subject "Bot Launch - Daily Logs and Status - $TODAYS_DATE" \
                      --body "Program logs attached." \
                      --to "$EMAIL" \
                      --attachment "$MAIN_LOG_FILE"

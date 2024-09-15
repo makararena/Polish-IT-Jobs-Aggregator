@@ -12,8 +12,8 @@ from dash.exceptions import PreventUpdate
 from dotenv import load_dotenv
 load_dotenv()
 
-from data.dictionaries import PLOT_COLUMNS, LANGUAGES, PROJECT_DESCRIPTION
-from data.queries import ALL_JOBS_QUERY
+from data.constants_and_mappings import PLOT_COLUMNS, LANGUAGES, PROJECT_DESCRIPTION
+from data.database_queries import ALL_JOBS_QUERY
 
 geojson_path = './data/poland.voivodeships.json'
 with open(geojson_path, 'r') as file:

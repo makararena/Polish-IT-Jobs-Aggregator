@@ -53,7 +53,7 @@ stop_bot() {
 send_bot_logs() {
   log_message "Sending bot logs via email"
   cd "$PROJECT_DIR" || { log_message "Failed to change directory"; exit 1; }
-  python3 send_mail.py --subject "Bot Logs - $TODAYS_DATE" \
+  python3 email_sender.py --subject "Bot Logs - $TODAYS_DATE" \
                        --body "Bot logs attached." \
                        --to "$EMAIL" \
                        --attachment "$BOT_LOG_FILE"
