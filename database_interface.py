@@ -66,6 +66,15 @@ def create_async_engine_from_config():
         raise ValueError(f"Error in DB_CONFIG: {e}")
 
 def fetch_data(query, engine):
-    """Fetch data from the database using the SQLAlchemy engine."""
-    with engine.connect() as conn:
-        return pd.read_sql_query(query, conn)
+    """Fetch data from the database using the SQLAlchemy engine with transaction management."""
+    connection = engine.connect()
+    transaction = connection.begin() 
+    try:
+        data = pd.read_sql_query(query, connection)
+        transaction.commit()  
+        return data
+    except Exception as e:
+        print(f"Error fetching data: {e}")
+        transaction.rollback()
+    finally:
+        connection.close()  

@@ -29,7 +29,7 @@ from database_interface import fetch_data, create_engine_from_config, create_asy
 from data.database_queries import (
     INSERT_USER_DATA_QUERY, DELETE_USER_DATA_QUERY, CHECK_IF_USER_EXIST_QUERY, 
     INSERT_USER_DATA_BEFORE_EXIT_QUERY, LOAD_USER_DATA_QUERY, ALL_JOBS_QUERY, 
-    YESTERDAY_JOBS_QUERY, GET_FILTERS_QUERY, LOAD_ALL_PLOTS_QUERY, 
+    YESTERDAY_JOBS_QUERY, LOAD_ALL_PLOTS_QUERY, 
     GET_CLOSEST_DATE_QUERY, INSERT_USER_REVIEW_QUERY
 )
 
@@ -51,7 +51,7 @@ dp = Dispatcher(bot)
 
 import logging
 logging.basicConfig()
-logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
 
 # Database connection setup
 
@@ -93,12 +93,13 @@ user_subscriptions = {}
 def insert_user_data(user_id, filters):
     """Insert user data into the database."""
     try:
+        filters_json = json.dumps(filters)  # Convert Python dict to JSON string
         with engine.connect() as connection:
             connection.execute(
                 INSERT_USER_DATA_QUERY,
                 {
                     'user_id': user_id,
-                    'filters': filters
+                    'filters': filters_json  # Store the JSON string
                 }
             )
     except Exception as e:
@@ -145,26 +146,28 @@ def save_user_data_before_exit(chat_id, state, filters):
     except Exception as e:
         print(f"Error saving user data: {e}")
         
-
 async def load_all_user_data():
     """Load all user data from the database into memory."""
     async with async_engine.connect() as conn:
-        try:
-            result = await conn.execute(LOAD_USER_DATA_QUERY)
-            rows = result.mappings().all()
-            for row in rows:
-                print(row)
-                chat_id = row['chat_id']
-                state = row['state']
-                filters = row['filters']
+        async with conn.begin():  # Start a transaction block
+            try:
+                result = await conn.execute(LOAD_USER_DATA_QUERY)
+                rows = result.mappings().all()
+                print("Rows are :" + str(rows))
                 
-                user_states[chat_id] = state
-                user_filters[chat_id] = filters
+                for row in rows:
+                    chat_id = row['chat_id']
+                    state = row['state']
+                    filters = row['filters']
+                    
+                    user_states[chat_id] = state
+                    user_filters[chat_id] = filters
 
-                print("User states :" + str(user_states))
-                print("User filters :" + str(user_filters))
-        except Exception as e:
-            print(f"Error loading user data from PostgreSQL database: {e}")
+                await conn.commit()
+                
+            except Exception as e:
+                await conn.rollback()
+                print(f"Error loading user data from PostgreSQL database: {e}")        
         
 async def check_and_post_files(chat_id, date_str):
     """Check for available files in the database on the given date and send them to the user."""
@@ -206,6 +209,7 @@ async def check_and_post_files(chat_id, date_str):
                 closest_date_query = GET_CLOSEST_DATE_QUERY
                 closest_date_result = await conn.execute(closest_date_query, {'date_str': date_str})
                 closest_date_result = closest_date_result.fetchone()
+                print(closest_date_result)
                 
                 if closest_date_result:
                     closest_date = closest_date_result['generation_id']
@@ -223,6 +227,10 @@ async def check_and_post_files(chat_id, date_str):
                     )
     except Exception as e:
         print(f"Error querying the database: {e}")
+        
+#####################
+##### BOT PART ######
+#####################   
         
 async def send_start_message(chat_id, to_send_message=True):
     """Send a welcome message with options to the user."""
@@ -326,7 +334,7 @@ async def check_column_and_suggest(message: types.Message, column_name: str, nam
             reply_markup=markup,
         )
         user_states[chat_id] = name
-        
+
 async def handle_rating_submission(message: types.Message):
     """Handle user rating submission."""
     chat_id = message.chat.id
@@ -373,12 +381,10 @@ async def handle_rating_submission(message: types.Message):
         user_filters[chat_id] = {}
     else:
         await bot.send_message(chat_id, "Invalid rating. Please select one of the options.")
-
        
 async def handle_filters(message: types.Message):
     """Send a message asking the user which filters they want to apply."""
     chat_id = message.chat.id
-
     # Define buttons
     experience_button = types.KeyboardButton("Experience Level 💼")
     core_role_button = types.KeyboardButton("Role 🎯")
@@ -415,7 +421,6 @@ async def handle_experience_selection(message: types.Message):
     buttons = [types.KeyboardButton(exp) for exp in experience_levels]
     exit_button = types.KeyboardButton("Back ⬅️")
     markup.add(*buttons, exit_button)
-    
     await bot.send_message(chat_id, "Select the experience level you want to filter by:", reply_markup=markup)
     user_states[chat_id] = WAITING_FOR_EXPERIENCE
 
@@ -506,9 +511,7 @@ async def post_filter_action_options(chat_id):
         "What would you like to do next?",
         reply_markup=markup
     )
-    
     user_states[chat_id] = WAITING_FOR_ACTION_AFTER_FILTER
-
 
 async def handle_company_selection(message: types.Message):
     """Send a message asking the user to select a company."""
@@ -559,7 +562,6 @@ async def handle_region_selection(message: types.Message):
     markup.add(*buttons, exit_button)
     await bot.send_message(chat_id, "Select the region you want to filter by:", reply_markup=markup)
     user_states[chat_id] = WAITING_FOR_REGION
-
     
 async def handle_language_selection(message: types.Message):
     """Send a message asking the user to select a language."""
@@ -576,7 +578,7 @@ async def handle_download_filtered_data(message: types.Message):
     chat_id = message.chat.id
     filters = user_filters.get(chat_id, {})
     
-    filtered_data, file_type = add_filters_to_df(df, filters, is_excel=False, is_csv=False)
+    filtered_data, _ = add_filters_to_df(df, filters, is_excel=False, is_csv=False)
     
     if filtered_data.empty:
         await bot.send_message(chat_id, "Sorry, but we don't have data based on your filter. 🚫")
@@ -777,14 +779,6 @@ async def handle_message(message: types.Message):
     print(user_states.get(chat_id))
     print("-" * 40)
     
-    
-    
-    
-    
-    
-    
-    
-    
     if message.text == "Back ⬅️":
         current_state = user_states.get(chat_id) 
         user_states.pop(chat_id, None)  
@@ -800,10 +794,6 @@ async def handle_message(message: types.Message):
                                WAITING_FOR_EMAIL]:
             await post_filter_action_options(message.chat.id)
 
-
-
-
-
     elif message.text == "Yesterday's Jobs":
         yesterday_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
         filters = user_filters.get(chat_id, {})
@@ -813,24 +803,17 @@ async def handle_message(message: types.Message):
         
         await check_and_post_files(chat_id, file_suffix)
 
-
-
     elif message.text == "Jobs by Date":
         await handle_another_date_selection(message)
-        
-        
         
     elif user_states.get(chat_id) in [WAITING_FOR_ANOTHER_DATE]:
             try:
                 date_str = message.text
                 datetime.strptime(date_str, '%Y-%m-%d')
-                
                 filters = user_filters.get(chat_id, {})
                 light_theme_filter = filters.get("graph_theme", "dark")
                 file_suffix = f"{date_str}-{light_theme_filter}"
-                
                 await check_and_post_files(chat_id, file_suffix)
-            
             except ValueError:
                 await bot.send_message(chat_id, "Invalid date format. Please provide the date in YYYY-MM-DD format or press 'Back ⬅️' to return.")
 
@@ -878,10 +861,7 @@ async def handle_message(message: types.Message):
         chat_id = message.chat.id
         filters = user_filters.get(chat_id, {})
         current_theme = filters.get('graph_theme', 'dark')
-        
         await ask_to_change_theme(chat_id, current_theme, filters)
-        
-
         
     elif message.text == "Reset Daily Update ❌":
         chat_id = message.chat.id
@@ -1358,34 +1338,36 @@ async def send_email(subject, body, to_email, excel_data, csv_data):
 async def check_and_send_notifications():
     while True:
         now = datetime.now().strftime('%H:%M')
-        user_df = fetch_data(GET_FILTERS_QUERY, engine)
-        print("*"*40)
-        print(user_df)
-
+        user_df = fetch_data(LOAD_USER_DATA_QUERY, engine)
         for _, row in user_df.iterrows():
-            chat_id = row['user_id']
+            chat_id = row['chat_id']
             filters = row['filters']
-            chat_id = int(chat_id)
+            
+            if pd.isna(filters):
+                print(f"Filters are missing for chat_id {chat_id}. Skipping.")
+                continue
 
             if isinstance(filters, str):
                 try:
                     filters_dict = json.loads(filters)
                 except json.JSONDecodeError:
-                    print(f"Failed to decode filters JSON for user_id {chat_id}")
+                    print(f"Failed to decode filters JSON for chat_id {chat_id}")
                     continue
             elif isinstance(filters, dict):
                 filters_dict = filters
             else:
-                print(f"Unexpected type for filters for user_id {chat_id}")
+                print(f"Unexpected type for filters for chat_id {chat_id}")
                 continue
 
-            notification_time = filters_dict['notification_time']
+            notification_time = filters_dict.get('notification_time')
             user_email = filters_dict.get('email')
 
+            print(f"Checking notification time for chat_id {chat_id}: {notification_time} (now: {now})")
+            
             if notification_time == now:
                 df_yesterday = fetch_data(YESTERDAY_JOBS_QUERY, engine)
                 message, excel_data, csv_data, _ = add_filters_to_df(df_yesterday, filters_dict, is_csv=False, is_excel=False, is_spark=True)
-                
+
                 if user_email:
                     subject = "Your Daily Update " + str(datetime.now().strftime('%Y-%m-%d'))
                     body = f"Here is your daily update for {datetime.now().strftime('%Y-%m-%d')}."
@@ -1395,18 +1377,19 @@ async def check_and_send_notifications():
                         for part in message.split('\n'):
                             await send_message(chat_id, part)
                     
-                    if excel_data and csv_data:
+                    if excel_data:
                         await bot.send_document(chat_id, ('data.xlsx', excel_data))
+                    if csv_data:
                         await bot.send_document(chat_id, ('data.csv', csv_data))
 
-                        if user_email:
-                            await send_email(subject, body, user_email, excel_data, csv_data)
+                    if user_email:
+                        await send_email(subject, body, user_email, excel_data, csv_data)
 
                     closing_message = f"\nYour dream job awaits! 🌟 Have a nice day! 😊"
                     await bot.send_message(chat_id, closing_message)
 
                 except Exception as e:
-                    print(f"Failed to send message or file to user_id {chat_id}: {e}")
+                    print(f"Failed to send message or file to chat_id {chat_id}: {e}")
                     
         await asyncio.sleep(60)
 
@@ -1438,43 +1421,6 @@ def signal_handler(sig, frame):
     print("Exiting...")
     sys.exit(0)
     
-    
-def safe_json_loads(data):
-    """Safely parse JSON data; return an empty dict if parsing fails or data is not a string."""
-    if isinstance(data, str):
-        try:
-            return json.loads(data) if data else {}
-        except json.JSONDecodeError:
-            if len(data) > 5: 
-                return data
-            else :
-                return {}
-
-    elif isinstance(data, dict):
-        return data
-    else:
-        return {}
-
-
-def load_user_data():
-    """Load all user data from the database into memory."""    
-    user_states = {}
-    user_filters = {}
-
-    try:
-        query = LOAD_USER_DATA_QUERY
-        with engine.connect() as conn:
-            result = conn.execute(query)
-            for row in result.fetchall():
-                chat_id, state, filters = row
-                user_states[chat_id] = safe_json_loads(state)
-                user_filters[chat_id] = safe_json_loads(filters)
-                print(f"Loaded data for user {chat_id} : {user_states[chat_id]} - {user_filters[chat_id]}")
-                
-    except Exception as e:
-        print(f"Error loading user data from PostgreSQL database: {e}")
-    
-    return user_states, user_filters
 
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)

@@ -101,11 +101,6 @@ YESTERDAY_JOBS_QUERY = text("""
     WHERE date_posted = CURRENT_DATE - INTERVAL '1 day';
 """)
 
-GET_FILTERS_QUERY = text("""
-    SELECT user_id, filters 
-    FROM user_data;
-""")
-
 # Queries for plots and reports
 LOAD_ALL_PLOTS_QUERY = text("""
     SELECT 

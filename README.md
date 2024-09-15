@@ -270,14 +270,6 @@ The current version of the program has room for improvement. Some algorithms cou
         upload_id varchar NULL
     );
 
-
-    -- User filters for sending daily updates
-    CREATE TABLE user_data (
-        user_id int8 NOT NULL PRIMARY KEY,
-        filters jsonb NULL
-    );
-
-
     -- Preserve bot state before exit and restore it later
     CREATE TABLE user_data_before_exit (
         chat_id int8 NOT NULL PRIMARY KEY,
@@ -321,7 +313,6 @@ The current version of the program has room for improvement. Some algorithms cou
 
     -- Query examples
     SELECT * FROM jobs_upload_backup;
-    SELECT * FROM user_data;
     SELECT * FROM user_data_before_exit udbe;
     SELECT * FROM daily_report dr;
     SELECT * FROM jobs_upload;
