@@ -171,62 +171,66 @@ async def load_all_user_data():
         
 async def check_and_post_files(chat_id, date_str):
     """Check for available files in the database on the given date and send them to the user."""
-    query = LOAD_ALL_PLOTS_QUERY
-    try:
-        async with async_engine.connect() as conn:  # Use the correct variable name here
-            result = await conn.execute(query, {'date_str': date_str})
-            result = result.fetchone()
-            if result:
-                images = {
-                    'benefits_pie_chart': result['benefits_pie_chart'],
-                    'city_bubbles_chart': result['city_bubbles_chart'],
-                    'city_pie_chart': result['city_pie_chart'],
-                    'employer_bar_chart': result['employer_bar_chart'],
-                    'employment_type_pie_chart': result['employment_type_pie_chart'],
-                    'experience_level_bar_chart': result['experience_level_bar_chart'],
-                    'languages_bar_chart': result['languages_bar_chart'],
-                    'salary_box_plot': result['salary_box_plot'],
-                    'poland_map': result['poland_map'],
-                    'positions_bar_chart': result['positions_bar_chart'],
-                    'technologies_bar_chart': result['technologies_bar_chart']
-                }
-                
-                summary_text = result['summary']
-                
-                for chart_name, image_data in images.items():
-                    if image_data:
-                        try:
-                            await bot.send_photo(chat_id, image_data)
-                        except Exception as e:
-                            print(f"Error sending image {chart_name}: {e}")
-                
-                if summary_text:
+    async with async_engine.connect() as conn:
+        # Query for the data
+        result = await conn.execute(LOAD_ALL_PLOTS_QUERY, {'date_str': date_str})
+        result = result.fetchone()
+        
+        if result:
+            # Convert result to a dictionary-like object if necessary
+            result_dict = dict(result)
+            
+            images = {
+                'benefits_pie_chart': result_dict['benefits_pie_chart'],
+                'city_bubbles_chart': result_dict['city_bubbles_chart'],
+                'city_pie_chart': result_dict['city_pie_chart'],
+                'employer_bar_chart': result_dict['employer_bar_chart'],
+                'employment_type_pie_chart': result_dict['employment_type_pie_chart'],
+                'experience_level_bar_chart': result_dict['experience_level_bar_chart'],
+                'languages_bar_chart': result_dict['languages_bar_chart'],
+                'salary_box_plot': result_dict['salary_box_plot'],
+                'poland_map': result_dict['poland_map'],
+                'positions_bar_chart': result_dict['positions_bar_chart'],
+                'technologies_bar_chart': result_dict['technologies_bar_chart']
+            }
+            
+            summary_text = result_dict['summary']
+            
+            for chart_name, image_data in images.items():
+                if image_data:
                     try:
-                        await bot.send_message(chat_id, summary_text)
+                        await bot.send_photo(chat_id, image_data)
                     except Exception as e:
-                        print(f"Error sending summary text: {e}")
-            else:
-                closest_date_query = GET_CLOSEST_DATE_QUERY
-                closest_date_result = await conn.execute(closest_date_query, {'date_str': date_str})
-                closest_date_result = closest_date_result.fetchone()
-                print(closest_date_result)
+                        print(f"Error sending image {chart_name}: {e}")
+            
+            if summary_text:
+                try:
+                    await bot.send_message(chat_id, summary_text)
+                except Exception as e:
+                    print(f"Error sending summary text: {e}")
+        else:
+            # Query for the closest date
+            closest_date_query = GET_CLOSEST_DATE_QUERY
+            closest_date_result = await conn.execute(closest_date_query, {'date_str': date_str})
+            closest_date_result = closest_date_result.fetchone()
+            
+            if closest_date_result:
+                # Use tuple indexing to access the closest date if needed
+                closest_date = closest_date_result[0]  # Adjust index based on column order
+                closest_date_display = closest_date.replace('-dark', '').replace('-light', '')
                 
-                if closest_date_result:
-                    closest_date = closest_date_result['generation_id']
-                    await bot.send_message(
-                        chat_id, 
-                        f"❌ No data found for {date_str.replace('-dark', '').replace('-light', '')}. "
-                        f"The closest available date is 📅 {closest_date.replace('-dark', '').replace('-light', '')}.\n\n"
-                        "👉 If you want to get data for this date, please type: "
-                        f"`{closest_date.replace('-dark', '').replace('-light', '')}` or type another date after this one."
-                    )
-                else:
-                    await bot.send_message(
-                        chat_id, 
-                        f"No data found for {date_str.replace('-dark', '').replace('-light', '')}, and no other available dates."
-                    )
-    except Exception as e:
-        print(f"Error querying the database: {e}")
+                await bot.send_message(
+                    chat_id, 
+                    f"❌ No data found for {date_str}. The closest available date is 📅 {closest_date_display}.\n\n"
+                    "👉 If you want to get data for this date, please type: "
+                    f"`{closest_date_display}` or type another date after this one."
+                )
+            else:
+                await bot.send_message(
+                    chat_id, 
+                    f"No data found for {date_str}, and no other available dates."
+                )
+
         
 #####################
 ##### BOT PART ######
