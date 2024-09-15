@@ -51,7 +51,7 @@ dp = Dispatcher(bot)
 
 import logging
 logging.basicConfig()
-logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 
 # Database connection setup
 
@@ -134,8 +134,6 @@ def save_user_data_before_exit(chat_id, state, filters):
     """Save user data before exit."""
     state_json = state
     filters_json = json.dumps(filters)
-    print(state_json)
-    print(filters_json)
     try:
         with engine.begin() as connection:
             connection.execute(
@@ -153,7 +151,6 @@ async def load_all_user_data():
             try:
                 result = await conn.execute(LOAD_USER_DATA_QUERY)
                 rows = result.mappings().all()
-                print("Rows are :" + str(rows))
                 
                 for row in rows:
                     chat_id = row['chat_id']
@@ -171,62 +168,62 @@ async def load_all_user_data():
         
 async def check_and_post_files(chat_id, date_str):
     """Check for available files in the database on the given date and send them to the user."""
-    query = LOAD_ALL_PLOTS_QUERY
-    try:
-        async with async_engine.connect() as conn:  # Use the correct variable name here
-            result = await conn.execute(query, {'date_str': date_str})
-            result = result.fetchone()
-            if result:
-                images = {
-                    'benefits_pie_chart': result['benefits_pie_chart'],
-                    'city_bubbles_chart': result['city_bubbles_chart'],
-                    'city_pie_chart': result['city_pie_chart'],
-                    'employer_bar_chart': result['employer_bar_chart'],
-                    'employment_type_pie_chart': result['employment_type_pie_chart'],
-                    'experience_level_bar_chart': result['experience_level_bar_chart'],
-                    'languages_bar_chart': result['languages_bar_chart'],
-                    'salary_box_plot': result['salary_box_plot'],
-                    'poland_map': result['poland_map'],
-                    'positions_bar_chart': result['positions_bar_chart'],
-                    'technologies_bar_chart': result['technologies_bar_chart']
-                }
-                
-                summary_text = result['summary']
-                
-                for chart_name, image_data in images.items():
-                    if image_data:
+    async with async_engine.connect() as conn:
+        async with conn.begin(): 
+            try:
+                result = await conn.execute(LOAD_ALL_PLOTS_QUERY, {'date_str': date_str})
+                result_row = result.mappings().fetchone()
+                if result_row:
+                    images = {
+                        'benefits_pie_chart': result_row.get('benefits_pie_chart'),
+                        'city_bubbles_chart': result_row.get('city_bubbles_chart'),
+                        'city_pie_chart': result_row.get('city_pie_chart'),
+                        'employer_bar_chart': result_row.get('employer_bar_chart'),
+                        'employment_type_pie_chart': result_row.get('employment_type_pie_chart'),
+                        'experience_level_bar_chart': result_row.get('experience_level_bar_chart'),
+                        'languages_bar_chart': result_row.get('languages_bar_chart'),
+                        'salary_box_plot': result_row.get('salary_box_plot'),
+                        'poland_map': result_row.get('poland_map'),
+                        'positions_bar_chart': result_row.get('positions_bar_chart'),
+                        'technologies_bar_chart': result_row.get('technologies_bar_chart')
+                    }
+
+                    summary_text = result_row.get('summary')
+                    
+                    for chart_name, image_data in images.items():
+                        if image_data:
+                            try:
+                                await bot.send_photo(chat_id, image_data)
+                            except Exception as e:
+                                print(f"Error sending image {chart_name}: {e}")
+                    
+                    if summary_text:
                         try:
-                            await bot.send_photo(chat_id, image_data)
+                            await bot.send_message(chat_id, summary_text)
                         except Exception as e:
-                            print(f"Error sending image {chart_name}: {e}")
-                
-                if summary_text:
-                    try:
-                        await bot.send_message(chat_id, summary_text)
-                    except Exception as e:
-                        print(f"Error sending summary text: {e}")
-            else:
-                closest_date_query = GET_CLOSEST_DATE_QUERY
-                closest_date_result = await conn.execute(closest_date_query, {'date_str': date_str})
-                closest_date_result = closest_date_result.fetchone()
-                print(closest_date_result)
-                
-                if closest_date_result:
-                    closest_date = closest_date_result['generation_id']
-                    await bot.send_message(
-                        chat_id, 
-                        f"❌ No data found for {date_str.replace('-dark', '').replace('-light', '')}. "
-                        f"The closest available date is 📅 {closest_date.replace('-dark', '').replace('-light', '')}.\n\n"
-                        "👉 If you want to get data for this date, please type: "
-                        f"`{closest_date.replace('-dark', '').replace('-light', '')}` or type another date after this one."
-                    )
+                            print(f"Error sending summary text: {e}")
                 else:
-                    await bot.send_message(
-                        chat_id, 
-                        f"No data found for {date_str.replace('-dark', '').replace('-light', '')}, and no other available dates."
-                    )
-    except Exception as e:
-        print(f"Error querying the database: {e}")
+                    closest_date_result = await conn.execute(GET_CLOSEST_DATE_QUERY, {'date_str': date_str})
+                    closest_date_row = closest_date_result.mappings().fetchone()
+                    print(closest_date_row)
+                    if closest_date_row:
+                        closest_date = closest_date_row['generation_id']
+                        await bot.send_message(
+                            chat_id, 
+                            f"❌ No data found for {date_str.replace('-dark', '').replace('-light', '')}. "
+                            f"The closest available date is 📅 {closest_date.replace('-dark', '').replace('-light', '')}.\n\n"
+                            "👉 If you want to get data for this date, please type: "
+                            f"`{closest_date.replace('-dark', '').replace('-light', '')}` or type another date after this one."
+                        )
+                    else:
+                        await bot.send_message(
+                            chat_id, 
+                            f"No data found for {date_str.replace('-dark', '').replace('-light', '')}, and no other available dates."
+                        )
+            except Exception as e:
+                print(f"Error querying the database: {e}")
+
+
         
 #####################
 ##### BOT PART ######
@@ -358,27 +355,28 @@ async def handle_rating_submission(message: types.Message):
         chat_type = review_data.get('chat_type', '')
 
         try:
-            with engine.connect() as connection:
-                connection.execute(
-                    INSERT_USER_REVIEW_QUERY,
-                    {
-                        'chat_id': chat_id,
-                        'username': username,
-                        'user_name': user_name,
-                        'review': review,
-                        'rating': rating_value,
-                        'review_type': 'feedback',
-                        'chat_type': chat_type
-                    }
-                )
+            async with async_engine.connect() as conn:
+                async with conn.begin():
+                    await conn.execute(
+                        INSERT_USER_REVIEW_QUERY,
+                        {
+                            'chat_id': chat_id,
+                            'username': username,
+                            'user_name': user_name,
+                            'review': review,
+                            'rating': rating_value,
+                            'review_type': 'feedback',
+                            'chat_type': chat_type
+                        }
+                    )
+
             await bot.send_message(chat_id, "Thank you for your rating!")
             await start_command(message)
         except Exception as e:
-            print(f"Error saving review and rating to PostgreSQL database: {e}")
+            logging.error(f"Error saving review and rating to PostgreSQL database: {e}")
             await bot.send_message(chat_id, "An error occurred while saving your review and rating. Please try again later.")
-
-        user_states[chat_id] = None
-        user_filters[chat_id] = {}
+            user_states[chat_id] = None
+            user_filters[chat_id] = {}
     else:
         await bot.send_message(chat_id, "Invalid rating. Please select one of the options.")
        
@@ -774,10 +772,14 @@ async def change_graph_theme(chat_id, new_theme, filters):
 async def handle_message(message: types.Message):
     """Handle incoming messages based on the user's current state."""
     chat_id = message.chat.id
-    print("-" * 40)
-    print(message.text)
-    print(user_states.get(chat_id))
-    print("-" * 40)
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+    logger.info("-" * 40)
+    logger.info(message.text)
+    logger.info(user_states.get(chat_id))
+    logger.info("-" * 40)
+
     
     if message.text == "Back ⬅️":
         current_state = user_states.get(chat_id) 
@@ -807,15 +809,15 @@ async def handle_message(message: types.Message):
         await handle_another_date_selection(message)
         
     elif user_states.get(chat_id) in [WAITING_FOR_ANOTHER_DATE]:
-            try:
-                date_str = message.text
-                datetime.strptime(date_str, '%Y-%m-%d')
-                filters = user_filters.get(chat_id, {})
-                light_theme_filter = filters.get("graph_theme", "dark")
-                file_suffix = f"{date_str}-{light_theme_filter}"
-                await check_and_post_files(chat_id, file_suffix)
-            except ValueError:
-                await bot.send_message(chat_id, "Invalid date format. Please provide the date in YYYY-MM-DD format or press 'Back ⬅️' to return.")
+        try:
+            date_str = message.text
+            datetime.strptime(date_str, '%Y-%m-%d')
+            filters = user_filters.get(chat_id, {})
+            light_theme_filter = filters.get("graph_theme", "dark")
+            file_suffix = f"{date_str}-{light_theme_filter}"
+            await check_and_post_files(chat_id, file_suffix)
+        except ValueError:
+            await bot.send_message(chat_id, "Invalid date format. Please provide the date in YYYY-MM-DD format or press 'Back ⬅️' to return.")
 
     elif message.text == "About Project":
         await send_project_info(chat_id)
@@ -823,24 +825,35 @@ async def handle_message(message: types.Message):
     elif message.text == "Set Filters 🔍":
         await handle_filters(message)
         
-        
     elif message.text == "Current Filters 🔍":
         chat_id = message.chat.id
         filters = user_filters.get(chat_id, {})
-        
+
         if filters:
-            filters_msg = "\n".join([f"{key.replace('_', ' ').capitalize()}: {value}" 
-                                    for key, value in filters.items() 
-                                    if key != "graph_theme" and key != "notification_time" and key != "email"])
-            if filters_msg: 
+            unique_filters = []
+            
+            for key, value in filters.items():
+                if key not in ["graph_theme", "notification_time", "email"]:
+                    values = value.split(';')
+                    unique_values = set(values)
+                    formatted_values = ' ;'.join(unique_values)
+                    unique_filters.append(f"{key.replace('_', ' ').capitalize()}: {formatted_values}")
+
+            filters_msg = "\n".join(unique_filters)
+
+            if filters_msg:
                 await bot.send_message(chat_id, f"Your current filters are:\n{filters_msg}")
             else:
-                await bot.send_message(chat_id, "You have not applied any filters yet.")
+                await bot.send_message(chat_id, "You have not applied any unique filters yet.")
         else:
             await bot.send_message(chat_id, "You have not applied any filters yet.")
-        
-        await post_filter_action_options(chat_id)
-        
+            
+        if user_states.get(chat_id) == WAITING_FOR_ACTION_AFTER_FILTER:
+            await post_filter_action_options(message.chat.id)
+        else:
+            await handle_filters(message) 
+
+
     if user_states.get(chat_id) == WAITING_FOR_RATING:
         await handle_rating_submission(message)
     elif user_states.get(chat_id) == WAITING_FOR_REVIEW:
@@ -1236,7 +1249,11 @@ async def handle_message(message: types.Message):
         if message.text == "Skip 🚫":
             await bot.send_message(chat_id, "You have opted to skip adding an email.")
             user_states[chat_id] = None
+            previous_email = filters.get("email")  # Use get() instead of direct access to avoid KeyError
+            if previous_email:
+                filters["email"] = None
             await send_start_message(message.chat.id, to_send_message=False)
+
             
         def validate_email(email):
             email_regex = re.compile(r"[^@]+@[^@]+\.[^@]+")
@@ -1415,7 +1432,7 @@ async def handle_all_messages(message: types.Message):
     
 def signal_handler(sig, frame):
     """Handle termination signals to save user data."""
-    print("Signal received, saving user data and exiting...")
+    print("Signal received, saving user data and esxiting...")
     for chat_id in user_states.keys():
         save_user_data_before_exit(chat_id, user_states[chat_id], user_filters.get(chat_id, {}))
     print("Exiting...")

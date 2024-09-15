@@ -44,7 +44,7 @@ INSERT_DAILY_REPORT_QUERY = text("""
         poland_map = EXCLUDED.poland_map,
         positions_bar_chart = EXCLUDED.positions_bar_chart,
         technologies_bar_chart = EXCLUDED.technologies_bar_chart,
-        summary = EXCLUDED.summary;
+        summary = EXCLUDED.summary
 """)
 
 # Queries for user data
@@ -103,19 +103,7 @@ YESTERDAY_JOBS_QUERY = text("""
 
 # Queries for plots and reports
 LOAD_ALL_PLOTS_QUERY = text("""
-    SELECT 
-        benefits_pie_chart, 
-        city_bubbles_chart, 
-        city_pie_chart, 
-        employer_bar_chart, 
-        employment_type_pie_chart, 
-        experience_level_bar_chart, 
-        languages_bar_chart, 
-        salary_box_plot, 
-        poland_map, 
-        positions_bar_chart, 
-        technologies_bar_chart, 
-        summary
+    SELECT *
     FROM daily_report
     WHERE generation_id = :date_str;
 """)

@@ -507,7 +507,7 @@ if __name__ == "__main__":
 
     insert_data_to_db(df, 'jobs', db_config)
     
-    now = datetime.now().strftime("%Y%m%d_%H%M%S")
-    excel_file_path = f"./data/output_{now}.xlsx"
-    df.to_excel(excel_file_path, index=False)
+    # now = datetime.now().strftime("%Y%m%d_%H%M%S")
+    # excel_file_path = f"./data/output_{now}.xlsx"
+    # df.to_excel(excel_file_path, index=False)
         

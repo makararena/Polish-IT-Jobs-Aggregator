@@ -10,6 +10,8 @@ from matplotlib import colors as mcolors
 from sqlalchemy import create_engine, text
 import warnings
 
+from loguru import logger
+
 warnings.filterwarnings("ignore", message="pandas only supports SQLAlchemy connectable")
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -660,29 +662,37 @@ def read_image(file_path):
         return None
 
 def insert_figures_and_text(engine, generation_date_with_info, figures, summary_text):
+    # Log the figures and summary_text to verify their contents   
+    logger.info(f"Engine details: {engine}")
+
     try:
         with engine.connect() as connection:
-            connection.execute(
-                INSERT_DAILY_REPORT_QUERY, 
-                {
-                    'generation_id': generation_date_with_info,
-                    'benefits_pie_chart': figures.get('benefits_pie_chart'),
-                    'city_bubbles_chart': figures.get('city_bubbles_chart'),
-                    'city_pie_chart': figures.get('city_pie_chart'),
-                    'employer_bar_chart': figures.get('employer_bar_chart'),
-                    'employment_type_pie_chart': figures.get('employment_type_pie_chart'),
-                    'experience_level_bar_chart': figures.get('experience_level_bar_chart'),
-                    'languages_bar_chart': figures.get('languages_bar_chart'),
-                    'salary_box_plot': figures.get('salary_box_plot'),
-                    'poland_map': figures.get('poland_map'),
-                    'positions_bar_chart': figures.get('positions_bar_chart'),
-                    'technologies_bar_chart': figures.get('technologies_bar_chart'),
-                    'summary': summary_text
-                }
-            )
+            # Start a transaction
+            with connection.begin():
+                logger.info("Inserting data into PostgreSQL database.")
+                result = connection.execute(
+                    INSERT_DAILY_REPORT_QUERY, 
+                    {
+                        'generation_id': generation_date_with_info,
+                        'benefits_pie_chart': figures.get('benefits_pie_chart'),
+                        'city_bubbles_chart': figures.get('city_bubbles_chart'),
+                        'city_pie_chart': figures.get('city_pie_chart'),
+                        'employer_bar_chart': figures.get('employer_bar_chart'),
+                        'employment_type_pie_chart': figures.get('employment_type_pie_chart'),
+                        'experience_level_bar_chart': figures.get('experience_level_bar_chart'),
+                        'languages_bar_chart': figures.get('languages_bar_chart'),
+                        'salary_box_plot': figures.get('salary_box_plot'),
+                        'poland_map': figures.get('poland_map'),
+                        'positions_bar_chart': figures.get('positions_bar_chart'),
+                        'technologies_bar_chart': figures.get('technologies_bar_chart'),
+                        'summary': summary_text
+                    }
+                )
+                logger.info("Data inserted successfully.")
+                logger.info(f"Insert result: {result}")
+                # Commit is handled by the `begin()` context manager, so no need for explicit commit here
     except Exception as e:
-        print(f"Error inserting data into PostgreSQL database: {e}")      
-    
+        logger.error(f"Error inserting data into PostgreSQL database: {e}", exc_info=True)
     
 def process_theme(theme_dir, engine, generation_date, theme_type):
     figures = {}
