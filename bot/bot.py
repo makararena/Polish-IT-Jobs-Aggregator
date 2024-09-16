@@ -89,18 +89,42 @@ WAITING_CLEAR_OR_KEEP_FILTER = 'waiting_clear_or_keep_filter'
 user_states = {}
 user_filters = {}
 user_subscriptions = {}
-        
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# I WILL CHANGE THIS ALGHORITM BY THE END OF THE WEEK !!
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+def flatten_filters_for_notification(filters):
+    """
+    Flatten filters by removing deeply nested 'filters_for_notification',
+    and retain only the last one.
+    """
+    while 'filters_for_notification' in filters:
+        nested_filters = filters.pop('filters_for_notification')
+        filters.update(nested_filters)
+    return filters
+
 def save_user_data_before_exit(chat_id, state, filters):
     """Save user data before exit."""
     state_json = state
     filters_copy = deepcopy(filters)
-    filters_for_notification = json.dumps(filters_copy.pop('filters_for_notification', None))
+
+    # Flatten the nested filters_for_notification
+    filters_copy = flatten_filters_for_notification(filters_copy)
+
+    # Serialize the filters
+    filters_for_notification = json.dumps(filters_copy)
     filters_json = json.dumps(filters_copy)
+
     try:
         with engine.begin() as connection:
             connection.execute(
                 INSERT_USER_DATA_BEFORE_EXIT_QUERY,
-                {'chat_id': chat_id, 'state': state_json, 'filters': filters_json, 'filters_for_notification' : filters_for_notification}
+                {
+                    'chat_id': chat_id, 
+                    'state': state_json, 
+                    'filters': filters_json, 
+                    'filters_for_notification': filters_for_notification
+                }
             )
         print("Data inserted/updated successfully.")
     except Exception as e:
@@ -696,6 +720,7 @@ async def handle_reset_daily_update_confirmation(message: types.Message):
         filters = user_filters.get(chat_id, {})
         filters.pop("notification_time", None)
         filters.pop("email", None)
+        filters.pop("filters_for_notification",None)
         
         user_filters[chat_id] = filters  
         await bot.send_message(chat_id, "🔄 The daily update has been reset successfully! All filters have been cleared.")
@@ -841,10 +866,10 @@ async def handle_message(message: types.Message):
         chat_id = message.chat.id
         if chat_id  in user_filters:
             filters = user_filters.get(chat_id, {})
-            if filters and "notification_time" in filters:
+            if filters and "filters_for_notification" in filters:
                 filters_info = ""
                 for key, value in filters.items():
-                    if key != "graph_theme" and key != "notification_time" and key != "email":
+                    if key != "graph_theme" and key != "notification_time" and key != "email" and key != "filters_for_notification":
                         filters_info += f"{key.replace('_', ' ').capitalize()}: {value}\n"
                         
 
@@ -1219,7 +1244,6 @@ async def handle_message(message: types.Message):
             user_email = message.text.strip()
             filters["email"] = user_email
             filters["filters_for_notification"] = deepcopy(filters)
-
             await bot.send_message(chat_id, "Great! You'll receive your updates by email as well.")
             user_states[chat_id] = None 
             await send_start_message(message.chat.id, to_send_message=False)
