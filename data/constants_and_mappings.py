@@ -341,12 +341,13 @@ PROFESSION_TITLES = [
     "Security Expert", "Team Coordinator", "Open Source Engineer", "Data Visualization Specialist", 
     "Internal Manager", "ETL Developer", "Uplift Engineer", "Graphic Designer", 
     "Infrastructure Analyst", "Tester Salesforce", "Xamarin / Maui Developer", "Developer",
-    "Software Development Manager", "T-SQL Developer", "IT Support Engineer", "Test Engineer"
+    "Software Development Manager", "T-SQL Developer", "IT Support Engineer", "Test Engineer", "IT Scientist"
 ]
 
 TRANSLATION_DICT = {
     "analityk": "Analyst",
     "młodszy": "Junior",
+    "programistka" : "",
     "programista": "Developer",
     "sieci": "Network",
     "inżynier": "Engineer",
@@ -360,9 +361,10 @@ TRANSLATION_DICT = {
     "informatyki": "IT",
     "analityczka": "Analyst",
     "technik serwisu" : "Service Technician",
-    "programistka" : "",
     "Monitoringu" : "Monitoring",
     "Kampanii" : "Campaign",
+    "Infrastruktury" : "Infrastructure",
+    "Informatyk" : "IT Specialist",
 
 
 }
@@ -508,6 +510,8 @@ BENEFITS_LIST = [
 ]
 
 EXPERIENCES_LIST = [
-    'junior', 'middle', 'senior', 'programmist', 'lead', 
-    'team leader', 'team lead'
+    'junior', 'middle', 'mid', 'senior', 'lead', 
+    'team leader', 'team lead', 'tl', 'intern', 'internship', 
+    'entry-level', 'entry level', 'experienced'
 ]
+

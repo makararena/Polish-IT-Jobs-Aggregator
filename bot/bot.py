@@ -145,9 +145,12 @@ async def check_and_post_files(chat_id, date_str):
     async with async_engine.connect() as conn:
         async with conn.begin(): 
             try:
+                # Fetch data for the given date
                 result = await conn.execute(LOAD_ALL_PLOTS_QUERY, {'date_str': date_str})
                 result_row = result.mappings().fetchone()
+                
                 if result_row:
+                    # Extract images and summary text
                     images = {
                         'benefits_pie_chart': result_row.get('benefits_pie_chart'),
                         'city_bubbles_chart': result_row.get('city_bubbles_chart'),
@@ -159,11 +162,15 @@ async def check_and_post_files(chat_id, date_str):
                         'salary_box_plot': result_row.get('salary_box_plot'),
                         'poland_map': result_row.get('poland_map'),
                         'positions_bar_chart': result_row.get('positions_bar_chart'),
-                        'technologies_bar_chart': result_row.get('technologies_bar_chart')
+                        'technologies_bar_chart': result_row.get('technologies_bar_chart'),
+                        'responsibilities_wordcloud': result_row.get('responsibilities_wordcloud'),
+                        'requirements_wordcloud': result_row.get('requirements_wordcloud'),
+                        'offering_wordcloud': result_row.get('offering_wordcloud'),
+                        'benefits_wordcloud': result_row.get('benefits_wordcloud')
                     }
-
                     summary_text = result_row.get('summary')
                     
+                    # Send images
                     for chart_name, image_data in images.items():
                         if image_data:
                             try:
@@ -171,28 +178,35 @@ async def check_and_post_files(chat_id, date_str):
                             except Exception as e:
                                 print(f"Error sending image {chart_name}: {e}")
                     
+                    # Send summary text
                     if summary_text:
                         try:
                             await bot.send_message(chat_id, summary_text)
                         except Exception as e:
                             print(f"Error sending summary text: {e}")
+                
                 else:
+                    # Fetch closest available date if no data found
                     closest_date_result = await conn.execute(GET_CLOSEST_DATE_QUERY, {'date_str': date_str})
                     closest_date_row = closest_date_result.mappings().fetchone()
+                    
                     if closest_date_row:
                         closest_date = closest_date_row['generation_id']
-                        await bot.send_message(
-                            chat_id, 
+                        message = (
                             f"❌ No data found for {date_str.replace('-dark', '').replace('-light', '')}. "
                             f"The closest available date is 📅 {closest_date.replace('-dark', '').replace('-light', '')}.\n\n"
                             "👉 If you want to get data for this date, please type: "
                             f"`{closest_date.replace('-dark', '').replace('-light', '')}` or type another date after this one."
                         )
+                        await bot.send_message(chat_id, message)
+                    
                     else:
-                        await bot.send_message(
-                            chat_id, 
-                            f"No data found for {date_str.replace('-dark', '').replace('-light', '')}, and no other available dates."
+                        message = (
+                            f"No data found for {date_str.replace('-dark', '').replace('-light', '')}, "
+                            "and no other available dates."
                         )
+                        await bot.send_message(chat_id, message)
+                        
             except Exception as e:
                 print(f"Error querying the database: {e}")
         

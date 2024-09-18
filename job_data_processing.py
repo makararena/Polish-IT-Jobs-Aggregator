@@ -244,7 +244,6 @@ def extract_and_convert_salaries(salary_str):
         if max_salary and max_salary < 1000:
             max_salary *= 160
             
-    print(f"Processed salary_str: {salary_str}, Start salary: {start_salary}, Max salary: {max_salary}")
     return pd.Series([start_salary, max_salary])
 
 def assign_benefit_categories(df):
@@ -280,6 +279,8 @@ def extract_job_role(title):
     remove_terms = EXPERIENCES_LIST
     for term in remove_terms:
         title = title.replace(term, '')
+        
+    title = re.sub(r'\bin\b.*', '', title, flags=re.IGNORECASE)
     
     title = re.sub(r'\[.*?\]|\(.*?\)', '', title)
     title = re.sub(r' with.*', '', title)
@@ -334,12 +335,14 @@ if __name__ == "__main__":
     df['id'] = df['job_title'] + "_" + df['employer_name'] + "_" + df['city'] + "_" + df['expiration'].astype(str)
     df = df.drop_duplicates(subset='id')
         
+    print(f"\n{'-' * 40}")
     print("Current upload datafrrame size: ", df.shape)
        
     check_empty_df(df)
     unique_ids = set(df_unique_jobs['id'])
     df = df[~df['id'].isin(unique_ids)]
     check_empty_df(df)
+    print(f"\n{'-' * 40}")
     
     print("Dataframe size after removing duplicates: ", df.shape)
         
@@ -348,7 +351,15 @@ if __name__ == "__main__":
             text = ' '.join(text)
         text = str(text)
         words = text.split()
-        translated_words = [translation_dict.get(word.lower(), word) for word in words]
+
+        # Use a case-insensitive lookup but preserve the original case
+        translated_words = [
+            translation_dict.get(word.lower(), word)
+            if word.lower() in translation_dict
+            else word
+            for word in words
+        ]
+        
         return ' '.join(translated_words)
 
 
@@ -507,7 +518,7 @@ if __name__ == "__main__":
 
     insert_data_to_db(df, 'jobs', db_config)
     
-    # now = datetime.now().strftime("%Y%m%d_%H%M%S")
-    # excel_file_path = f"./data/output_{now}.xlsx"
-    # df.to_excel(excel_file_path, index=False)
+    now = datetime.now().strftime("%Y%m%d_%H%M%S")
+    excel_file_path = f"./data/output_{now}.xlsx"
+    df.to_excel(excel_file_path, index=False)
         

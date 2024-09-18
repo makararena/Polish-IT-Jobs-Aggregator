@@ -14,7 +14,11 @@ INSERT_DAILY_REPORT_QUERY = text("""
         salary_box_plot, 
         poland_map, 
         positions_bar_chart, 
-        technologies_bar_chart, 
+        technologies_bar_chart, x
+        responsibilities_wordcloud,   
+        requirements_wordcloud,       
+        offering_wordcloud,           
+        benefits_wordcloud,          
         summary
     ) VALUES (
         :generation_id, 
@@ -29,6 +33,10 @@ INSERT_DAILY_REPORT_QUERY = text("""
         :poland_map, 
         :positions_bar_chart, 
         :technologies_bar_chart, 
+        :responsibilities_wordcloud,   
+        :requirements_wordcloud,    
+        :offering_wordcloud,         
+        :benefits_wordcloud,          
         :summary
     )
     ON CONFLICT (generation_id) 
@@ -44,8 +52,13 @@ INSERT_DAILY_REPORT_QUERY = text("""
         poland_map = EXCLUDED.poland_map,
         positions_bar_chart = EXCLUDED.positions_bar_chart,
         technologies_bar_chart = EXCLUDED.technologies_bar_chart,
+        responsibilities_wordcloud = EXCLUDED.responsibilities_wordcloud,  
+        requirements_wordcloud = EXCLUDED.requirements_wordcloud,      
+        offering_wordcloud = EXCLUDED.offering_wordcloud,             
+        benefits_wordcloud = EXCLUDED.benefits_wordcloud,               
         summary = EXCLUDED.summary
 """)
+
 
 # Queries for user data before exit
 INSERT_USER_DATA_BEFORE_EXIT_QUERY = text("""

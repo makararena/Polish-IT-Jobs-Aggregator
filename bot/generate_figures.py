@@ -10,28 +10,31 @@ import plotly.graph_objects as go
 from matplotlib import colors as mcolors
 from sqlalchemy import create_engine, text
 import warnings
+import nltk
 
-warnings.filterwarnings("ignore", message="pandas only supports SQLAlchemy connectable")
+nltk.download('punkt')
+nltk.download('stopwords')
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from data.constants_and_mappings import LANGUAGES, PLOT_COLUMNS, DARK_THEME, LIGHT_THEME
-from data.database_queries import INSERT_DAILY_REPORT_QUERY, ALL_JOBS_QUERY, YESTERDAY_JOBS_QUERY 
+from data.database_queries import INSERT_DAILY_REPORT_QUERY, ALL_JOBS_QUERY, YESTERDAY_JOBS_QUERY
 from database_interface import create_engine_from_config, fetch_data
+from wordcloud_helpers import remove_urls, deEmojify, remove_symbols, unify_whitespaces, clean_and_tokenize, extract_bigrams, generate_advanced_wordcloud
 
 engine = create_engine_from_config()
-
 
 df = fetch_data(ALL_JOBS_QUERY, engine)
 df_yesterday = fetch_data(YESTERDAY_JOBS_QUERY, engine)
 
-
 def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True, cities_chart=True, city_pie_chart=True, 
                      languages_bar_chart=True, benefits_pie_chart=True, employment_type_pie_chart=True, 
                      experience_level_bar_chart=True, salary_box_plot=True, technologies_bar_chart=True, 
-                     employer_bar_chart=True, positions_bar_chart=True, post_text=True, content_daily=True, light_theme=True) :
+                     employer_bar_chart=True, positions_bar_chart=True, post_text=True, content_daily=True, light_theme=True, wordcloud=True) :
    
     df_plot = df.copy()
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     df_plot = df_plot[df_plot['date_posted'] != date(2024, 9, 2)]
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     df_plot.columns = PLOT_COLUMNS
     
     df_plot['StartSalary'] = pd.to_numeric(df_plot['StartSalary'], errors='coerce')
@@ -221,6 +224,7 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
             city_data['Size'] = min_size
         
         remote_coordinates = (city_data['Latitude'] == 0.0) & (city_data['Longitude'] == 0.0)
+        
         if (not city_data.empty) and (not remote_coordinates.all()):
             fig_city_bubbles = go.Figure()
 
@@ -630,6 +634,26 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
                 )
             )
             figure_roles_bar.write_image(f'{folder_path}/positions_bar_chart.png', width=1920, height=1080)
+            
+    if wordcloud:
+        df_wordcloud = df_plot.copy()
+        df_wordcloud.reset_index(drop=True, inplace=True)
+        columns_to_process = ['Responsibilities', 'Requirements', 'Offering', 'Benefits']
+        
+        mode = 'white'
+        if not light_theme:
+            mode = 'black'
+
+        for col in columns_to_process:
+            df_wordcloud[col] = df_wordcloud[col].astype(str).swifter.apply(lambda x: x.lower())
+            df_wordcloud[col] = df_wordcloud[col].swifter.apply(remove_urls)
+            df_wordcloud[col] = df_wordcloud[col].swifter.apply(deEmojify)
+            df_wordcloud[col] = df_wordcloud[col].swifter.apply(remove_symbols)
+            df_wordcloud[col] = df_wordcloud[col].swifter.apply(unify_whitespaces)
+
+            if not df_wordcloud.empty:
+                print(f"Generating {col} word cloud...")
+                generate_advanced_wordcloud(df_wordcloud, col, folder_path=folder_path, ngram_type='bigram', mode=mode)
 
     if post_text:
         post_date = (datetime.now().date() - timedelta(days=1))
@@ -649,8 +673,7 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
                 text_file.write(text_content)
         else :
             text_file_path = os.path.join(folder_path, "summary.txt")
-
-        
+                    
         
 def read_image(file_path):
     try:
@@ -661,14 +684,12 @@ def read_image(file_path):
         return None
 
 def insert_figures_and_text(engine, generation_date_with_info, figures, summary_text):
-    # Log the figures and summary_text to verify their contents   
     try:
         with engine.connect() as connection:
-            # Start a transaction
             with connection.begin():
-                logger.info("Inserting graph data into PostgreSQL database.")
+                logger.info("Inserting graph and word cloud data into PostgreSQL database.")
                 result = connection.execute(
-                    INSERT_DAILY_REPORT_QUERY, 
+                    INSERT_DAILY_REPORT_QUERY,
                     {
                         'generation_id': generation_date_with_info,
                         'benefits_pie_chart': figures.get('benefits_pie_chart'),
@@ -682,35 +703,56 @@ def insert_figures_and_text(engine, generation_date_with_info, figures, summary_
                         'poland_map': figures.get('poland_map'),
                         'positions_bar_chart': figures.get('positions_bar_chart'),
                         'technologies_bar_chart': figures.get('technologies_bar_chart'),
+                        # Add the word clouds to the figures being inserted
+                        'responsibilities_wordcloud': figures.get('responsibilities_wordcloud'),
+                        'requirements_wordcloud': figures.get('requirements_wordcloud'),
+                        'offering_wordcloud': figures.get('offering_wordcloud'),
+                        'benefits_wordcloud': figures.get('benefits_wordcloud'),
                         'summary': summary_text
                     }
                 )
                 logger.info("Data inserted successfully.")
                 logger.info(f"Insert result: {result}")
-                # Commit is handled by the `begin()` context manager, so no need for explicit commit here
     except Exception as e:
         logger.error(f"Error inserting data into PostgreSQL database: {e}", exc_info=True)
+
     
 def process_theme(theme_dir, engine, generation_date, theme_type):
     figures = {}
+    
     if os.path.exists(theme_dir):
-        chart_files = ['benefits_pie_chart', 'city_bubbles_chart', 'city_pie_chart', 
+        # Read and add the regular charts
+        chart_files = ['benefits_pie_chart', 'city_bubbles_chart', 'city_pie_chart',
                        'employer_bar_chart', 'employment_type_pie_chart', 'experience_level_bar_chart',
-                       'languages_bar_chart', 'salary_box_plot', 'poland_map', 
+                       'languages_bar_chart', 'salary_box_plot', 'poland_map',
                        'positions_bar_chart', 'technologies_bar_chart']
         
         for chart in chart_files:
             figures[chart] = read_image(os.path.join(theme_dir, f'{chart}.png'))
         
+        # Read the word cloud images and add them to the figures dictionary
+        wordcloud_files = ['responsibilities_wordcloud', 'requirements_wordcloud', 
+                           'offering_wordcloud', 'benefits_wordcloud']
+        
+        for wc in wordcloud_files:
+            wc_path = os.path.join(theme_dir, f'{wc}.png')
+            if os.path.exists(wc_path):
+                figures[wc] = read_image(wc_path)
+        
+        # Read the summary text
         summary_file_path = os.path.join(theme_dir, "summary.txt")
         with open(summary_file_path, 'r') as file:
             summary_text = file.read()
+        
+        # Add theme type to generation date
         generation_date_with_info = f"{generation_date}-{theme_type}"
         
+        # Insert into the database
         insert_figures_and_text(engine, generation_date_with_info, figures, summary_text)
         
         return True
     return False
+
 
 def save_figures_and_text(base_dir, engine):
     generation_date = str(date.today() - timedelta(days=1))
@@ -741,14 +783,14 @@ if __name__ == "__main__":
                          city_pie_chart=True, languages_bar_chart=True, benefits_pie_chart=True, 
                          employment_type_pie_chart=True, experience_level_bar_chart=True, salary_box_plot=True, 
                          technologies_bar_chart=True, employer_bar_chart=True, positions_bar_chart=True, 
-                         post_text=True, content_daily=True, light_theme=True)
+                         post_text=True, content_daily=True, light_theme=True, wordcloud=False)
         
         generate_figures(df_yesterday, chat_id + "-dark", 
                          histogram_day_month_chart=False, map_chart=True, cities_chart=True, 
                          city_pie_chart=True, languages_bar_chart=True, benefits_pie_chart=True, 
                          employment_type_pie_chart=True, experience_level_bar_chart=True, salary_box_plot=True, 
                          technologies_bar_chart=True, employer_bar_chart=True, positions_bar_chart=True, 
-                         post_text=True, content_daily=True, light_theme=False)
+                         post_text=True, content_daily=True, light_theme=False, wordcloud=False)
         
         save_figures_and_text("figures", engine)
     else:
