@@ -308,10 +308,12 @@ The current version of the program has room for improvement. Some algorithms cou
         poland_map BYTEA,
         positions_bar_chart BYTEA,
         technologies_bar_chart BYTEA,
+        responsibilities_wordcloud BYTEA,  
+        requirements_wordcloud BYTEA,  
+        offering_wordcloud BYTEA,     
+        benefits_wordcloud BYTEA,   
         summary TEXT
     );
-
-
 
     -- Query examples
     SELECT * FROM jobs_upload_backup;

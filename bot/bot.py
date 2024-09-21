@@ -168,23 +168,51 @@ async def check_and_post_files(chat_id, date_str):
                         'offering_wordcloud': result_row.get('offering_wordcloud'),
                         'benefits_wordcloud': result_row.get('benefits_wordcloud')
                     }
-                    summary_text = result_row.get('summary')
                     
-                    # Send images
-                    for chart_name, image_data in images.items():
-                        if image_data:
-                            try:
-                                await bot.send_photo(chat_id, image_data)
-                            except Exception as e:
-                                print(f"Error sending image {chart_name}: {e}")
-                    
+                    # Define image groups with custom messages
+                    image_groups = {
+                        'Location': {
+                            'images': ['city_bubbles_chart', 'city_pie_chart', 'poland_map'],
+                            'message': "🏙️ Here are the graphs related to job *locations* and *cities*:"
+                        },
+                        'Skills & Experience': {
+                            'images': ['experience_level_bar_chart', 'languages_bar_chart', 'technologies_bar_chart', 'responsibilities_wordcloud', 'requirements_wordcloud'],
+                            'message': "🎓 The following graphs provide details about *experience levels*, *languages*, *technologies*, and *responsibilities*:"
+                        },
+                        'Employers & Employment Types': {
+                            'images': ['employer_bar_chart', 'employment_type_pie_chart'],
+                            'message': "🏢 These graphs show insights about *employers* and *employment types*:"
+                        },
+                        'Positions & Salaries': {
+                            'images': ['salary_box_plot', 'positions_bar_chart'],
+                            'message': "💼 These graphs represent *positions* and *salary distribution* in the job market:"
+                        },
+                        'Benefits & Offerings': {
+                            'images': ['offering_wordcloud', 'benefits_pie_chart', 'benefits_wordcloud'],
+                            'message': "🎁 Here are all the graphs showing information about *benefits* and *offerings*:"
+                        }
+                    }
+
+                    # Send images grouped by topic with custom messages
+                    for group_name, group_data in image_groups.items():
+                        # Send custom message for the group
+                        await bot.send_message(chat_id, group_data['message'], parse_mode='Markdown')
+                        for image_name in group_data['images']:
+                            image_data = images.get(image_name)
+                            if image_data:
+                                try:
+                                    await bot.send_photo(chat_id, image_data)
+                                except Exception as e:
+                                    print(f"Error sending image {image_name}: {e}")
+
                     # Send summary text
+                    summary_text = result_row.get('summary')
                     if summary_text:
                         try:
                             await bot.send_message(chat_id, summary_text)
                         except Exception as e:
                             print(f"Error sending summary text: {e}")
-                
+
                 else:
                     # Fetch closest available date if no data found
                     closest_date_result = await conn.execute(GET_CLOSEST_DATE_QUERY, {'date_str': date_str})
@@ -629,21 +657,47 @@ async def handle_check_graphs(message: types.Message):
     
     if not filters:
         await bot.send_message(chat_id, "⚠️ Please note that you have not applied any filters, so you will receive all information for all time.")
-        filters = {} 
+        filters = {}
     
     theme = filters.get('graph_theme', 'dark')
+    print(df.columns)
     filtered_df, _ = add_filters_to_df(df, filters)
     
     if filtered_df.empty:
         await bot.send_message(chat_id, "Sorry, but we don't have data based on your filter. 🚫")
         await post_filter_action_options(chat_id)
-    else :
+    else:
         folder_path = f"figures/{chat_id}"
         os.makedirs(folder_path, exist_ok=True)
 
         await bot.send_message(chat_id, "✨ Generating graphs now! Please hold on for a moment (approximately 10 seconds)")
         generate_figures(filtered_df, chat_id, content_daily=False, light_theme=(theme == 'light'))
         
+        # Group images by topic and add custom messages for each group
+        image_groups = {
+            'Location': {
+                'images': ['city_bubbles_chart.png', 'city_pie_chart.png', 'poland_map.png'],
+                'message': "🏙️ Here are the graphs related to job *locations* and *cities*:"
+            },
+            'Skills & Experience': {
+                'images': ['experience_level_bar_chart.png', 'languages_bar_chart.png', 'technologies_bar_chart.png', 'responsibilities_wordcloud.png', 'requirements_wordcloud.png'],
+                'message': "🎓 The following graphs provide details about *experience levels*, *languages*, *technologies*, and *responsibilities*:"
+            },
+            'Employers & Employment Types': {
+                'images': ['employer_bar_chart.png', 'employment_type_pie_chart.png'],
+                'message': "🏢 These graphs show insights about *employers* and *employment types*:"
+            },
+            'Positions & Salaries': {
+                'images': ['salary_box_plot.png', 'positions_bar_chart.png'],
+                'message': "💼 These graphs represent *positions* and *salary distribution* in the job market:"
+            },
+            'Benefits & Offerings': {
+                'images': ['offering_wordcloud.png', 'benefits_pie_chart.png', 'benefits_wordcloud.png'],
+                'message': "🎁 Here are all the graphs showing information about *benefits* and *offerings*:"
+            }
+        }
+        
+        # Send text files first
         txt_files = [f for f in os.listdir(folder_path) if f.endswith('.txt')]
         for txt in txt_files:
             try:
@@ -651,15 +705,24 @@ async def handle_check_graphs(message: types.Message):
                     await bot.send_message(chat_id, txt_file.read())
             except Exception as e:
                 print(f"Error sending text file {txt}: {e}")
-    
-        images = [f for f in os.listdir(folder_path) if f.endswith('.png')]
-        for image in images:
-            try:
-                with open(os.path.join(folder_path, image), 'rb') as img:
-                    await bot.send_photo(chat_id, img)
-            except Exception as e:
-                print(f"Error sending image {image}: {e}")
+        
+        # Send images grouped by topic with custom messages
+        for group_name, group_data in image_groups.items():
+            images_sent = False
+            for image in group_data['images']:
+                image_path = os.path.join(folder_path, image)
+                if os.path.exists(image_path):
+                    if not images_sent:
+                        # Send the message before sending the images
+                        await bot.send_message(chat_id, group_data['message'], parse_mode='Markdown')
+                        images_sent = True
+                    try:
+                        with open(image_path, 'rb') as img:
+                            await bot.send_photo(chat_id, img)
+                    except Exception as e:
+                        print(f"Error sending image {image}: {e}")
 
+        # Clean up files and folder
         try:
             for file in os.listdir(folder_path):
                 os.remove(os.path.join(folder_path, file))
@@ -667,6 +730,7 @@ async def handle_check_graphs(message: types.Message):
         except Exception as e:
             print(f"Error deleting folder {folder_path}: {e}")
 
+        # Ask user for next action
         if len(filters) == 1 and 'graph_theme' in filters:
             await post_filter_action_options(chat_id)
         else:
@@ -680,7 +744,6 @@ async def handle_check_graphs(message: types.Message):
                 "What would you like to do next?",
                 reply_markup=markup
             )
-            
         
 async def handle_start_over(message: types.Message):
     """Handle the 'Start Over' button press."""

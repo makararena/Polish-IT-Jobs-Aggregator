@@ -107,10 +107,10 @@ def generate_advanced_wordcloud(df, column, folder_path, ngram_type='bigram', mo
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)  # Create folder if it doesn't exist
 
-    file_path = os.path.join(folder_path, f'{column}_wordcloud.png')
+    file_path = os.path.join(folder_path, f'{column.lower()}_wordcloud.png')
 
     # Save the figure (which contains both the wordcloud and the title)
-    fig.savefig(file_path, dpi=300, bbox_inches='tight')
+    fig.savefig(file_path, dpi=100, bbox_inches='tight')
     plt.close(fig)  # Close the figure to free memory
 
     print(f"Word cloud saved to {file_path}")
