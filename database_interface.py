@@ -6,12 +6,10 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import create_async_engine
 
-# Load environment variables
 load_dotenv()
 
 db_config_str = os.getenv("DB_CONFIG")
 
-# Check if JSON parsing works correctly
 try:
     db_config = json.loads(db_config_str)
 except json.JSONDecodeError as e:
@@ -19,9 +17,7 @@ except json.JSONDecodeError as e:
 
 def create_engine_from_config():
     """Create an SQLAlchemy engine from the DB config."""
-    # Load environment variables from .env file
     try:
-        # Parse the JSON configuration string
         db_config = json.loads(db_config_str)        
         required_keys = ['host', 'user', 'password', 'database']
         for key in required_keys:
@@ -29,8 +25,6 @@ def create_engine_from_config():
                 raise ValueError(f"Missing required configuration key: {key}")\
             
         conn_str = f"postgresql+psycopg2://{db_config['user']}:{db_config['password']}@{db_config['host']}:{db_config.get('port', 5432)}/{db_config['database']}"
-        
-        # Create and return SQLAlchemy engine
         return create_engine(conn_str)
     
     except json.JSONDecodeError as e:
@@ -42,16 +36,13 @@ def create_async_engine_from_config():
     """Create an SQLAlchemy async engine from the DB config."""
     try:
         db_config = json.loads(db_config_str)
-        # Ensure all required keys are present
         required_keys = ['host', 'port', 'user', 'password', 'database']
         for key in required_keys:
             if key not in db_config:
                 raise ValueError(f"Missing required configuration key: {key}")
 
-        # Create connection string
         conn_str = f"postgresql+asyncpg://{db_config['user']}:{db_config['password']}@{db_config['host']}:{db_config.get('port', 5432)}/{db_config['database']}"
         
-        # Create and return SQLAlchemy async engine
         return create_async_engine(conn_str, echo=True)
     
     except json.JSONDecodeError as e:
