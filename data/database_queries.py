@@ -84,7 +84,8 @@ ALL_JOBS_QUERY = text("""
 
 ALL_FROM_JOBS_UPLOAD_QUERY = text("""
     SELECT * 
-    FROM jobs_upload;
+    FROM jobs_upload
+    LIMIT 10;
 """)
 
 UNIQUE_JOBS_QUERY = text("""
