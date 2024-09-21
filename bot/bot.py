@@ -85,6 +85,8 @@ WAITING_FOR_ANOTHER_THEME = 'waiting_for_another_theme'
 WAITING_FOR_EMAIL = 'waiting_for_email'
 WAITING_FOR_ACTION_AFTER_FILTER = 'waiting_for_action_after_filter'
 WAITING_CLEAR_OR_KEEP_FILTER = 'waiting_clear_or_keep_filter'
+WAITING_FOR_WORDCLOUD_RESPONSE = "waiting_for_wordcloud_response"
+WAITING_FOR_ACTION_AFTER_FILTER = "waiting_for_action_after_filter"
 
 user_states = {}
 user_filters = {}
@@ -649,8 +651,35 @@ async def handle_data_format_selection(message: types.Message):
             
     else:
         await bot.send_message(chat_id, "Invalid format choice. Please choose 'CSV' or 'Excel'.")
+        
+async def ask_for_wordcloud(message: types.Message):
+    """Ask the user if they want to generate word clouds and handle the response."""
+    chat_id = message.chat.id
 
-async def handle_check_graphs(message: types.Message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    yes_button = types.KeyboardButton("Yes 🌥️")
+    no_button = types.KeyboardButton("No ❌")
+    markup.add(yes_button, no_button)
+
+    await bot.send_message(
+        chat_id, 
+        "Would you like to generate word clouds for the filtered data? (Please note that if you choose 'Yes,' the plot generation will take approximately three times longer.)",
+        reply_markup=markup
+    )
+    user_states[chat_id] = WAITING_FOR_WORDCLOUD_RESPONSE
+
+    
+async def handle_wordcloud_response(message: types.Message):
+    """Process the user's response to the word cloud prompt and proceed with graph generation."""
+    chat_id = message.chat.id
+
+    if message.text.lower() in ['yes', 'yes 🌥️']:
+        wordcloud_enabled = True
+    else:
+        wordcloud_enabled = False
+    await handle_check_graphs(message, wordcloud_enabled)
+
+async def handle_check_graphs(message: types.Message, wordcloud_enabled=False):
     """Generate and send graphs based on the filtered data."""
     chat_id = message.chat.id
     filters = user_filters.get(chat_id, {})
@@ -670,9 +699,16 @@ async def handle_check_graphs(message: types.Message):
         folder_path = f"figures/{chat_id}"
         os.makedirs(folder_path, exist_ok=True)
 
-        await bot.send_message(chat_id, "✨ Generating graphs now! Please hold on for a moment (approximately 10 seconds)")
-        generate_figures(filtered_df, chat_id, content_daily=False, light_theme=(theme == 'light'))
+        time_estimate = "15–30 seconds" if wordcloud_enabled else "10 seconds"
+        await bot.send_message(chat_id, f"✨ Generating graphs now! Please hold on (approximately {time_estimate})")
         
+        generate_figures(
+            filtered_df, 
+            chat_id, 
+            content_daily=False, 
+            light_theme=(theme == 'light'), 
+            wordcloud=wordcloud_enabled  # Pass the wordcloud parameter based on user response
+        )        
         # Group images by topic and add custom messages for each group
         image_groups = {
             'Location': {
@@ -1009,10 +1045,13 @@ async def handle_message(message: types.Message):
             await handle_download_filtered_data(message)
             
         elif message.text == "Check Graphs 📊":
-            await handle_check_graphs(message)
+            await ask_for_wordcloud(message)
             
         elif message.text == "Apply for Daily Update 📅":
             await confirm_daily_update(message)
+        
+    elif user_states.get(chat_id) == WAITING_FOR_WORDCLOUD_RESPONSE:
+        await handle_wordcloud_response(message)
         
     elif user_states.get(chat_id) == WAITING_FOR_FILTERS:
         if message.text == "Experience Level 💼":
