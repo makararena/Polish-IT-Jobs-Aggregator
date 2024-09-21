@@ -19,7 +19,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from data.constants_and_mappings import LANGUAGES, PLOT_COLUMNS, DARK_THEME, LIGHT_THEME
 from data.database_queries import INSERT_DAILY_REPORT_QUERY, ALL_JOBS_QUERY, YESTERDAY_JOBS_QUERY
 from database_interface import create_engine_from_config, fetch_data
-from wordcloud_helpers import remove_urls, deEmojify, remove_symbols, unify_whitespaces, clean_and_tokenize, extract_bigrams, generate_advanced_wordcloud
+from wordcloud_helpers import remove_urls, deEmojify, remove_symbols, unify_whitespaces, generate_advanced_wordcloud
 
 engine = create_engine_from_config()
 
@@ -187,6 +187,13 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
                 ),
                 margin=dict(l=0, r=0, t=0, b=0),
                 template=template, 
+                title=dict(
+                    text='Region Distribution of Job Offers', 
+                    font=dict(size=40), 
+                    y=0.93,
+                    x=0.02,
+                    xanchor='left'
+                )
             )
             figure_polska.write_image(f'{folder_path}/poland_map.png', width=1920, height=1080)
 
@@ -225,54 +232,65 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
         
         remote_coordinates = (city_data['Latitude'] == 0.0) & (city_data['Longitude'] == 0.0)
         
-        if (not city_data.empty) and (not remote_coordinates.all()):
-            fig_city_bubbles = go.Figure()
+    if (not city_data.empty) and (not remote_coordinates.all()):
+        fig_city_bubbles = go.Figure()
 
-            fig_city_bubbles.add_trace(
-                go.Scattermapbox(
-                    mode='markers',
-                    lat=city_data['Latitude'],
-                    lon=city_data['Longitude'],
-                    marker=dict(
-                        size=city_data['Size'],
-                        opacity=0.6
-                        ),
-                    text=city_data[['City', 'Count']],
-                    textposition='top center'
-                )
+        fig_city_bubbles.add_trace(
+            go.Scattermapbox(
+                mode='markers',
+                lat=city_data['Latitude'],
+                lon=city_data['Longitude'],
+                marker=dict(
+                    size=city_data['Size'],
+                    opacity=0.6
+                ),
+                text=city_data[['City', 'Count']],
+                textposition='top center'
             )
+        )
 
-            fig_city_bubbles.update_layout(
-                mapbox=dict(
-                    style=style,
-                    center=dict(lat=51.9194, lon=19.1451), 
-                    zoom=6.3,  
-                    layers=[{
-                        'source': poland_geojson,
-                        'type': 'line',
-                        'color': border_color,
-                        'line': {
-                            'width': 1,  
-                        }
-                    }],
-                ),
-                geo=dict(
-                    showland=True,
-                    landcolor=landcolor,
-                    showocean=True,
-                    oceancolor=oceancolor,
-                    showlakes=True,
-                    lakecolor=lakecolor,
-                    showcountries=True,
-                    countrycolor=countrycolor,
-                    showcoastlines=True,
-                    coastlinecolor=coastlinecolor,
-                    projection=dict(type='mercator')
-                ),
-                template=template, 
-                margin=dict(l=0, r=0, t=0, b=0) 
-            )
-            fig_city_bubbles.write_image(f'{folder_path}/city_bubbles_chart.png', width=1920, height=1080)
+        # Update layout with the title and map settings
+        fig_city_bubbles.update_layout(
+            title=dict(
+                text='Cities Distribution of Job Offers', 
+                font=dict(size=40), 
+                y=0.93,
+                x=0.02,
+                xanchor='left'
+            ),
+            mapbox=dict(
+                style=style,
+                center=dict(lat=51.9194, lon=19.1451), 
+                zoom=6.3,  
+                layers=[{
+                    'source': poland_geojson,
+                    'type': 'line',
+                    'color': border_color,
+                    'line': {
+                        'width': 1,  
+                    }
+                }],
+            ),
+            geo=dict(
+                showland=True,
+                landcolor=landcolor,
+                showocean=True,
+                oceancolor=oceancolor,
+                showlakes=True,
+                lakecolor=lakecolor,
+                showcountries=True,
+                countrycolor=countrycolor,
+                showcoastlines=True,
+                coastlinecolor=coastlinecolor,
+                projection=dict(type='mercator')
+            ),
+            template=template, 
+            margin=dict(l=0, r=0, t=0, b=0) 
+        )
+        
+        # Save the figure as an image
+        fig_city_bubbles.write_image(f'{folder_path}/city_bubbles_chart.png', width=1920, height=1080)
+
             
     if city_pie_chart:
         df_filtered_cities_pie = df_plot.copy() 
@@ -457,7 +475,8 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
                 title=dict(
                     text='Experience Level Distribution', 
                     font=dict(size=40),
-                    y=0.95
+                    y=0.95,
+                    x=0.02,
                 ),
                 xaxis_title='',  
                 yaxis_title='', 
@@ -703,7 +722,6 @@ def insert_figures_and_text(engine, generation_date_with_info, figures, summary_
                         'poland_map': figures.get('poland_map'),
                         'positions_bar_chart': figures.get('positions_bar_chart'),
                         'technologies_bar_chart': figures.get('technologies_bar_chart'),
-                        # Add the word clouds to the figures being inserted
                         'responsibilities_wordcloud': figures.get('responsibilities_wordcloud'),
                         'requirements_wordcloud': figures.get('requirements_wordcloud'),
                         'offering_wordcloud': figures.get('offering_wordcloud'),
@@ -721,7 +739,6 @@ def process_theme(theme_dir, engine, generation_date, theme_type):
     figures = {}
     
     if os.path.exists(theme_dir):
-        # Read and add the regular charts
         chart_files = ['benefits_pie_chart', 'city_bubbles_chart', 'city_pie_chart',
                        'employer_bar_chart', 'employment_type_pie_chart', 'experience_level_bar_chart',
                        'languages_bar_chart', 'salary_box_plot', 'poland_map',
@@ -730,7 +747,6 @@ def process_theme(theme_dir, engine, generation_date, theme_type):
         for chart in chart_files:
             figures[chart] = read_image(os.path.join(theme_dir, f'{chart}.png'))
         
-        # Read the word cloud images and add them to the figures dictionary
         wordcloud_files = ['responsibilities_wordcloud', 'requirements_wordcloud', 
                            'offering_wordcloud', 'benefits_wordcloud']
         
@@ -739,15 +755,12 @@ def process_theme(theme_dir, engine, generation_date, theme_type):
             if os.path.exists(wc_path):
                 figures[wc] = read_image(wc_path)
         
-        # Read the summary text
         summary_file_path = os.path.join(theme_dir, "summary.txt")
         with open(summary_file_path, 'r') as file:
             summary_text = file.read()
         
-        # Add theme type to generation date
         generation_date_with_info = f"{generation_date}-{theme_type}"
         
-        # Insert into the database
         insert_figures_and_text(engine, generation_date_with_info, figures, summary_text)
         
         return True

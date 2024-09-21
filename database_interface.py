@@ -23,13 +23,11 @@ def create_engine_from_config():
     try:
         # Parse the JSON configuration string
         db_config = json.loads(db_config_str)        
-        # Ensure all required keys are present except 'port' which can have a default
-        required_keys = ['host', 'user', 'password', 'database']  # Removed 'port'
+        required_keys = ['host', 'user', 'password', 'database']
         for key in required_keys:
             if key not in db_config:
                 raise ValueError(f"Missing required configuration key: {key}")\
             
-        # Create connection string (use default port if not provided)
         conn_str = f"postgresql+psycopg2://{db_config['user']}:{db_config['password']}@{db_config['host']}:{db_config.get('port', 5432)}/{db_config['database']}"
         
         # Create and return SQLAlchemy engine

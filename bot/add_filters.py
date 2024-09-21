@@ -26,10 +26,10 @@ def add_filters_to_df(df, filters, is_excel=False, is_csv=False, is_spark=False)
         filtered_df = filtered_df[filtered_df['core_role'].apply(
             lambda x: any(role in x for role in core_roles))]
 
-    if 'company' in filters:
-        companies = filters['company'].split(';')
+    if 'employer_name' in filters:
+        companies = filters['employer_name'].split(';')
         companies = [company.strip() for company in companies]
-        filtered_df = filtered_df[filtered_df['company'].apply(
+        filtered_df = filtered_df[filtered_df['employer_name'].apply(
             lambda x: any(role in x for role in core_roles))]
         
     if 'city' in filters:
