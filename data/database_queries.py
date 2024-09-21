@@ -14,7 +14,7 @@ INSERT_DAILY_REPORT_QUERY = text("""
         salary_box_plot, 
         poland_map, 
         positions_bar_chart, 
-        technologies_bar_chart, x
+        technologies_bar_chart,
         responsibilities_wordcloud,   
         requirements_wordcloud,       
         offering_wordcloud,           

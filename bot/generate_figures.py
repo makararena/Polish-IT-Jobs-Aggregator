@@ -12,8 +12,15 @@ from sqlalchemy import create_engine, text
 import warnings
 import nltk
 
-nltk.download('punkt')
-nltk.download('stopwords')
+try:
+    nltk.data.find('tokenizers/punkt_tab')
+except LookupError:
+    nltk.download('punkt_tab')
+    
+try:
+    nltk.data.find('corpora/stopwords')
+except LookupError:
+    nltk.download('stopwords')
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from data.constants_and_mappings import LANGUAGES, PLOT_COLUMNS, DARK_THEME, LIGHT_THEME

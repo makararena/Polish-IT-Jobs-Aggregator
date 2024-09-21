@@ -7,7 +7,6 @@ import datetime
 from datetime import datetime, timedelta
 import multiprocessing as mp
 import warnings
-
 import numpy as np
 import pandas as pd
 import openpyxl
@@ -317,7 +316,7 @@ if __name__ == "__main__":
     os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
     mp.set_start_method('spawn', force=True)
     cities = pd.read_csv("./data/cities_and_regions.csv", sep = ",")
-    
+        
     cities_pln = cities['city'].to_list()
     cities_eng = cities['city_ascii'].to_list()
     admin_name_pln = cities['admin_name'].to_list()
@@ -518,7 +517,7 @@ if __name__ == "__main__":
 
     insert_data_to_db(df, 'jobs', db_config)
     
-    now = datetime.now().strftime("%Y%m%d_%H%M%S")
-    excel_file_path = f"./data/output_{now}.xlsx"
-    df.to_excel(excel_file_path, index=False)
+    # now = datetime.now().strftime("%Y%m%d_%H%M%S")
+    # excel_file_path = f"./data/output_{now}.xlsx"
+    # df.to_excel(excel_file_path, index=False)
         

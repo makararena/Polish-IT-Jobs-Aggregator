@@ -54,29 +54,29 @@ echo "Installing dependencies at $(date)" | tee -a "$MAIN_LOG_FILE"
 pip install -r requirements.txt
 echo "Dependencies installed at $(date)" | tee -a "$MAIN_LOG_FILE"
 
-# Run Scrapy spiders
-SPIDERS_DIR="workscrapper/workscrapper"
-if [ -d "$SPIDERS_DIR" ]; then
-  cd "$SPIDERS_DIR" || { echo "Failed to change directory to $SPIDERS_DIR at $(date)" | tee -a "$MAIN_LOG_FILE"; exit 1; }
-  echo "Running Scrapy spiders at $(date)" | tee -a "$MAIN_LOG_FILE"
-  {
-    scrapy crawl pracuj_pl_spider >> "$MAIN_LOG_FILE" 2>&1 &
-    SPIDER1_PID=$!
+# # Run Scrapy spiders
+# SPIDERS_DIR="workscrapper/workscrapper"
+# if [ -d "$SPIDERS_DIR" ]; then
+#   cd "$SPIDERS_DIR" || { echo "Failed to change directory to $SPIDERS_DIR at $(date)" | tee -a "$MAIN_LOG_FILE"; exit 1; }
+#   echo "Running Scrapy spiders at $(date)" | tee -a "$MAIN_LOG_FILE"
+#   {
+#     scrapy crawl pracuj_pl_spider >> "$MAIN_LOG_FILE" 2>&1 &
+#     SPIDER1_PID=$!
 
-    # scrapy crawl theprotocol_spider >> "$MAIN_LOG_FILE" 2>&1 &
-    # SPIDER2_PID=$!
+#     scrapy crawl theprotocol_spider >> "$MAIN_LOG_FILE" 2>&1 &
+#     SPIDER2_PID=$!
 
-    # scrapy crawl buldogjob_spider >> "$MAIN_LOG_FILE" 2>&1 &
-    # SPIDER3_PID=$!
+#     scrapy crawl buldogjob_spider >> "$MAIN_LOG_FILE" 2>&1 &
+#     SPIDER3_PID=$!
 
-    # Wait for all spiders to complete
-    wait $SPIDER1_PID $SPIDER2_PID $SPIDER3_PID
-  } >> "$MAIN_LOG_FILE" 2>&1
-  echo "Scrapy spiders completed at $(date)" | tee -a "$MAIN_LOG_FILE"
-else
-  echo "Directory $SPIDERS_DIR not found at $(date)" | tee -a "$MAIN_LOG_FILE"
-  exit 1
-fi
+#     # Wait for all spiders to complete
+#     wait $SPIDER1_PID $SPIDER2_PID $SPIDER3_PID
+#   } >> "$MAIN_LOG_FILE" 2>&1
+#   echo "Scrapy spiders completed at $(date)" | tee -a "$MAIN_LOG_FILE"
+# else
+#   echo "Directory $SPIDERS_DIR not found at $(date)" | tee -a "$MAIN_LOG_FILE"
+#   exit 1
+# fi
 
 # Navigate back to project root
 cd "$PROJECT_DIR" || { echo "Failed to change directory back to $PROJECT_DIR at $(date)" | tee -a "$MAIN_LOG_FILE"; exit 1; }

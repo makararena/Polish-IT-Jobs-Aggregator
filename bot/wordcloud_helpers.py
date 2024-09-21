@@ -1,6 +1,7 @@
 import re
 import os
 import matplotlib.pyplot as plt
+import nltk
 from nltk.util import ngrams
 from nltk.corpus import stopwords
 import swifter
@@ -9,9 +10,6 @@ from nltk.tokenize import word_tokenize
 import matplotlib.colors as mcolors
 from sklearn.feature_extraction.text import TfidfVectorizer
 from wordcloud import WordCloud
-
-
-
 
 def remove_urls(x):
     cleaned_string = re.sub(r'(https|http)?:\/\/(\w|\.|\/|\?|\=|\&|\%)*\b', '', str(x), flags=re.MULTILINE)
