@@ -13,35 +13,17 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from data.constants_and_mappings import PLOT_COLUMNS, LANGUAGES, PROJECT_DESCRIPTION
+from database_interface import fetch_data, create_engine_from_config
 from data.database_queries import ALL_JOBS_QUERY
 
 geojson_path = './data/poland.voivodeships.json'
 with open(geojson_path, 'r') as file:
     poland_geojson = json.load(file)
 
-geojson_names = [feature['properties']['name'] for feature in poland_geojson['features']]
-yesterday = datetime.now() - timedelta(days=1)
-last_update_date = yesterday.strftime("%B %d, %Y")
+engine = create_engine_from_config()
 
-def load_data_from_db():
-    db_config_str = os.getenv("DB_CONFIG")
-    try:
-        db_config = json.loads(db_config_str)
-    except json.JSONDecodeError as e:
-        print(f"Error parsing DB_CONFIG: {e}")
-        return pd.DataFrame()
-    conn_str = f"postgresql://{db_config['user']}:{db_config['password']}@{db_config['host']}/{db_config['database']}"
-    engine = create_engine(conn_str)
-    
-    query = ALL_JOBS_QUERY
-    try:
-        df = pd.read_sql_query(query, engine)
-    except Exception as e:
-        print(f"Error fetching data: {e}")
-        df = pd.DataFrame()
-    return df
-
-df = load_data_from_db()
+df = fetch_data(ALL_JOBS_QUERY, engine)
+print(df.head())
 df.columns = PLOT_COLUMNS
 
 df['StartSalary'] = pd.to_numeric(df['StartSalary'], errors='coerce')
@@ -62,7 +44,9 @@ df['Longitude'] = pd.to_numeric(df['Longitude'], errors='coerce')
 df['Latitude'] = df['Latitude'].fillna(0)
 df['Longitude'] = df['Longitude'].fillna(0)
 
+last_update_date = max(df['DatePosted'])
 
+# last_update_date = 
 app = Dash(__name__)
 
 custom_colorscale = [
@@ -413,7 +397,7 @@ def update_figures(selected_experiences, selected_jobs, start_date, end_date):
     df_grouped_filtered = df_grouped_filtered.rename(columns={'Region': 'name'})
     df_grouped_filtered = df_grouped_filtered.sort_values(by='count', ascending=False)
 
-    data_for_map_filtered = pd.merge(pd.DataFrame({'name': geojson_names}), df_grouped_filtered, on='name', how='left').fillna(0)
+    data_for_map_filtered = pd.merge(pd.DataFrame({'name': poland_geojson}), df_grouped_filtered, on='name', how='left').fillna(0)
     data_for_map_filtered = data_for_map_filtered.sort_values(by='count', ascending=False)
 
     figure_polska_filtered = go.Figure(go.Choroplethmapbox(

@@ -3,6 +3,7 @@ import sys
 import json
 import pandas as pd
 from dotenv import load_dotenv
+from sqlalchemy import text
 from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import create_async_engine
 
@@ -53,13 +54,16 @@ def create_async_engine_from_config():
 def fetch_data(query, engine):
     """Fetch data from the database using the SQLAlchemy engine with transaction management."""
     connection = engine.connect()
-    transaction = connection.begin() 
+    transaction = connection.begin()
     try:
-        data = pd.read_sql_query(query, connection)
+        query_str = str(query)
+        result = connection.execute(text(query_str))
+        data = pd.DataFrame(result.fetchall(), columns=result.keys())
         transaction.commit()  
         return data
     except Exception as e:
         print(f"Error fetching data: {e}")
         transaction.rollback()
+        return None 
     finally:
-        connection.close()  
+        connection.close()

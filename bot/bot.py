@@ -6,6 +6,7 @@ import asyncio
 import smtplib
 import signal
 import warnings
+import subprocess
 import pandas as pd
 from copy import deepcopy
 from datetime import datetime, timedelta
@@ -1490,13 +1491,12 @@ async def handle_all_messages(message: types.Message):
     await handle_message(message)
     
 def signal_handler(sig, frame):
-    """Handle termination signals to save user data."""
-    print("Signal received, saving user data and esxiting...")
+    """Handle termination signals to save user data and send logs."""
+    print("Signal received, saving user data and exiting...")
     for chat_id in user_states.keys():
         save_user_data_before_exit(chat_id, user_states[chat_id], user_filters.get(chat_id, {}))
     print("Exiting...")
     sys.exit(0)
-    
 
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)
