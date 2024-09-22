@@ -1,11 +1,15 @@
 #!/bin/bash
 
+# Exit immediately if a command exits with a non-zero status
 set -e
 
-# Usage: ./script.sh <project_directory>
-# Script to set up and run a project, clear logs, run Scrapy spiders, preprocess data, and start a bot.
+# Function to log messages
+log_message() {
+  local MESSAGE=$1
+  echo "$MESSAGE at $(date)" | tee -a "$MAIN_LOG_FILE"
+}
 
-# Check if a project directory was passed
+# Check if a project directory was provided
 if [ -z "$1" ]; then
   echo "Error: No project directory provided."
   exit 1
@@ -14,7 +18,6 @@ fi
 PROJECT_DIR="$1"
 LOG_DIR="$PROJECT_DIR/logs"
 MAIN_LOG_FILE="$LOG_DIR/main.log"
-BOT_LOG_FILE="$LOG_DIR/bot.log"
 ZIP_FILE="$LOG_DIR/logs.zip"
 EMAIL="makararena@gmail.com"
 TODAYS_DATE=$(date +"%Y-%m-%d_%H-%M-%S")
@@ -22,80 +25,122 @@ TODAYS_DATE=$(date +"%Y-%m-%d_%H-%M-%S")
 # Ensure the logs directory exists
 mkdir -p "$LOG_DIR"
 
-# Clear existing logs
-: > "$MAIN_LOG_FILE"
-: > "$BOT_LOG_FILE"
+# Clear existing log files
+> "$MAIN_LOG_FILE"
 
 # Remove existing ZIP file if it exists
 if [ -f "$ZIP_FILE" ]; then
   rm "$ZIP_FILE"
-  echo "Existing ZIP file removed at $(date)" | tee -a "$MAIN_LOG_FILE"
+  log_message "Existing ZIP file removed"
 fi
 
-echo "Log files cleared at $(date)" | tee -a "$MAIN_LOG_FILE"
+log_message "Log files cleared"
 
-# Navigate to project directory
-cd "$PROJECT_DIR" || { echo "Failed to change directory to $PROJECT_DIR at $(date)" | tee -a "$MAIN_LOG_FILE"; exit 1; }
+# Navigate to the project directory
+if ! cd "$PROJECT_DIR"; then
+  log_message "Failed to change directory to $PROJECT_DIR"
+  exit 1
+fi
 
 # Create virtual environment if not already present
 if [ ! -d "venv" ]; then
   python3 -m venv venv
-  echo "Virtual environment created at $(date)" | tee -a "$MAIN_LOG_FILE"
+  log_message "Virtual environment created"
 else
-  echo "Virtual environment already exists at $(date)" | tee -a "$MAIN_LOG_FILE"
+  log_message "Virtual environment already exists"
 fi
 
 # Activate virtual environment and upgrade pip
-source venv/bin/activate || { echo "Failed to activate virtual environment at $(date)" | tee -a "$MAIN_LOG_FILE"; exit 1; }
+if ! source venv/bin/activate; then
+  log_message "Failed to activate virtual environment"
+  exit 1
+fi
 pip install --upgrade pip
 
 # Install dependencies
-echo "Installing dependencies at $(date)" | tee -a "$MAIN_LOG_FILE"
-pip install -r requirements.txt
-echo "Dependencies installed at $(date)" | tee -a "$MAIN_LOG_FILE"
+log_message "Installing dependencies"
+if ! pip install -r requirements.txt; then
+  log_message "Failed to install dependencies"
+  exit 1
+fi
+log_message "Dependencies installed"
 
-# # Run Scrapy spiders
-# SPIDERS_DIR="workscrapper/workscrapper"
-# if [ -d "$SPIDERS_DIR" ]; then
-#   cd "$SPIDERS_DIR" || { echo "Failed to change directory to $SPIDERS_DIR at $(date)" | tee -a "$MAIN_LOG_FILE"; exit 1; }
-#   echo "Running Scrapy spiders at $(date)" | tee -a "$MAIN_LOG_FILE"
-#   {
-#     scrapy crawl pracuj_pl_spider >> "$MAIN_LOG_FILE" 2>&1 &
-#     SPIDER1_PID=$!
+# Run Scrapy spiders
+SPIDERS_DIR="workscrapper/workscrapper"
+if [ -d "$SPIDERS_DIR" ]; then
+  if ! cd "$SPIDERS_DIR"; then
+    log_message "Failed to change directory to $SPIDERS_DIR"
+    exit 1
+  fi
 
-#     scrapy crawl theprotocol_spider >> "$MAIN_LOG_FILE" 2>&1 &
-#     SPIDER2_PID=$!
+  log_message "Running Scrapy spiders"
+  
+  scrapy crawl pracuj_pl_spider >> "$MAIN_LOG_FILE" 2>&1 &
+  SPIDER1_PID=$!
+  
+  scrapy crawl theprotocol_spider >> "$MAIN_LOG_FILE" 2>&1 &
+  SPIDER2_PID=$!
+  
+  scrapy crawl buldogjob_spider >> "$MAIN_LOG_FILE" 2>&1 &
+  SPIDER3_PID=$!
 
-#     scrapy crawl buldogjob_spider >> "$MAIN_LOG_FILE" 2>&1 &
-#     SPIDER3_PID=$!
+  # Wait for all spiders to complete
+  wait $SPIDER1_PID $SPIDER2_PID $SPIDER3_PID 
 
-#     # Wait for all spiders to complete
-#     wait $SPIDER1_PID $SPIDER2_PID $SPIDER3_PID
-#   } >> "$MAIN_LOG_FILE" 2>&1
-#   echo "Scrapy spiders completed at $(date)" | tee -a "$MAIN_LOG_FILE"
-# else
-#   echo "Directory $SPIDERS_DIR not found at $(date)" | tee -a "$MAIN_LOG_FILE"
-#   exit 1
-# fi
+  log_message "Scrapy spiders completed"
+else
+  log_message "Directory $SPIDERS_DIR not found"
+  exit 1
+fi
 
-# Navigate back to project root
-cd "$PROJECT_DIR" || { echo "Failed to change directory back to $PROJECT_DIR at $(date)" | tee -a "$MAIN_LOG_FILE"; exit 1; }
+# Navigate back to the project root directory
+if ! cd "$PROJECT_DIR"; then
+  log_message "Failed to change directory back to $PROJECT_DIR"
+  exit 1
+fi
 
 # Run preprocessing script
-echo "Starting preprocessing at $(date)" | tee -a "$MAIN_LOG_FILE"
-python3 job_data_processing.py >> "$MAIN_LOG_FILE" 2>&1
-echo "Preprocessing completed at $(date)" | tee -a "$MAIN_LOG_FILE"
+log_message "Starting preprocessing"
+if ! python3 job_data_processing.py >> "$MAIN_LOG_FILE" 2>&1; then
+  log_message "Preprocessing failed"
+  exit 1
+fi
+log_message "Preprocessing completed"
+
+# Change directory to the bot folder and run generate_figures.py
+BOT_DIR="bot"
+if [ -d "$BOT_DIR" ]; then
+  if ! cd "$BOT_DIR"; then
+    log_message "Failed to change directory to $BOT_DIR"
+    exit 1
+  fi
+  
+  log_message "Running generate_figures.py"
+  if ! python3 generate_figures.py >> "$MAIN_LOG_FILE" 2>&1; then
+    log_message "Failed to run generate_figures.py"
+    exit 1
+  fi
+  log_message "generate_figures.py completed"
+else
+  log_message "Directory $BOT_DIR not found"
+  exit 1
+fi
+
+# Navigate back to the project root directory
+if ! cd "$PROJECT_DIR"; then
+  log_message "Failed to change directory back to $PROJECT_DIR"
+  exit 1
+fi
 
 # Send email with logs
-echo "Sending email with logs at $(date)" | tee -a "$MAIN_LOG_FILE"
-python3 email_sender.py --subject "Bot Launch - Daily Logs and Status - $TODAYS_DATE" \
-                     --body "Program logs attached." \
-                     --to "$EMAIL" \
-                     --attachment "$MAIN_LOG_FILE"
-
-# Start bot
-echo "Starting bot at $(date)" | tee -a "$MAIN_LOG_FILE"
-"$PROJECT_DIR/control_bot.sh" >> "$BOT_LOG_FILE" 2>&1
+log_message "Sending email with logs"
+if ! python3 email_sender.py --subject "Bot Launch - Daily Logs and Status - $TODAYS_DATE" \
+                             --body "Program logs attached." \
+                             --to "$EMAIL" \
+                             --attachment "$MAIN_LOG_FILE"; then
+  log_message "Failed to send email"
+  exit 1
+fi
 
 # Log completion
-echo "Script completed at $(date)" | tee -a "$MAIN_LOG_FILE"
+log_message "Script completed successfully"
