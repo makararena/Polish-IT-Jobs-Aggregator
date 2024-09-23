@@ -92,13 +92,14 @@ user_states = {}
 user_filters = {}
 user_subscriptions = {}
 
-def save_user_data_before_exit(chat_id, state, filters):
+def save_user_data(chat_id, user_states, user_filters):
     """Save user data before exit."""
-    state_json = state
-
-    filters_copy = deepcopy(filters)
+    state_json = json.dumps(user_states.get(chat_id))
+    
+    filters_copy = deepcopy(user_filters.get(chat_id, {}))
+    
     filters_for_notification = filters_copy.pop('filters_for_notification', {})
-
+    
     filters_json = json.dumps(filters_copy)
     filters_for_notification_json = json.dumps(filters_for_notification)
 
@@ -113,9 +114,10 @@ def save_user_data_before_exit(chat_id, state, filters):
                     'filters_for_notification': filters_for_notification_json
                 }
             )
-        print("Data inserted/updated successfully.")
+        print(f"Data {user_filters} inserted/updated successfully.")
     except Exception as e:
         print(f"Error saving user data: {e}")
+
 
         
 async def load_all_user_data():
@@ -132,7 +134,6 @@ async def load_all_user_data():
                     filters_for_notification = row['filters_for_notification']
                     if filters_for_notification:
                         filters['filters_for_notification'] = filters_for_notification
-                    
                     user_states[chat_id] = state
                     user_filters[chat_id] = filters
 
@@ -147,12 +148,10 @@ async def check_and_post_files(chat_id, date_str):
     async with async_engine.connect() as conn:
         async with conn.begin(): 
             try:
-                # Fetch data for the given date
                 result = await conn.execute(LOAD_ALL_PLOTS_QUERY, {'date_str': date_str})
                 result_row = result.mappings().fetchone()
                 
                 if result_row:
-                    # Extract images and summary text
                     images = {
                         'benefits_pie_chart': result_row.get('benefits_pie_chart'),
                         'city_bubbles_chart': result_row.get('city_bubbles_chart'),
@@ -171,7 +170,6 @@ async def check_and_post_files(chat_id, date_str):
                         'benefits_wordcloud': result_row.get('benefits_wordcloud')
                     }
                     
-                    # Define image groups with custom messages
                     image_groups = {
                         'Location': {
                             'images': ['city_bubbles_chart', 'city_pie_chart', 'poland_map'],
@@ -316,6 +314,7 @@ async def check_column_and_suggest(message: types.Message, column_name: str, nam
             user_filters[chat_id][column_name] = f"{current_value};{input_value}"
         else:
             user_filters[chat_id][column_name] = input_value
+        save_user_data(chat_id, user_states, user_filters)
         await bot.send_message(chat_id, f"Added filter for {column_name.replace('_', ' ').capitalize()}: {input_value.capitalize()}")
         await post_filter_action_options(chat_id)
     else:
@@ -388,7 +387,7 @@ async def handle_rating_submission(message: types.Message):
                 del user_filters[chat_id]['username']
                 del user_filters[chat_id]['user_name']
                 del user_filters[chat_id]['chat_type']     
-                
+            
             user_states[chat_id] = None
             await start_command(message)
         except Exception as e:
@@ -546,6 +545,7 @@ async def handle_company_selection(message: types.Message):
 async def handle_clear_filters(chat_id):
     """Clear the current filters for the user."""
     user_filters[chat_id] = {}  
+    save_user_data(chat_id, user_states, user_filters)
     await bot.send_message(chat_id, "All your filters have been cleared.")
     await post_filter_action_options(chat_id) 
     
@@ -816,6 +816,7 @@ async def handle_reset_daily_update_confirmation(message: types.Message):
         filters.pop("filters_for_notification",None)
         
         user_filters[chat_id] = filters  
+        save_user_data(chat_id, user_states, user_filters)
         await bot.send_message(chat_id, "🔄 The daily update has been reset successfully! All filters have been cleared.")
         await send_start_message(chat_id, to_send_message=False)
         user_states[chat_id] = None
@@ -858,6 +859,7 @@ async def change_graph_theme(chat_id, new_theme, filters):
         await bot.send_message(chat_id, "Theme changed to Light 🌞.")
         
     filters['graph_theme'] = new_theme
+    save_user_data(chat_id, user_states, user_filters)
     await send_start_message(chat_id, to_send_message=False)
     user_states[chat_id] = None
 
@@ -913,13 +915,12 @@ async def handle_message(message: types.Message):
         filters = user_filters.get(chat_id, {})
         if filters:
             unique_filters = []
-            # Loop through the filters dictionary and exclude unwanted keys
             for key, value in filters.items():
                 if key not in ["graph_theme", "notification_time", "email", "filters_for_notification"]:
                     if isinstance(value, str):
                         values = value.split(';')
-                        unique_values = set(values)  # Ensure values are unique
-                        formatted_values = ' ;'.join(unique_values)  # Format as a semicolon-separated string
+                        unique_values = set(values) 
+                        formatted_values = ' ;'.join(unique_values)
                         unique_filters.append(f"{key.replace('_', ' ').capitalize()}: {formatted_values}")
 
             filters_msg = "\n".join(unique_filters)
@@ -1026,7 +1027,7 @@ async def handle_message(message: types.Message):
             'email': email,
             'filters_for_notification':filters_for_notification
         }
-
+        save_user_data(chat_id, user_states, user_filters)
         if user_states.get(chat_id) == WAITING_FOR_FILTERS:
             await bot.send_message(chat_id, "All filters have been cleared.")
             await handle_filters(message)
@@ -1073,11 +1074,13 @@ async def handle_message(message: types.Message):
             if chat_id not in user_filters:
                 user_filters[chat_id] = {}
             user_filters[chat_id]['expiration_date'] = 'current'
+            save_user_data(chat_id, user_states, user_filters)
             await bot.send_message(chat_id, "✅ You have selected to view only current job postings 📅. Expired listings will be excluded from your results 🗂️.")
             await post_filter_action_options(chat_id)
         elif message.text == "Use All Data 🔄":
             if chat_id in user_filters and 'expiration_date' in user_filters[chat_id]:
                 del user_filters[chat_id]['expiration_date']
+                save_user_data(chat_id, user_states, user_filters)
             await bot.send_message(chat_id, "✅ You have selected to view all data, including expired job postings 🔄.")
             await handle_filters(message)
 
@@ -1090,6 +1093,7 @@ async def handle_message(message: types.Message):
                 user_filters[chat_id]['experience_level'] = f"{current_value};{experience_level}"
             else:
                 user_filters[chat_id]['experience_level'] = experience_level
+            save_user_data(chat_id, user_states, user_filters)
             await bot.send_message(chat_id, f"Added filter for experience level: {experience_level}")
             await post_filter_action_options(chat_id)
         else:
@@ -1110,6 +1114,7 @@ async def handle_message(message: types.Message):
                     user_filters[chat_id]['core_role'] = f"{current_value};{core_role}"
                 else:
                     user_filters[chat_id]['core_role'] = core_role
+                save_user_data(chat_id, user_states, user_filters)
                 await bot.send_message(chat_id, f"Added filter for core role: {core_role}")
                 await post_filter_action_options(chat_id)
             else:
@@ -1129,6 +1134,7 @@ async def handle_message(message: types.Message):
                 user_filters[chat_id]['core_role'] = f"{current_value};{core_role}"
             else:
                 user_filters[chat_id]['core_role'] = core_role
+            save_user_data(chat_id, user_states, user_filters)
             await bot.send_message(chat_id, f"Added filter for core role: {core_role}")
             await post_filter_action_options(chat_id)
         else:
@@ -1142,6 +1148,7 @@ async def handle_message(message: types.Message):
                 user_filters[chat_id]['work_type'] = f"{current_value};{work_type}"
             else:
                 user_filters[chat_id]['work_type'] = work_type
+            save_user_data(chat_id, user_states, user_filters)
             await bot.send_message(chat_id, f"Added filter for work type: {work_type}")
             await post_filter_action_options(chat_id)
         else:
@@ -1159,6 +1166,7 @@ async def handle_message(message: types.Message):
                     user_filters[chat_id]['company'] = f"{current_value};{company}"
                 else:
                     user_filters[chat_id]['company'] = company
+                save_user_data(chat_id, user_states, user_filters)
                 await bot.send_message(chat_id, f"Added filter for company: {company}")
                 await post_filter_action_options(chat_id)
             else:
@@ -1177,6 +1185,7 @@ async def handle_message(message: types.Message):
                 user_filters[chat_id]['company'] = f"{current_value};{company}"
             else:
                 user_filters[chat_id]['company'] = company
+            save_user_data(chat_id, user_states, user_filters)
             await bot.send_message(chat_id, f"Added filter for company: {company}")
             await post_filter_action_options(chat_id)
         else:
@@ -1196,7 +1205,7 @@ async def handle_message(message: types.Message):
                     user_filters[chat_id]['city'] = f"{current_value};{city.capitalize()}"
                 else:
                     user_filters[chat_id]['city'] = city.capitalize()
-                
+                save_user_data(chat_id, user_states, user_filters)
                 await bot.send_message(chat_id, f"Added filter for city: {city.capitalize()}")
                 await post_filter_action_options(chat_id)
             else:
@@ -1217,6 +1226,7 @@ async def handle_message(message: types.Message):
                 user_filters[chat_id]['city'] = f"{current_value};{custom_city}"
             else:
                 user_filters[chat_id]['city'] = custom_city
+            save_user_data(chat_id, user_states, user_filters)
             await bot.send_message(chat_id, f"Added filter for city: {custom_city.capitalize()}")
             await post_filter_action_options(chat_id)
         else:
@@ -1237,7 +1247,7 @@ async def handle_message(message: types.Message):
                 user_filters[chat_id]['region'] = f"{current_value};{region}"
             else:
                 user_filters[chat_id]['region'] = region
-            
+            save_user_data(chat_id, user_states, user_filters)
             await bot.send_message(chat_id, f"Added filter for region: {region}")
             await post_filter_action_options(chat_id)
         else:
@@ -1253,6 +1263,7 @@ async def handle_message(message: types.Message):
                 user_filters[chat_id]['language'] = f"{current_value};{language}"
             else:
                 user_filters[chat_id]['language'] = language
+            save_user_data(chat_id, user_states, user_filters)
             await bot.send_message(chat_id, f"Added filter for language: {language.capitalize()}")
             await post_filter_action_options(chat_id)
         else:
@@ -1271,6 +1282,7 @@ async def handle_message(message: types.Message):
         if message.text == "Use Previous Time":
             filters_copy = deepcopy({key: value for key, value in filters.items() if key != "filters_for_notification"})
             filters["filters_for_notification"] = deepcopy(filters_copy)
+            save_user_data(chat_id, user_states, user_filters)
             await bot.send_message(chat_id, 
                 f"⏰ Your daily update time has been set to {previous_time}!\n"
                 "🔕 It might also be a good idea to mute this bot so you don't wake up too early! 😅"
@@ -1283,6 +1295,7 @@ async def handle_message(message: types.Message):
                 filters["notification_time"] = preferred_time.strftime("%H:%M")
                 filters_copy = deepcopy({key: value for key, value in filters.items() if key != "filters_for_notification"})
                 filters["filters_for_notification"] = deepcopy(filters_copy)
+                save_user_data(chat_id, user_states, user_filters)
                 await bot.send_message(chat_id, 
                     f"⏰ Your daily update time has been set to {preferred_time.strftime('%H:%M')}!\n"
                     "✅ Daily updates have been successfully applied!\n"
@@ -1322,6 +1335,7 @@ async def handle_message(message: types.Message):
             user_states[chat_id] = None
             if previous_email:
                 filters["email"] = None
+            save_user_data(chat_id, user_states, user_filters)
             await bot.send_message(chat_id, "⚠️ You haven't chosen to receive updates via email, but keep in mind that you can turn this option on anytime you want! 💡✉️")
             await send_start_message(chat_id, to_send_message=False)
             
@@ -1329,6 +1343,7 @@ async def handle_message(message: types.Message):
             filters["email"] = previous_email
             filters_copy = deepcopy({key: value for key, value in filters.items() if key != "filters_for_notification"})
             filters["filters_for_notification"] = deepcopy(filters_copy)
+            save_user_data(chat_id, user_states, user_filters)
             await bot.send_message(chat_id, 
                 f"📧 Your email has been set to {previous_email}!\n"
                 "✅ You'll also receive your daily updates by email!"
@@ -1346,6 +1361,7 @@ async def handle_message(message: types.Message):
             filters["email"] = user_email
             filters_copy = deepcopy({key: value for key, value in filters.items() if key != "filters_for_notification"})
             filters["filters_for_notification"] = deepcopy(filters_copy)
+            save_user_data(chat_id, user_states, user_filters)
             await bot.send_message(chat_id, "Great! You'll receive your updates by email as well.")
             user_states[chat_id] = None 
             await send_start_message(message.chat.id, to_send_message=False)
@@ -1357,12 +1373,14 @@ async def handle_message(message: types.Message):
         chat_id = message.chat.id
         filters = user_filters.get(chat_id, {})
         filters['graph_theme'] = 'light'
+        save_user_data(chat_id, user_states, user_filters)
         await change_graph_theme(chat_id, 'light', filters)
 
     elif message.text == "Dark Theme 🌙":
         chat_id = message.chat.id
         filters = user_filters.get(chat_id, {})
         user_filters[chat_id] = filters
+        save_user_data(chat_id, user_states, user_filters)
         await change_graph_theme(chat_id, 'dark', filters)
         
 
@@ -1481,25 +1499,15 @@ async def reset_command(message: types.Message):
     chat_id = message.chat.id
     user_states[chat_id] = {}
     user_filters[chat_id] = {}
+    save_user_data(chat_id, user_states, user_filters)
     await message.answer("All the settings have been reset")
     await send_start_message(chat_id, to_send_message=False)
 
 @dp.message_handler()
 async def handle_all_messages(message: types.Message):
     """Handle all other messages."""
-    await handle_message(message)
-    
-def signal_handler(sig, frame):
-    """Handle termination signals to save user data."""
-    print("Signal received, saving user data and esxiting...")
-    for chat_id in user_states.keys():
-        save_user_data_before_exit(chat_id, user_states[chat_id], user_filters.get(chat_id, {}))
-    print("Exiting...")
-    sys.exit(0)
-    
+    await handle_message(message)    
 
 if __name__ == '__main__':
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
     print("--------------------------------------\n Bot has started")
     executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
