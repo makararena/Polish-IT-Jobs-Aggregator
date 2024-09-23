@@ -33,7 +33,8 @@ The project offers two web services:
    - Change graphs to light or dark theme
    - Set daily alarms to receive information about new job postings matching your filters
 
-3. **Automated Email Updates** : The program includes automatic email sending capabilities::
+## Automated Email Updates
+The program includes automatic email sending capabilities:
    - Email notifications about program execution and all preprocessing statuses are sent automatically to the host email.
    - Daily Update emails are sent to users, providing them with the latest job postings and relevant information.
 
