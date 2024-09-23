@@ -8,7 +8,6 @@ from datetime import date, datetime, timedelta
 import plotly.express as px
 import plotly.graph_objects as go
 from matplotlib import colors as mcolors
-from sqlalchemy import create_engine, text
 import warnings
 import nltk
 
@@ -637,7 +636,8 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
                                     y='Count',
                                     title='Top 30 Roles by Number of Listings',
                                     labels={'Role': 'Role', 'Count': 'Count'},
-                                    template=template)
+                                    template=template
+                                    )
             
             figure_roles_bar.update_layout(
                 title=dict(
@@ -659,7 +659,11 @@ def generate_figures(df,chat_id, histogram_day_month_chart=True, map_chart=True,
                     tickfont=dict(size=22) 
                 )
             )
-            figure_roles_bar.write_image(f'{folder_path}/positions_bar_chart.png', width=1920, height=1080)
+            try:
+                figure_roles_bar.write_image(f'{folder_path}/positions_bar_chart.jpg', width=1920, height=1080)
+                print("Image written successfully.")
+            except Exception as e:
+                print(f"Error writing image: {e}")
             
     if wordcloud:
         df_wordcloud = df_plot.copy()

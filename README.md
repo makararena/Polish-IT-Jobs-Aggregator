@@ -46,14 +46,18 @@ While the program may not be perfect and the code could be improved, the idea ha
 The current version of the program has room for improvement. Some algorithms could be optimized, and the bot has some bugs that need to be addressed. Due to time constraints (job searching and CS studies), major updates are not expected until next summer. However, this project has provided valuable experience in database handling, SQL, web scraping, and analytical Python tools like pandas, numpy, and dash.
 
 ## Things to Add
+* Transition from Dash app to Metabase BI platform
+* Shift from monolithic architecture to microservice-like architecture
+* Create Dockerfile with separate services for the bot, BI, ETL tool and database
+* Migrate from crontab to Airflow
+* Change current SQLAlchemy + PostgreSQL infrastructure to PostgreSQL-only due to Airflow dependency issues
 * Windows instructions and scripts
 * Polish and Russian languages
 * An additional table and analysis on companies
 * Improved bot keyboard layout
 * Proper naming conventions in all files, and optimization of the code
 * Add justjoin.it scraper
-* Increase refresh rate from daily to hourly
-
+* Increase refresh rate from daily to hourly -> Move from using yesterday's jobs information to current jobs information
 
 ## Project Schema
 
