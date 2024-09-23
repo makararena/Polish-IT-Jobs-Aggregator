@@ -341,6 +341,9 @@ The current version of the program has room for improvement. Some algorithms cou
     # Telegram bot token provided by BotFather
     TELEGRAM_TOKEN='your_telegram_bot_token'
 
+    # Email which will send automatic emails
+    EMAIL_SENDER="youremail@gmail.com"
+
     # Your email password (used for notifications)
     EMAIL_PASSWORD='your_email_password'
 
@@ -366,6 +369,7 @@ The current version of the program has room for improvement. Some algorithms cou
     
 9. **Run the Script or Set Up Automated Execution**
    - **Run the Script Manually:**
+     !!! Please also note that you need to change the email address in `main.sh`.
      Execute the script by running:
      ```bash
      ~/pathto/Polish-IT-Jobs-Aggregator/main.sh ~/pathto/Polish-IT-Jobs-Aggregator

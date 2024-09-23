@@ -14,7 +14,7 @@ def send_mail(subject, body, to_email, attachment_path=None):
     print(f"Sending email to {to_email}")
     print(f"\n{'-' * 40}")
     
-    from_email = 'makararena.pl@gmail.com'
+    from_email = os.getenv("EMAIL_SENDER")
     password = os.getenv("EMAIL_PASSWORD")
 
     if password is None:
