@@ -333,7 +333,6 @@ The current version of the program has room for improvement. Some algorithms cou
   - For macOS and Linux:
     ```bash
     chmod +x main.sh
-    chmod +x control_bot.sh
     ```
 
 6. **Create .env file**
@@ -355,17 +354,31 @@ The current version of the program has room for improvement. Some algorithms cou
     }
     ```
 
-7. **Run the script**
+7. **Run the bot**
     ```bash
-    ~/pathto/Polish-IT-Jobs-Aggregator/main.sh ~/pathto/Polish-IT-Jobs-Aggregator
+    cd bot
+    python bot.py  # Starting the bot
     ```
+8. **Run the Dash app**
+    ```bash
+    python app.py  # If you want to see the Dash app
+    ```
+    
+9. **Run the Script or Set Up Automated Execution**
+   - **Run the Script Manually:**
+     Execute the script by running:
+     ```bash
+     ~/pathto/Polish-IT-Jobs-Aggregator/main.sh ~/pathto/Polish-IT-Jobs-Aggregator
+     ```
 
-8. **Set up automated script execution**
-  - For macOS and Linux:
-    Run `crontab -e` and add the following line:
-    ```
-    00 2 * * * ~/pathto/Polish-IT-Jobs-Aggregator/main.sh ~/pathto/Polish-IT-Jobs-Aggregator 
-    ```
-
+   - **Set Up Automated Execution with Crontab:**
+     To run the script automatically, open your crontab configuration:
+     ```bash
+     crontab -e
+     ```
+     Then, add the following line to schedule the script to run daily at 2 AM:
+     ```
+     00 2 * * * ~/pathto/Polish-IT-Jobs-Aggregator/main.sh ~/pathto/Polish-IT-Jobs-Aggregator
+     ```
 
 This setup will allow you to run the Work-Analysis project on macOS, and Linux systems, with automated daily execution.
